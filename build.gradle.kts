@@ -1,3 +1,14 @@
+buildscript {
+    repositories {
+        google()
+        jcenter()
+        mavenCentral()
+    }
+    dependencies {
+        classpath("com.codingfeline.buildkonfig:buildkonfig-gradle-plugin:0.7.0")
+    }
+}
+
 plugins {
     // this is necessary to avoid the plugins to be loaded multiple times
     // in each subproject's classloader

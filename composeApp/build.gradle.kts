@@ -1,10 +1,13 @@
+import com.android.build.gradle.internal.cxx.configure.gradleLocalProperties
 import org.jetbrains.compose.ExperimentalComposeLibrary
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
+import com.codingfeline.buildkonfig.compiler.FieldSpec.Type
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsCompose)
+    id("com.codingfeline.buildkonfig")
 }
 
 kotlin {
@@ -33,14 +36,71 @@ kotlin {
             implementation(libs.compose.ui.tooling.preview)
             implementation(libs.androidx.activity.compose)
         }
-        commonMain.dependencies {
-            implementation(compose.runtime)
-            implementation(compose.foundation)
-            implementation(compose.material)
-            implementation(compose.ui)
-            @OptIn(ExperimentalComposeLibrary::class)
-            implementation(compose.components.resources)
+        val commonMain by getting {
+            dependencies {
+                implementation(compose.runtime)
+                implementation(compose.foundation)
+                implementation(compose.material)
+                implementation(compose.ui)
+                @OptIn(ExperimentalComposeLibrary::class)
+                implementation(compose.components.resources)
+
+                // MQTT
+                implementation("io.github.davidepianca98:kmqtt-common:0.4.5")
+                implementation("io.github.davidepianca98:kmqtt-client:0.4.5")
+            }
         }
+
+        val iosX64Main by getting
+        val iosArm64Main by getting {
+            dependencies {
+                api(files("src/nativeInterop/openssl-ios-arm64.klib"))
+            }
+        }
+        val iosMain by creating {
+            dependsOn(commonMain)
+            iosX64Main.dependsOn(this)
+            iosArm64Main.dependsOn(this)
+        }
+        val iosSimulatorArm64Main by getting {
+            dependsOn(iosMain)
+            dependencies {
+                api(files("src/nativeInterop/openssl-ios-simulator-arm64.klib"))
+            }
+        }
+    }
+}
+
+buildkonfig {
+    packageName = "com.ndipatri.robogaggia"
+    defaultConfigs {
+
+        // after adding a new config field, run
+        // 'generateBuildKong' task under 'Tasks->buildkonfig'
+
+        buildConfigField(
+            Type.STRING,
+            "AIO_USERNAME",
+            gradleLocalProperties(rootDir).getProperty("aio.username")
+        )
+
+        buildConfigField(
+            Type.STRING,
+            "AIO_PASSWORD",
+            gradleLocalProperties(rootDir).getProperty("aio.password")
+        )
+
+        buildConfigField(
+            Type.STRING,
+            "USE_GAGGIA_SIMULATOR",
+            gradleLocalProperties(rootDir).getProperty("use.gaggia.simulator")
+        )
+
+        buildConfigField(
+            Type.STRING,
+            "MQTT_SERVER_ADDRESS",
+            gradleLocalProperties(rootDir).getProperty("mqtt.server.address")
+        )
     }
 }
 
