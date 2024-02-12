@@ -1,10 +1,12 @@
 package screens
 
 import androidx.compose.runtime.Composable
-import com.myapplication.common.MR
 import content.ScreenContent
+import org.jetbrains.compose.resources.ExperimentalResourceApi
+import robogaggiamultiplatform.composeapp.generated.resources.Res
 import vms.UIState
 
+@OptIn(ExperimentalResourceApi::class)
 @Composable
 fun TareCupAfterMeasureScreen(
     uiState: UIState,
@@ -12,16 +14,16 @@ fun TareCupAfterMeasureScreen(
     onSecondButtonClick: () -> Unit
 ) {
     ScreenContent(
-        body1Resource = MR.strings.tare_cup_after_measure_primary,
+        body1Resource = Res.string.tare_cup_after_measure_primary,
         body2Resource = when {
             !uiState.isCupOnlyOnScale!! ->
-                MR.strings.tare_cup_after_measure_subtitle_one
+                Res.string.tare_cup_after_measure_subtitle_one
             uiState.isCupOnlyOnScale ->
-                MR.strings.tare_cup_after_measure_subtitle_two
+                Res.string.tare_cup_after_measure_subtitle_two
             else -> null
         },
-        button1Resource = if (uiState.isCupOnlyOnScale) MR.strings.done else null,
-        button2Resource = MR.strings.exit,
+        button1Resource = if (uiState.isCupOnlyOnScale) Res.string.done else null,
+        button2Resource = Res.string.exit,
         onFirstButtonClick = onFirstButtonClick,
         onSecondButtonClick = onSecondButtonClick
     )

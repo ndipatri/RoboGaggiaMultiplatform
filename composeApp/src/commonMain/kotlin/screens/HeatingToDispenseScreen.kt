@@ -2,18 +2,20 @@ package screens
 
 import SingleFloatContent
 import androidx.compose.runtime.Composable
-import com.myapplication.common.MR
 import content.ScreenContent
+import org.jetbrains.compose.resources.ExperimentalResourceApi
+import robogaggiamultiplatform.composeapp.generated.resources.Res
 import vms.UIState
 
+@OptIn(ExperimentalResourceApi::class)
 @Composable
 fun HeatingToDispenseScreen(uiState: UIState,
                             onExitClick: () -> Unit) {
     ScreenContent(
-        body1Resource = MR.strings.heating_to_dispense_primary,
-        body2Resource = MR.strings.please_wait,
-        button2Resource = MR.strings.exit,
+        body1Resource = Res.string.heating_to_dispense_primary,
+        body2Resource = Res.string.please_wait,
+        button2Resource = Res.string.exit,
         onSecondButtonClick = onExitClick,
     ) {
-        SingleFloatContent(MR.strings.heating_to_dispense_content, uiState.currentTemperature ?: 0F)
+        SingleFloatContent(Res.string.heating_to_dispense_content, uiState.currentTemperature ?: 0F)
     }}

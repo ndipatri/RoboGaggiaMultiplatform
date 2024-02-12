@@ -6,17 +6,18 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.Button
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.myapplication.common.MR
-import dev.icerock.moko.resources.compose.painterResource
-import dev.icerock.moko.resources.compose.stringResource
+import org.jetbrains.compose.resources.ExperimentalResourceApi
+import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
+import robogaggiamultiplatform.composeapp.generated.resources.Res
 
+@OptIn(ExperimentalResourceApi::class)
 @Composable
 fun WelcomeScreen() {
     Column(
@@ -28,10 +29,10 @@ fun WelcomeScreen() {
         Row {
             Image(
                 modifier = Modifier.weight(.2f),
-                painter = painterResource(MR.images.coffee_face),
+                painter = painterResource(Res.drawable.coffee_face),
                 contentDescription = null
             )
-            Text(text = stringResource(MR.strings.welcome_primary))
+            Text(text = stringResource(Res.string.welcome_primary))
         }
     }
 }

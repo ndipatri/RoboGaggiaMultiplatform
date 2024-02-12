@@ -1,15 +1,17 @@
 package screens
 
 import androidx.compose.runtime.Composable
-import com.myapplication.common.MR
 import content.ScreenContent
+import org.jetbrains.compose.resources.ExperimentalResourceApi
+import robogaggiamultiplatform.composeapp.generated.resources.Res
 
+@OptIn(ExperimentalResourceApi::class)
 @Composable
 fun BackflushDoneScreen(onDoneClick: () -> Unit) {
     ScreenContent(
-        body1Resource = MR.strings.backflush_done_primary,
-        body2Resource = MR.strings.backflush_done_subtitle,
-        button1Resource = MR.strings.done,
+        body1Resource = Res.string.backflush_done_primary,
+        body2Resource = Res.string.backflush_done_subtitle,
+        button1Resource = Res.string.done,
         onFirstButtonClick = onDoneClick,
     )
 }

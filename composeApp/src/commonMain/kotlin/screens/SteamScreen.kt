@@ -2,18 +2,20 @@ package screens
 
 import SingleFloatContent
 import androidx.compose.runtime.Composable
-import com.myapplication.common.MR
 import content.ScreenContent
+import org.jetbrains.compose.resources.ExperimentalResourceApi
+import robogaggiamultiplatform.composeapp.generated.resources.Res
 import vms.UIState
 
+@OptIn(ExperimentalResourceApi::class)
 @Composable
 fun SteamingScreen(uiState: UIState,
                    onDoneSteamingClick: () -> Unit) {
     ScreenContent(
-        body1Resource = MR.strings.steaming_primary,
-        button1Resource = MR.strings.done,
+        body1Resource = Res.string.steaming_primary,
+        button1Resource = Res.string.done,
         onFirstButtonClick = onDoneSteamingClick
     ) {
-        SingleFloatContent(MR.strings.heating_to_steam_content, uiState.currentTemperature ?: 0F)
+        SingleFloatContent(Res.string.heating_to_steam_content, uiState.currentTemperature ?: 0F)
     }
 }

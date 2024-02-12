@@ -11,12 +11,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.myapplication.common.MR
-import dev.icerock.moko.resources.compose.stringResource
+import org.jetbrains.compose.resources.ExperimentalResourceApi
+import org.jetbrains.compose.resources.stringResource
+import robogaggiamultiplatform.composeapp.generated.resources.Res
 
 //import androidx.compose.desktop.ui.tooling.preview.Preview
 
 
+@OptIn(ExperimentalResourceApi::class)
 @Composable
 fun WaitingForStateChangeScreen() {
     Column(
@@ -31,7 +33,7 @@ fun WaitingForStateChangeScreen() {
 //                painter = painterResource(MR.images.coffee_face),
 //                contentDescription = null
 //            )
-            Text(text = stringResource(MR.strings.please_wait))
+            Text(text = stringResource(Res.string.please_wait))
         }
     }
 }

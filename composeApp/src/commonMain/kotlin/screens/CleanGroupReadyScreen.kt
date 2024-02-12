@@ -1,15 +1,17 @@
 package screens
 
 import androidx.compose.runtime.Composable
-import com.myapplication.common.MR
 import content.ScreenContent
+import org.jetbrains.compose.resources.ExperimentalResourceApi
+import robogaggiamultiplatform.composeapp.generated.resources.Res
 
+@OptIn(ExperimentalResourceApi::class)
 @Composable
 fun CleanGroupReadyScreen(onFirstButtonClick: () -> Unit) {
     ScreenContent(
-        body1Resource = MR.strings.clean_group_ready_primary,
-        body2Resource = MR.strings.clean_group_ready_secondary,
-        button1Resource = MR.strings.ready,
+        body1Resource = Res.string.clean_group_ready_primary,
+        body2Resource = Res.string.clean_group_ready_secondary,
+        button1Resource = Res.string.ready,
         onFirstButtonClick = onFirstButtonClick,
     )
 }
