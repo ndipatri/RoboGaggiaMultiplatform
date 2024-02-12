@@ -45,7 +45,7 @@ import vms.UIState
 @Composable
 fun App() {
 
-    val viewModel = rememberSaveable { TelemetryViewModel() }
+    val viewModel = remember { TelemetryViewModel() }
 
     val uiState by viewModel.uiStateFlow.collectAsState()
     val onFirstButtonClick = { viewModel.firstButtonClick() }
