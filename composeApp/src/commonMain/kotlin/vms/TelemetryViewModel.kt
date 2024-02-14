@@ -22,7 +22,7 @@ import kotlin.math.abs
 class TelemetryViewModel() {
 
     @OptIn(DelicateCoroutinesApi::class)
-    val coroutineScope = CoroutineScope(Dispatchers.Main + SupervisorJob())
+    val coroutineScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
     lateinit var client: MQTTClient
 
