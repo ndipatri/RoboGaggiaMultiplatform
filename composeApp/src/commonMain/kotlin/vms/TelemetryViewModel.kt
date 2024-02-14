@@ -3,7 +3,12 @@ package vms
 import MQTTClient
 import com.ndipatri.robogaggia.BuildKonfig
 import currentTimeMillis
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.IO
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
@@ -14,7 +19,10 @@ import mqtt.packets.mqttv5.SubscriptionOptions
 import kotlin.math.abs
 
 
-class TelemetryViewModel: CoroutineViewModel() {
+class TelemetryViewModel() {
+
+    @OptIn(DelicateCoroutinesApi::class)
+    val coroutineScope = CoroutineScope(Dispatchers.Main + SupervisorJob())
 
     lateinit var client: MQTTClient
 
@@ -29,9 +37,7 @@ class TelemetryViewModel: CoroutineViewModel() {
     val uiStateFlow: MutableStateFlow<UIState> = MutableStateFlow(UIState())
 
     init {
-        // NJD TODO
-        //startClientAndSubscribeToTelemetryTopic(500)
-        startClientAndSubscribeToTelemetryTopic(3000)
+        startClientAndSubscribeToTelemetryTopic(500)
 
         if (BuildKonfig.USE_GAGGIA_SIMULATOR.toBooleanStrict()) {
             GaggiaSimulator(coroutineScope)
@@ -39,27 +45,17 @@ class TelemetryViewModel: CoroutineViewModel() {
     }
 
     fun firstButtonClick() {
-        coroutineScope.launch(Dispatchers.Default) {
-            sendCommand(CommandType.FIRST_BUTTON_CLICK)
-        }
+        sendCommand(CommandType.FIRST_BUTTON_CLICK)
     }
 
     fun secondButtonClick() {
-        coroutineScope.launch(Dispatchers.Default) {
-            sendCommand(CommandType.SECOND_BUTTON_CLICK)
-        }
-    }
-
-    override fun onCleared() {
-        super.onCleared()
-
-        println("view model $this cleared!")
+        sendCommand(CommandType.SECOND_BUTTON_CLICK)
     }
 
     @OptIn(ExperimentalUnsignedTypes::class)
     fun startClientAndSubscribeToTelemetryTopic(startDelayMillis: Long) {
 
-        coroutineScope.launch(Dispatchers.Default) {
+        coroutineScope.launch(Dispatchers.IO) {
             while (true) {
 
                 delay(startDelayMillis)
@@ -100,7 +96,7 @@ class TelemetryViewModel: CoroutineViewModel() {
             }
         }
 
-        coroutineScope.launch(Dispatchers.Default) {
+        coroutineScope.launch {
             while (true) {
 
                 delay(5000)
@@ -110,7 +106,7 @@ class TelemetryViewModel: CoroutineViewModel() {
 
                     // and not in sleep state (obviously in sleep state we aren't getting updates)
                     if (uiStateFlow.value.currentTelemetryMessage?.state != GaggiaState.SLEEP) {
-                        println("UIStateFlow is too old.. reverting to unknown state.")
+                        println("*** VM: UIStateFlow is too old.. using unknown state as heartbeat.")
                         uiStateFlow.emit(UIState())
                     }
                 }
@@ -119,7 +115,7 @@ class TelemetryViewModel: CoroutineViewModel() {
     }
 
     private fun handleMessage(message: String) {
-        println("Incoming message: ${message}")
+        println("*** VM: Incoming message: ${message}")
 
         lateinit var state: GaggiaState
         lateinit var measuredWeightGrams: String
@@ -151,7 +147,7 @@ class TelemetryViewModel: CoroutineViewModel() {
         // If we're within brew cycle (Preinfusion or Brewing), we accumulate only those values,
         // otherwise we just accumulate last TELEMETRY_WINDOW_SIZE values...
 
-        coroutineScope.launch {
+        coroutineScope.launch(Dispatchers.Main) {
             val newAccumulatedTelemetry = mutableListOf<TelemetryMessage>()
 
             val existingValues = uiStateFlow.value.telemetry
@@ -174,11 +170,11 @@ class TelemetryViewModel: CoroutineViewModel() {
                     telemetry = newAccumulatedTelemetry,
                     previousIsScaleWeighted = uiStateFlow.value.isScaleWeighted ?: false,
                 ).also {
-                    println("currentTelemetryMessage: ${it.currentTelemetryMessage}")
-                    println("previousTelemetryMessage: ${it.previousTelemetryMessage}")
-                    println("isScaleSettled: ${it.isScaleSettled}")
-                    println("isScaleWeighted: ${it.isScaleWeighted}")
-                    println("isCupOnlyOnScale: ${it.isCupOnlyOnScale}")
+                    println("*** VM: currentTelemetryMessage: ${it.currentTelemetryMessage}")
+                    println("*** VM: previousTelemetryMessage: ${it.previousTelemetryMessage}")
+                    println("*** VM: isScaleSettled: ${it.isScaleSettled}")
+                    println("*** VM: isScaleWeighted: ${it.isScaleWeighted}")
+                    println("*** VM: isCupOnlyOnScale: ${it.isCupOnlyOnScale}")
                 }
             )
 
@@ -194,13 +190,14 @@ class TelemetryViewModel: CoroutineViewModel() {
 
     @OptIn(ExperimentalUnsignedTypes::class)
     private fun sendCommand(commandType: CommandType) {
-        println("Sending command: $commandType")
-        client.publish(
-            retain = false,
-            qos = Qos.AT_MOST_ONCE,
-            topic = commandTopic,
-            payload = commandType.transmitName.encodeToByteArray().toUByteArray()
-        )
+        coroutineScope.launch(Dispatchers.IO) {
+            client.publish(
+                retain = false,
+                qos = Qos.AT_MOST_ONCE,
+                topic = commandTopic,
+                payload = commandType.transmitName.encodeToByteArray().toUByteArray()
+            )
+        }
     }
 }
 

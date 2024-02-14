@@ -6,6 +6,7 @@ import currentTimeMillis
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import mqtt.MQTTVersion
@@ -41,14 +42,14 @@ class GaggiaSimulator(val coroutineScope: CoroutineScope) {
     @OptIn(ExperimentalUnsignedTypes::class)
     fun startClientAndSubscribeToCommandTopic(startDelayMillis: Long) {
 
-        coroutineScope.launch(Dispatchers.Default) {
+        coroutineScope.launch(Dispatchers.IO) {
             var connected = false
             while (true) {
 
                 delay(startDelayMillis)
 
                 client = MQTTClient(
-                    mqttVersion = MQTTVersion.MQTT5,
+                    mqttVersion = MQTTVersion.MQTT3_1_1,
                     clientId = currentTimeMillis().toString(),
                     address = BuildKonfig.MQTT_SERVER_ADDRESS,
                     port = 1883,
@@ -66,7 +67,7 @@ class GaggiaSimulator(val coroutineScope: CoroutineScope) {
                 try {
                     client.subscribe(subscriptionTopic)
 
-                    println("*** Simulator connecting to MQTT broker.")
+                    println("*** Simulator: connecting to MQTT broker.")
                     // will throw exception if not connected...
                     while (client.running) {
 
@@ -83,7 +84,7 @@ class GaggiaSimulator(val coroutineScope: CoroutineScope) {
                         checkForUserInactivityTimeout()
                     }
                 } catch (ex: Exception) {
-                    println("*** Simulator failed to connect to MQTT broker: $ex")
+                    println("*** Simulator: failed to connect to MQTT broker: $ex")
                 }
             }
         }
@@ -94,14 +95,14 @@ class GaggiaSimulator(val coroutineScope: CoroutineScope) {
 
         if (now - timeSinceLastCommandMillis > USER_INACTIVITY_TIMEOUT_MILLIS) {
             if (currentState != GaggiaState.SLEEP) {
-                println("Simulator: user inactivity. moving to sleep state.")
+                println("*** Simulator: user inactivity. moving to sleep state.")
                 moveToState(GaggiaState.SLEEP)
             }
         }
     }
 
     private fun handleIncomingCommand(command: String) {
-        println("Simulator: Incoming command: $command")
+        println("*** Simulator: Incoming command: $command")
 
         moveToState(getNextState(currentState, CommandType.byTransmitName(command)))
     }
@@ -225,7 +226,9 @@ class GaggiaSimulator(val coroutineScope: CoroutineScope) {
                         GaggiaState.PREHEAT
                     }
 
-                    else -> { currentState }
+                    else -> {
+                        currentState
+                    }
                 }
             }
 
@@ -275,17 +278,20 @@ class GaggiaSimulator(val coroutineScope: CoroutineScope) {
     private fun scheduleNextStateAutomaticallyIfNecessary(currentState: GaggiaState) {
         when (currentState) {
             GaggiaState.JOINING_NETWORK -> {
-                coroutineScope.launch(Dispatchers.Default) {
+                coroutineScope.launch(Dispatchers.IO) {
+                    println("*** Simulator: ready to send PREHEAT.")
 
                     // assume it takes 5 seconds to join the network
                     delay(5000)
 
+                    println("*** Simulator: sending PREHEAT.")
                     moveToState(GaggiaState.PREHEAT)
+                    println("*** Simulator: send PREHEAT.")
                 }
             }
 
             GaggiaState.IGNORING_NETWORK -> {
-                coroutineScope.launch(Dispatchers.Default) {
+                coroutineScope.launch(Dispatchers.IO) {
 
                     // assume gaggia has now stopped trying to join network...
                     delay(3000)
@@ -296,7 +302,7 @@ class GaggiaSimulator(val coroutineScope: CoroutineScope) {
 
             GaggiaState.PREHEAT -> {
                 if (!scaleSettled) {
-                    coroutineScope.launch(Dispatchers.Default) {
+                    coroutineScope.launch(Dispatchers.IO) {
                         scaleSettled = true
 
                         // we simulate the scale first being empty and then putting
@@ -331,7 +337,7 @@ class GaggiaSimulator(val coroutineScope: CoroutineScope) {
 
             GaggiaState.MEASURE_BEANS -> {
                 if (!scaleWeighted) {
-                    coroutineScope.launch(Dispatchers.Default) {
+                    coroutineScope.launch(Dispatchers.IO) {
                         scaleWeighted = true
 
                         // simulate somebody slowly filling the cup with beans
@@ -375,7 +381,7 @@ class GaggiaSimulator(val coroutineScope: CoroutineScope) {
 
             GaggiaState.TARE_CUP_AFTER_MEASURE -> {
                 if (!scaleWeighted) {
-                    coroutineScope.launch(Dispatchers.Default) {
+                    coroutineScope.launch(Dispatchers.IO) {
                         scaleWeighted = true
 
                         // we're simulating the user taking the cup full of beans off
@@ -389,19 +395,31 @@ class GaggiaSimulator(val coroutineScope: CoroutineScope) {
                         delay(1000)
                         // removing the cup makes the weight go negative because it's tared with
                         // the weight of hte cup...
-                        moveToState(GaggiaState.TARE_CUP_AFTER_MEASURE, measuredWeightGrams = "-1.0")
+                        moveToState(
+                            GaggiaState.TARE_CUP_AFTER_MEASURE,
+                            measuredWeightGrams = "-1.0"
+                        )
 
                         delay(1000)
-                        moveToState(GaggiaState.TARE_CUP_AFTER_MEASURE, measuredWeightGrams = "-2.0")
+                        moveToState(
+                            GaggiaState.TARE_CUP_AFTER_MEASURE,
+                            measuredWeightGrams = "-2.0"
+                        )
 
                         delay(1000)
                         // while the scale is settling, the user is emptying the cup and putting the
                         // beans in the portrafilter.. and returning the empty cup to the scale...
-                        moveToState(GaggiaState.TARE_CUP_AFTER_MEASURE, measuredWeightGrams = "-2.0")
+                        moveToState(
+                            GaggiaState.TARE_CUP_AFTER_MEASURE,
+                            measuredWeightGrams = "-2.0"
+                        )
 
                         // finally the user paces the cup ...
                         delay(1000)
-                        moveToState(GaggiaState.TARE_CUP_AFTER_MEASURE, measuredWeightGrams = "-1.0")
+                        moveToState(
+                            GaggiaState.TARE_CUP_AFTER_MEASURE,
+                            measuredWeightGrams = "-1.0"
+                        )
 
                         delay(1000)
                         // Assume the cup that has been placed on scale weighs
@@ -417,7 +435,7 @@ class GaggiaSimulator(val coroutineScope: CoroutineScope) {
             }
 
             GaggiaState.HEATING_TO_BREW -> {
-                coroutineScope.launch(Dispatchers.Default) {
+                coroutineScope.launch(Dispatchers.IO) {
 
                     // assume it takes 5 seconds to preheat
                     delay(2000)
@@ -427,7 +445,7 @@ class GaggiaSimulator(val coroutineScope: CoroutineScope) {
             }
 
             GaggiaState.PREINFUSION_AND_BREWING -> {
-                coroutineScope.launch(Dispatchers.Default) {
+                coroutineScope.launch(Dispatchers.IO) {
 
                     // it takes some time for preinfusion and brewing
                     for (telemetryMessage in renderTelemetry(typicalBrewCycleTelemetryString)) {
@@ -440,7 +458,7 @@ class GaggiaSimulator(val coroutineScope: CoroutineScope) {
             }
 
             GaggiaState.HEATING_TO_STEAM -> {
-                coroutineScope.launch(Dispatchers.Default) {
+                coroutineScope.launch(Dispatchers.IO) {
 
                     // it takes some time to brew
                     delay(4000)
@@ -450,7 +468,7 @@ class GaggiaSimulator(val coroutineScope: CoroutineScope) {
             }
 
             GaggiaState.CLEAN_GROUP_DONE -> {
-                coroutineScope.launch(Dispatchers.Default) {
+                coroutineScope.launch(Dispatchers.IO) {
 
                     // assume it takes a couple seconds to clean
                     delay(2000)
@@ -460,7 +478,7 @@ class GaggiaSimulator(val coroutineScope: CoroutineScope) {
             }
 
             GaggiaState.HEATING_TO_DISPENSE -> {
-                coroutineScope.launch(Dispatchers.Default) {
+                coroutineScope.launch(Dispatchers.IO) {
 
                     // assume it takes 5 seconds to preheat
                     delay(5000)
@@ -475,12 +493,12 @@ class GaggiaSimulator(val coroutineScope: CoroutineScope) {
 
     @OptIn(DelicateCoroutinesApi::class)
     private fun moveToState(nextState: GaggiaState, measuredWeightGrams: String = "0.058937") {
+        println("*** Simulator: movingToState : $nextState")
         timeSinceLastCommandMillis = currentTimeMillis()
         currentState = nextState
-        coroutineScope.launch(Dispatchers.Default) {
-            // Only the state matters here so far; we don't care about other values.
-            publishTelemetryMessage("${currentState.stateName}, $measuredWeightGrams, 0.000000, 0, 0.000000, 0.000000")
-        }
+
+        // Only the state matters here so far; we don't care about other values.
+        publishTelemetryMessage("${currentState.stateName}, $measuredWeightGrams, 0.000000, 0, 0.000000, 0.000000")
 
         // Sometimes moving to a state triggers internal behavior
         // which may result in a state change.... this is where we
@@ -493,13 +511,15 @@ class GaggiaSimulator(val coroutineScope: CoroutineScope) {
 
     @OptIn(ExperimentalUnsignedTypes::class)
     private fun publishTelemetryMessage(payload: String) {
-        println("*** publishing message: $payload")
-        client.publish(
-            retain = false,
-            qos = Qos.AT_MOST_ONCE,
-            topic = telemetryTopic,
-            payload = payload.encodeToByteArray().toUByteArray()
-        )
+        println("*** Simulator: publishing message: $payload")
+        coroutineScope.launch(Dispatchers.IO) {
+            client.publish(
+                retain = false,
+                qos = Qos.AT_MOST_ONCE,
+                topic = telemetryTopic,
+                payload = payload.encodeToByteArray().toUByteArray()
+            )
+        }
     }
 
     companion object {
