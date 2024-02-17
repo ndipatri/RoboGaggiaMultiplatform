@@ -4,7 +4,7 @@ import DoubleIntContent
 import androidx.compose.runtime.Composable
 import content.ScreenContent
 import org.jetbrains.compose.resources.ExperimentalResourceApi
-import robogaggiamultiplatform.composeapp.generated.resources.Res
+import robogaggiamultiplatform.composeapp.generated.resources.*
 import vms.UIState
 
 @OptIn(ExperimentalResourceApi::class)

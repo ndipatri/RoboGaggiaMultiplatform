@@ -4,7 +4,8 @@ import SingleFloatContent
 import androidx.compose.runtime.Composable
 import content.ScreenContent
 import org.jetbrains.compose.resources.ExperimentalResourceApi
-import robogaggiamultiplatform.composeapp.generated.resources.Res
+import robogaggiamultiplatform.composeapp.generated.resources.*
+import utils.toStringWithTenths
 import vms.UIState
 
 @OptIn(ExperimentalResourceApi::class)
@@ -22,6 +23,7 @@ fun PreheatScreen(
         onFirstButtonClick = onFirstButtonClick,
         onSecondButtonClick = onSecondButtonClick
     ) {
+        println("*** VM: updating content in preheat screen with temp: ${uiState.currentTemperature?.toStringWithTenths()}")
         SingleFloatContent(Res.string.preheat_content, uiState.currentTemperature ?: 0F)
     }
 }
