@@ -19,10 +19,7 @@ import mqtt.packets.mqttv5.SubscriptionOptions
 import kotlin.math.abs
 
 
-class TelemetryViewModel() {
-
-    @OptIn(DelicateCoroutinesApi::class)
-    val coroutineScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
+class TelemetryViewModel: CoroutineViewModel() {
 
     lateinit var client: MQTTClient
 
@@ -55,7 +52,7 @@ class TelemetryViewModel() {
     @OptIn(ExperimentalUnsignedTypes::class)
     fun startClientAndSubscribeToTelemetryTopic(startDelayMillis: Long) {
 
-        coroutineScope.launch(Dispatchers.IO) {
+        coroutineScope.launch(Dispatchers.Default) {
             while (true) {
 
                 delay(startDelayMillis)
@@ -96,7 +93,7 @@ class TelemetryViewModel() {
             }
         }
 
-        coroutineScope.launch {
+        coroutineScope.launch(Dispatchers.Default) {
             while (true) {
 
                 delay(5000)
@@ -147,7 +144,7 @@ class TelemetryViewModel() {
         // If we're within brew cycle (Preinfusion or Brewing), we accumulate only those values,
         // otherwise we just accumulate last TELEMETRY_WINDOW_SIZE values...
 
-        coroutineScope.launch(Dispatchers.Main) {
+        coroutineScope.launch {
             val newAccumulatedTelemetry = mutableListOf<TelemetryMessage>()
 
             val existingValues = uiStateFlow.value.telemetry
@@ -190,7 +187,7 @@ class TelemetryViewModel() {
 
     @OptIn(ExperimentalUnsignedTypes::class)
     private fun sendCommand(commandType: CommandType) {
-        coroutineScope.launch(Dispatchers.IO) {
+        coroutineScope.launch(Dispatchers.Default) {
             client.publish(
                 retain = false,
                 qos = Qos.AT_MOST_ONCE,

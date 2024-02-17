@@ -42,7 +42,7 @@ class GaggiaSimulator(val coroutineScope: CoroutineScope) {
     @OptIn(ExperimentalUnsignedTypes::class)
     fun startClientAndSubscribeToCommandTopic(startDelayMillis: Long) {
 
-        coroutineScope.launch(Dispatchers.IO) {
+        coroutineScope.launch(Dispatchers.Default) {
             var connected = false
             while (true) {
 
@@ -278,7 +278,7 @@ class GaggiaSimulator(val coroutineScope: CoroutineScope) {
     private fun scheduleNextStateAutomaticallyIfNecessary(currentState: GaggiaState) {
         when (currentState) {
             GaggiaState.JOINING_NETWORK -> {
-                coroutineScope.launch(Dispatchers.IO) {
+                coroutineScope.launch(Dispatchers.Default) {
                     println("*** Simulator: ready to send PREHEAT.")
 
                     // assume it takes 5 seconds to join the network
@@ -291,7 +291,7 @@ class GaggiaSimulator(val coroutineScope: CoroutineScope) {
             }
 
             GaggiaState.IGNORING_NETWORK -> {
-                coroutineScope.launch(Dispatchers.IO) {
+                coroutineScope.launch(Dispatchers.Default) {
 
                     // assume gaggia has now stopped trying to join network...
                     delay(3000)
@@ -302,7 +302,7 @@ class GaggiaSimulator(val coroutineScope: CoroutineScope) {
 
             GaggiaState.PREHEAT -> {
                 if (!scaleSettled) {
-                    coroutineScope.launch(Dispatchers.IO) {
+                    coroutineScope.launch(Dispatchers.Default) {
                         scaleSettled = true
 
                         // we simulate the scale first being empty and then putting
@@ -337,7 +337,7 @@ class GaggiaSimulator(val coroutineScope: CoroutineScope) {
 
             GaggiaState.MEASURE_BEANS -> {
                 if (!scaleWeighted) {
-                    coroutineScope.launch(Dispatchers.IO) {
+                    coroutineScope.launch(Dispatchers.Default) {
                         scaleWeighted = true
 
                         // simulate somebody slowly filling the cup with beans
@@ -381,7 +381,7 @@ class GaggiaSimulator(val coroutineScope: CoroutineScope) {
 
             GaggiaState.TARE_CUP_AFTER_MEASURE -> {
                 if (!scaleWeighted) {
-                    coroutineScope.launch(Dispatchers.IO) {
+                    coroutineScope.launch(Dispatchers.Default) {
                         scaleWeighted = true
 
                         // we're simulating the user taking the cup full of beans off
@@ -435,7 +435,7 @@ class GaggiaSimulator(val coroutineScope: CoroutineScope) {
             }
 
             GaggiaState.HEATING_TO_BREW -> {
-                coroutineScope.launch(Dispatchers.IO) {
+                coroutineScope.launch(Dispatchers.Default) {
 
                     // assume it takes 5 seconds to preheat
                     delay(2000)
@@ -445,7 +445,7 @@ class GaggiaSimulator(val coroutineScope: CoroutineScope) {
             }
 
             GaggiaState.PREINFUSION_AND_BREWING -> {
-                coroutineScope.launch(Dispatchers.IO) {
+                coroutineScope.launch(Dispatchers.Default) {
 
                     // it takes some time for preinfusion and brewing
                     for (telemetryMessage in renderTelemetry(typicalBrewCycleTelemetryString)) {
@@ -458,7 +458,7 @@ class GaggiaSimulator(val coroutineScope: CoroutineScope) {
             }
 
             GaggiaState.HEATING_TO_STEAM -> {
-                coroutineScope.launch(Dispatchers.IO) {
+                coroutineScope.launch(Dispatchers.Default) {
 
                     // it takes some time to brew
                     delay(4000)
@@ -468,7 +468,7 @@ class GaggiaSimulator(val coroutineScope: CoroutineScope) {
             }
 
             GaggiaState.CLEAN_GROUP_DONE -> {
-                coroutineScope.launch(Dispatchers.IO) {
+                coroutineScope.launch(Dispatchers.Default) {
 
                     // assume it takes a couple seconds to clean
                     delay(2000)
@@ -478,7 +478,7 @@ class GaggiaSimulator(val coroutineScope: CoroutineScope) {
             }
 
             GaggiaState.HEATING_TO_DISPENSE -> {
-                coroutineScope.launch(Dispatchers.IO) {
+                coroutineScope.launch(Dispatchers.Default) {
 
                     // assume it takes 5 seconds to preheat
                     delay(5000)
@@ -512,7 +512,7 @@ class GaggiaSimulator(val coroutineScope: CoroutineScope) {
     @OptIn(ExperimentalUnsignedTypes::class)
     private fun publishTelemetryMessage(payload: String) {
         println("*** Simulator: publishing message: $payload")
-        coroutineScope.launch(Dispatchers.IO) {
+        coroutineScope.launch(Dispatchers.Default) {
             client.publish(
                 retain = false,
                 qos = Qos.AT_MOST_ONCE,
