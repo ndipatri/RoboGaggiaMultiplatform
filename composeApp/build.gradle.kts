@@ -48,6 +48,10 @@ kotlin {
                 // MQTT
                 implementation("io.github.davidepianca98:kmqtt-common:0.4.5")
                 implementation("io.github.davidepianca98:kmqtt-client:0.4.5")
+
+                // BLE
+                // NJD TODO - for after we get compose KMP upgraded.
+                implementation("dev.bluefalcon:blue-falcon:1.0.0")
             }
         }
 
@@ -76,7 +80,7 @@ buildkonfig {
     defaultConfigs {
 
         // after adding a new config field, run
-        // 'generateBuildKong' task under 'Tasks->buildkonfig'
+        // 'generateBuildKonfig' task under 'Tasks->buildkonfig'
 
         buildConfigField(
             Type.STRING,
@@ -100,6 +104,12 @@ buildkonfig {
             Type.STRING,
             "MQTT_SERVER_ADDRESS",
             gradleLocalProperties(rootDir).getProperty("mqtt.server.address")
+        )
+
+        buildConfigField(
+            com.codingfeline.buildkonfig.compiler.FieldSpec.Type.STRING,
+            "USE_BLE",
+            gradleLocalProperties(rootDir).getProperty("use.ble")
         )
     }
 }

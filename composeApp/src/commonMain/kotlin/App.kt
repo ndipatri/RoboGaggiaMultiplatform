@@ -2,6 +2,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -10,6 +11,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import dev.bluefalcon.ApplicationContext
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import screens.BackflushCycle1Screen
 import screens.BackflushCycle2Screen
@@ -43,9 +45,13 @@ import vms.UIState
 
 @OptIn(ExperimentalResourceApi::class)
 @Composable
-fun App() {
+fun App(context: ApplicationContext, bluetoothPermissionAcquired: Boolean) {
 
-    val viewModel = remember { TelemetryViewModel() }
+    val viewModel = remember { TelemetryViewModel(context) }
+
+    // If this is set to true and BLE is enabled via build config,
+    // then bluetooth scanning will begin
+    viewModel.bluetoothPermissionAcquired = bluetoothPermissionAcquired
 
     val uiState by viewModel.uiStateFlow.collectAsState()
     val onFirstButtonClick = { viewModel.firstButtonClick() }

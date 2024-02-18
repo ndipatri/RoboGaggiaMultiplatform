@@ -1,14 +1,16 @@
 package vms
 
+import AdvertisementDataRetrievalKeys
 import MQTTClient
 import com.ndipatri.robogaggia.BuildKonfig
 import currentTimeMillis
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.DelicateCoroutinesApi
+import dev.bluefalcon.ApplicationContext
+import dev.bluefalcon.BlueFalcon
+import dev.bluefalcon.BlueFalconDelegate
+import dev.bluefalcon.BluetoothCharacteristic
+import dev.bluefalcon.BluetoothCharacteristicDescriptor
+import dev.bluefalcon.BluetoothPeripheral
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.IO
-import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
@@ -18,10 +20,24 @@ import mqtt.packets.Qos
 import mqtt.packets.mqttv5.SubscriptionOptions
 import kotlin.math.abs
 
-
-class TelemetryViewModel: CoroutineViewModel() {
+class TelemetryViewModel(val context: ApplicationContext) : CoroutineViewModel() {
 
     lateinit var client: MQTTClient
+
+    lateinit var blueFalcon: BlueFalcon
+
+    var bluetoothPermissionAcquired: Boolean = false
+        set(value) {
+            field = value
+            if (value) {
+                if (BuildKonfig.USE_BLE.toBooleanStrict()) {
+                    blueFalcon = BlueFalcon(context, GAGGIA_UART_BLE_SERVICE_UUID).apply {
+                        delegates.add(bluetoothListener)
+                        scan()
+                    }
+                }
+            }
+        }
 
     var clientId = ""
 
@@ -34,10 +50,14 @@ class TelemetryViewModel: CoroutineViewModel() {
     val uiStateFlow: MutableStateFlow<UIState> = MutableStateFlow(UIState())
 
     init {
-        startClientAndSubscribeToTelemetryTopic(500)
+        if (!BuildKonfig.USE_BLE.toBooleanStrict()) {
+            startMQTTClientAndSubscribeToTelemetryTopic(500)
 
-        if (BuildKonfig.USE_GAGGIA_SIMULATOR.toBooleanStrict()) {
-            GaggiaSimulator(coroutineScope)
+            if (BuildKonfig.USE_GAGGIA_SIMULATOR.toBooleanStrict()) {
+                if (BuildKonfig.USE_GAGGIA_SIMULATOR.toBooleanStrict()) {
+                    GaggiaSimulator(coroutineScope)
+                }
+            }
         }
     }
 
@@ -50,7 +70,7 @@ class TelemetryViewModel: CoroutineViewModel() {
     }
 
     @OptIn(ExperimentalUnsignedTypes::class)
-    fun startClientAndSubscribeToTelemetryTopic(startDelayMillis: Long) {
+    fun startMQTTClientAndSubscribeToTelemetryTopic(startDelayMillis: Long) {
 
         coroutineScope.launch(Dispatchers.Default) {
             while (true) {
@@ -155,7 +175,7 @@ class TelemetryViewModel: CoroutineViewModel() {
             } else {
                 // keep last TELEMETRY_WINDOW_SIZE-1 values  (we're about to add one more)
                 if (existingValues.isNotEmpty()) {
-                    existingValues[existingValues.size-1].let {
+                    existingValues[existingValues.size - 1].let {
                         newAccumulatedTelemetry.add(it)
                     }
                 }
@@ -183,6 +203,9 @@ class TelemetryViewModel: CoroutineViewModel() {
     companion object {
         const val telemetryTopic = "ndipatri/feeds/robogaggiatelemetry"
         const val commandTopic = "ndipatri/feeds/robogaggiacommand"
+        const val GAGGIA_UART_BLE_SERVICE_UUID = "6E400001-B5A3-F393-E0A9-E50E24DCCA9E"
+        const val GAGGIA_UART_BLE_RX_CHARACTERISTIC = "6E400002-B5A3-F393-E0A9-E50E24DCCA9E"
+        const val GAGGIA_UART_BLE_TX_CHARACTERISTIC = "6E400003-B5A3-F393-E0A9-E50E24DCCA9E"
     }
 
     @OptIn(ExperimentalUnsignedTypes::class)
@@ -194,6 +217,87 @@ class TelemetryViewModel: CoroutineViewModel() {
                 topic = commandTopic,
                 payload = commandType.transmitName.encodeToByteArray().toUByteArray()
             )
+        }
+    }
+
+    val bluetoothListener = object: BlueFalconDelegate {
+        override fun didCharacteristcValueChanged(
+            bluetoothPeripheral: BluetoothPeripheral,
+            bluetoothCharacteristic: BluetoothCharacteristic
+        ) {
+            bluetoothCharacteristic.value?.let { incomingBytes ->
+                val characteristicValue = incomingBytes.decodeToString()
+
+                println("*** VM: Gaggia Characteristic value changed: ${characteristicValue}}")
+                handleMessage(characteristicValue)
+            }
+        }
+
+        override fun didConnect(bluetoothPeripheral: BluetoothPeripheral) {
+            println("*** VM: Gaggia Connected.")
+        }
+
+        override fun didDisconnect(bluetoothPeripheral: BluetoothPeripheral) {
+            TODO("Not yet implemented")
+        }
+
+        override fun didDiscoverCharacteristics(bluetoothPeripheral: BluetoothPeripheral) {
+            bluetoothPeripheral.services
+                .findLast { it.name == GAGGIA_UART_BLE_SERVICE_UUID.lowercase() }?.characteristics
+                    ?.findLast { it.name == GAGGIA_UART_BLE_TX_CHARACTERISTIC.lowercase() }
+                        ?.let { gaggiaTransmitterCharacteristic ->
+                            println("*** VM: Gaggia Characteristics Discovered.")
+
+                            blueFalcon.notifyCharacteristic(
+                                bluetoothPeripheral,
+                                gaggiaTransmitterCharacteristic,
+                                notify = true
+                            )
+                        }
+                    }
+
+        override fun didDiscoverDevice(
+            bluetoothPeripheral: BluetoothPeripheral,
+            advertisementData: Map<AdvertisementDataRetrievalKeys, Any>
+        ) {
+            println("*** VM: Gaggia Discovered.")
+
+            // We always want to immediately connecto to the Gaggia.
+            blueFalcon.connect(bluetoothPeripheral, true)
+        }
+
+        override fun didDiscoverServices(bluetoothPeripheral: BluetoothPeripheral) {
+            println("*** VM: Gaggia Service Discovered.")
+        }
+
+        override fun didReadDescriptor(
+            bluetoothPeripheral: BluetoothPeripheral,
+            bluetoothCharacteristicDescriptor: BluetoothCharacteristicDescriptor
+        ) {
+            println("*** VM: Gaggia read descriptor!")
+        }
+
+        override fun didRssiUpdate(bluetoothPeripheral: BluetoothPeripheral) {
+            println("*** VM: Gaggia RSSI updated.")
+        }
+
+        override fun didUpdateMTU(bluetoothPeripheral: BluetoothPeripheral) {
+            TODO("Not yet implemented")
+        }
+
+        override fun didWriteCharacteristic(
+            bluetoothPeripheral: BluetoothPeripheral,
+            bluetoothCharacteristic: BluetoothCharacteristic,
+            success: Boolean
+        ) {
+            TODO("Not yet implemented")
+        }
+
+        override fun didWriteDescriptor(
+            bluetoothPeripheral: BluetoothPeripheral,
+            bluetoothCharacteristicDescriptor: BluetoothCharacteristicDescriptor
+        ) {
+            println("*** VM: Gaggia write descriptor!")
         }
     }
 }
@@ -322,7 +426,7 @@ fun upperSettleWeightThresholdGrams(state: GaggiaState): Float? {
             WEIGHT_OF_EMPTY_SCALE_GRAMS * 2
         }
 
-        GaggiaState.MEASURE_BEANS,  GaggiaState.TARE_CUP_AFTER_MEASURE -> {
+        GaggiaState.MEASURE_BEANS, GaggiaState.TARE_CUP_AFTER_MEASURE -> {
             // weight coming back is already tared with
             // the cup and scale ... so any weight is beans
             // above this, and scale is considered weighted with beans            10.0F
@@ -334,7 +438,6 @@ fun upperSettleWeightThresholdGrams(state: GaggiaState): Float? {
         }
     }
 }
-
 
 
 data class UIState(
@@ -355,14 +458,14 @@ data class UIState(
             val measuredWeightGrams = telemetry.lastOrNull()?.weightGrams ?: return false
 
             return (previousIsScaleWeighted &&
-                            lowerSettleWeightThresholdGrams(state) != null &&
-                            measuredWeightGrams.trim()
-                                .toFloat() >= lowerSettleWeightThresholdGrams(state)!!) ||
+                    lowerSettleWeightThresholdGrams(state) != null &&
+                    measuredWeightGrams.trim()
+                        .toFloat() >= lowerSettleWeightThresholdGrams(state)!!) ||
 
-                            (!previousIsScaleWeighted &&
-                                    upperSettleWeightThresholdGrams(state) != null &&
-                                    measuredWeightGrams.trim()
-                                        .toFloat() > upperSettleWeightThresholdGrams(state)!!)
+                    (!previousIsScaleWeighted &&
+                            upperSettleWeightThresholdGrams(state) != null &&
+                            measuredWeightGrams.trim()
+                                .toFloat() > upperSettleWeightThresholdGrams(state)!!)
         }
 
 
@@ -430,6 +533,9 @@ data class UIState(
     // Only valid during TARE_CUP_AFTER_MEASURE state
     val isCupOnlyOnScale: Boolean? =
         if (currentTelemetryMessage?.state == GaggiaState.TARE_CUP_AFTER_MEASURE) {
-        isScaleSettled && (currentTelemetryMessage?.weightGrams?.trim()?.toFloat()?.let { abs(it) < 2F } ?: false)
-        } else { null }
+            isScaleSettled && (currentTelemetryMessage?.weightGrams?.trim()?.toFloat()
+                ?.let { abs(it) < 2F } ?: false)
+        } else {
+            null
+        }
 }
