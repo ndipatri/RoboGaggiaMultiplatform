@@ -26,14 +26,19 @@ class TelemetryViewModel(val context: ApplicationContext) : CoroutineViewModel()
 
     lateinit var blueFalcon: BlueFalcon
 
+    var connectedBLEPeripheral: BluetoothPeripheral? = null
+    var gaggiaReceiveBLECharacteristic: BluetoothCharacteristic? = null
+
     var bluetoothPermissionAcquired: Boolean = false
         set(value) {
             field = value
             if (value) {
                 if (BuildKonfig.USE_BLE.toBooleanStrict()) {
-                    blueFalcon = BlueFalcon(context, GAGGIA_UART_BLE_SERVICE_UUID).apply {
-                        delegates.add(bluetoothListener)
-                        scan()
+                    if (!this::blueFalcon.isInitialized) {
+                        blueFalcon = BlueFalcon(context, GAGGIA_UART_BLE_SERVICE_UUID).apply {
+                            delegates.add(bluetoothListener)
+                            scan()
+                        }
                     }
                 }
             }
@@ -62,11 +67,21 @@ class TelemetryViewModel(val context: ApplicationContext) : CoroutineViewModel()
     }
 
     fun firstButtonClick() {
-        sendCommand(CommandType.FIRST_BUTTON_CLICK)
+        buttonClick(CommandType.FIRST_BUTTON_CLICK)
     }
 
     fun secondButtonClick() {
-        sendCommand(CommandType.SECOND_BUTTON_CLICK)
+        buttonClick(CommandType.SECOND_BUTTON_CLICK)
+    }
+
+    private fun buttonClick(commandType: CommandType) {
+        if (BuildKonfig.USE_BLE.toBooleanStrict()) {
+            connectedBLEPeripheral?.let {
+                sendBLECommand(commandType)
+            }
+        } else {
+            sendMQTTCommand(commandType)
+        }
     }
 
     @OptIn(ExperimentalUnsignedTypes::class)
@@ -123,7 +138,6 @@ class TelemetryViewModel(val context: ApplicationContext) : CoroutineViewModel()
 
                     // and not in sleep state (obviously in sleep state we aren't getting updates)
                     if (uiStateFlow.value.currentTelemetryMessage?.state != GaggiaState.SLEEP) {
-                        println("*** VM: UIStateFlow is too old.. using unknown state as heartbeat.")
                         uiStateFlow.emit(UIState())
                     }
                 }
@@ -132,8 +146,6 @@ class TelemetryViewModel(val context: ApplicationContext) : CoroutineViewModel()
     }
 
     private fun handleMessage(message: String) {
-        println("*** VM: Incoming message: ${message}")
-
         lateinit var state: GaggiaState
         lateinit var measuredWeightGrams: String
         lateinit var measuredPressureBars: String
@@ -186,13 +198,7 @@ class TelemetryViewModel(val context: ApplicationContext) : CoroutineViewModel()
                 uiStateFlow.value.copy(
                     telemetry = newAccumulatedTelemetry,
                     previousIsScaleWeighted = uiStateFlow.value.isScaleWeighted ?: false,
-                ).also {
-                    println("*** VM: currentTelemetryMessage: ${it.currentTelemetryMessage}")
-                    println("*** VM: previousTelemetryMessage: ${it.previousTelemetryMessage}")
-                    println("*** VM: isScaleSettled: ${it.isScaleSettled}")
-                    println("*** VM: isScaleWeighted: ${it.isScaleWeighted}")
-                    println("*** VM: isCupOnlyOnScale: ${it.isCupOnlyOnScale}")
-                }
+                )
             )
 
             // Keep track of this for keep-alive reasons.
@@ -209,7 +215,7 @@ class TelemetryViewModel(val context: ApplicationContext) : CoroutineViewModel()
     }
 
     @OptIn(ExperimentalUnsignedTypes::class)
-    private fun sendCommand(commandType: CommandType) {
+    private fun sendMQTTCommand(commandType: CommandType) {
         coroutineScope.launch(Dispatchers.Default) {
             client.publish(
                 retain = false,
@@ -217,6 +223,20 @@ class TelemetryViewModel(val context: ApplicationContext) : CoroutineViewModel()
                 topic = commandTopic,
                 payload = commandType.transmitName.encodeToByteArray().toUByteArray()
             )
+        }
+    }
+
+    @OptIn(ExperimentalUnsignedTypes::class)
+    private fun sendBLECommand(commandType: CommandType) {
+        connectedBLEPeripheral?.let { peripheral ->
+            gaggiaReceiveBLECharacteristic?.let {characteristic ->
+                blueFalcon.writeCharacteristic(
+                    peripheral, // We wouldn't be sending this command if we weren't connected.
+                    characteristic,
+                    commandType.transmitName,
+                    0x02  // BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT
+                )
+            }
         }
     }
 
@@ -228,17 +248,16 @@ class TelemetryViewModel(val context: ApplicationContext) : CoroutineViewModel()
             bluetoothCharacteristic.value?.let { incomingBytes ->
                 val characteristicValue = incomingBytes.decodeToString()
 
-                println("*** VM: Gaggia Characteristic value changed: ${characteristicValue}}")
                 handleMessage(characteristicValue)
             }
         }
 
         override fun didConnect(bluetoothPeripheral: BluetoothPeripheral) {
-            println("*** VM: Gaggia Connected.")
+            connectedBLEPeripheral = bluetoothPeripheral
         }
 
         override fun didDisconnect(bluetoothPeripheral: BluetoothPeripheral) {
-            TODO("Not yet implemented")
+            // TODO - Do nothing..
         }
 
         override fun didDiscoverCharacteristics(bluetoothPeripheral: BluetoothPeripheral) {
@@ -246,43 +265,47 @@ class TelemetryViewModel(val context: ApplicationContext) : CoroutineViewModel()
                 .findLast { it.name == GAGGIA_UART_BLE_SERVICE_UUID.lowercase() }?.characteristics
                     ?.findLast { it.name == GAGGIA_UART_BLE_TX_CHARACTERISTIC.lowercase() }
                         ?.let { gaggiaTransmitterCharacteristic ->
-                            println("*** VM: Gaggia Characteristics Discovered.")
-
                             blueFalcon.notifyCharacteristic(
                                 bluetoothPeripheral,
                                 gaggiaTransmitterCharacteristic,
                                 notify = true
                             )
                         }
-                    }
+
+            bluetoothPeripheral.services
+                .findLast { it.name == GAGGIA_UART_BLE_SERVICE_UUID.lowercase() }?.characteristics
+                    ?.findLast { it.name == GAGGIA_UART_BLE_RX_CHARACTERISTIC.lowercase() }
+                        ?.let { characteristic ->
+                            gaggiaReceiveBLECharacteristic = characteristic
+                        }
+       }
 
         override fun didDiscoverDevice(
             bluetoothPeripheral: BluetoothPeripheral,
             advertisementData: Map<AdvertisementDataRetrievalKeys, Any>
         ) {
-            println("*** VM: Gaggia Discovered.")
 
-            // We always want to immediately connecto to the Gaggia.
+            // We always want to immediately connect to the Gaggia.
             blueFalcon.connect(bluetoothPeripheral, true)
         }
 
         override fun didDiscoverServices(bluetoothPeripheral: BluetoothPeripheral) {
-            println("*** VM: Gaggia Service Discovered.")
+            // NJD TODO - do nothing
         }
 
         override fun didReadDescriptor(
             bluetoothPeripheral: BluetoothPeripheral,
             bluetoothCharacteristicDescriptor: BluetoothCharacteristicDescriptor
         ) {
-            println("*** VM: Gaggia read descriptor!")
+            // NJD TODO - do nothing
         }
 
         override fun didRssiUpdate(bluetoothPeripheral: BluetoothPeripheral) {
-            println("*** VM: Gaggia RSSI updated.")
+            // NJD TODO - do nothing
         }
 
         override fun didUpdateMTU(bluetoothPeripheral: BluetoothPeripheral) {
-            TODO("Not yet implemented")
+            // NJD TODO - do nothing
         }
 
         override fun didWriteCharacteristic(
@@ -290,14 +313,14 @@ class TelemetryViewModel(val context: ApplicationContext) : CoroutineViewModel()
             bluetoothCharacteristic: BluetoothCharacteristic,
             success: Boolean
         ) {
-            TODO("Not yet implemented")
+            // NJD TODO - do nothing
         }
 
         override fun didWriteDescriptor(
             bluetoothPeripheral: BluetoothPeripheral,
             bluetoothCharacteristicDescriptor: BluetoothCharacteristicDescriptor
         ) {
-            println("*** VM: Gaggia write descriptor!")
+            println("*** NJD: Gaggia did write characteristic!")
         }
     }
 }

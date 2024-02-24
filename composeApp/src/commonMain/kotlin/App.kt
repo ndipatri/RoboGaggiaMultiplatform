@@ -51,7 +51,9 @@ fun App(context: ApplicationContext, bluetoothPermissionAcquired: Boolean) {
 
     // If this is set to true and BLE is enabled via build config,
     // then bluetooth scanning will begin
-    viewModel.bluetoothPermissionAcquired = bluetoothPermissionAcquired
+    if (!viewModel.bluetoothPermissionAcquired && bluetoothPermissionAcquired) {
+        viewModel.bluetoothPermissionAcquired = bluetoothPermissionAcquired
+    }
 
     val uiState by viewModel.uiStateFlow.collectAsState()
     val onFirstButtonClick = { viewModel.firstButtonClick() }
