@@ -26,6 +26,11 @@ class TelemetryViewModel(val context: ApplicationContext) : CoroutineViewModel()
 
     lateinit var blueFalcon: BlueFalcon
 
+    // I don't trust the blueFalcon 'isScanning' property, so I
+    // track this myself...if the scan() call throws an exception,
+    // the blueFalcon.isScanning will erroneously stay true.
+    private var bluetoothIsScanning = false
+
     var connectedBLEPeripheral: BluetoothPeripheral? = null
     var gaggiaReceiveBLECharacteristic: BluetoothCharacteristic? = null
 
@@ -34,12 +39,11 @@ class TelemetryViewModel(val context: ApplicationContext) : CoroutineViewModel()
             field = value
             if (value) {
                 if (BuildKonfig.USE_BLE.toBooleanStrict()) {
-                    if (!this::blueFalcon.isInitialized) {
-                        blueFalcon = BlueFalcon(context, GAGGIA_UART_BLE_SERVICE_UUID).apply {
-                            delegates.add(bluetoothListener)
-                            scan()
-                        }
+                    blueFalcon = BlueFalcon(context, GAGGIA_UART_BLE_SERVICE_UUID).apply {
+                        delegates.add(bluetoothListener)
                     }
+
+                    scanForBluetooth()
                 }
             }
         }
@@ -72,6 +76,28 @@ class TelemetryViewModel(val context: ApplicationContext) : CoroutineViewModel()
 
     fun secondButtonClick() {
         buttonClick(CommandType.SECOND_BUTTON_CLICK)
+    }
+
+    // Sometimes the local bluetooth hardware will cause the
+    // scan() call from blueFalcon to throw an exception... you
+    // have to keep retrying until this doesn't happen.
+    // https://github.com/Reedyuk/blue-falcon/issues/26
+    private fun scanForBluetooth() {
+        coroutineScope.launch(Dispatchers.Default) {
+            while (!bluetoothIsScanning) {
+                try {
+                    println("*** NJD: starting scan...")
+                    blueFalcon.scan()
+                    bluetoothIsScanning = true
+                } catch (th: Throwable) {
+                    println("*** NJD: failed to scan for BLE devices: $th")
+                    th.printStackTrace()
+                    bluetoothIsScanning = false
+                }
+
+                delay(2000)
+            }
+        }
     }
 
     private fun buttonClick(commandType: CommandType) {
@@ -230,6 +256,13 @@ class TelemetryViewModel(val context: ApplicationContext) : CoroutineViewModel()
     private fun sendBLECommand(commandType: CommandType) {
         connectedBLEPeripheral?.let { peripheral ->
             gaggiaReceiveBLECharacteristic?.let {characteristic ->
+
+                // according to:
+                // https://stackoverflow.com/a/51347365/1827707
+                // need to make copy of Peripheral first...
+                val writePeripheral = BluetoothPeripheral()
+
+
                 blueFalcon.writeCharacteristic(
                     peripheral, // We wouldn't be sending this command if we weren't connected.
                     characteristic,
@@ -261,9 +294,13 @@ class TelemetryViewModel(val context: ApplicationContext) : CoroutineViewModel()
         }
 
         override fun didDiscoverCharacteristics(bluetoothPeripheral: BluetoothPeripheral) {
+            bluetoothPeripheral.services.forEach {
+                println("*** NJD: discovered service: ${it.name}!")
+            }
+
             bluetoothPeripheral.services
-                .findLast { it.name == GAGGIA_UART_BLE_SERVICE_UUID.lowercase() }?.characteristics
-                    ?.findLast { it.name == GAGGIA_UART_BLE_TX_CHARACTERISTIC.lowercase() }
+                .findLast { it.name?.lowercase() == GAGGIA_UART_BLE_SERVICE_UUID.lowercase() }?.characteristics
+                    ?.findLast { it.name?.lowercase() == GAGGIA_UART_BLE_TX_CHARACTERISTIC.lowercase() }
                         ?.let { gaggiaTransmitterCharacteristic ->
                             blueFalcon.notifyCharacteristic(
                                 bluetoothPeripheral,
@@ -273,8 +310,8 @@ class TelemetryViewModel(val context: ApplicationContext) : CoroutineViewModel()
                         }
 
             bluetoothPeripheral.services
-                .findLast { it.name == GAGGIA_UART_BLE_SERVICE_UUID.lowercase() }?.characteristics
-                    ?.findLast { it.name == GAGGIA_UART_BLE_RX_CHARACTERISTIC.lowercase() }
+                .findLast { it.name?.lowercase() == GAGGIA_UART_BLE_SERVICE_UUID.lowercase() }?.characteristics
+                    ?.findLast { it.name?.lowercase() == GAGGIA_UART_BLE_RX_CHARACTERISTIC.lowercase() }
                         ?.let { characteristic ->
                             gaggiaReceiveBLECharacteristic = characteristic
                         }
@@ -286,6 +323,7 @@ class TelemetryViewModel(val context: ApplicationContext) : CoroutineViewModel()
         ) {
 
             // We always want to immediately connect to the Gaggia.
+            println("*** NJD: trying to connect!")
             blueFalcon.connect(bluetoothPeripheral, true)
         }
 

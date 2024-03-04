@@ -47,11 +47,15 @@ import vms.UIState
 @Composable
 fun App(context: ApplicationContext, bluetoothPermissionAcquired: Boolean) {
 
+    println("*** NJD: App instantiated!")
+
     val viewModel = remember { TelemetryViewModel(context) }
 
     // If this is set to true and BLE is enabled via build config,
     // then bluetooth scanning will begin
     if (!viewModel.bluetoothPermissionAcquired && bluetoothPermissionAcquired) {
+        println("*** NJD: permission acquired!")
+
         viewModel.bluetoothPermissionAcquired = bluetoothPermissionAcquired
     }
 
