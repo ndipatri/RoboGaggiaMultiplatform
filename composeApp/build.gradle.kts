@@ -144,6 +144,7 @@ android {
         targetCompatibility = JavaVersion.VERSION_1_8
     }
 
+//    NJD This makes Preview panel show up, but the build fails
 //    buildFeatures {
 //        compose=true
 //    }

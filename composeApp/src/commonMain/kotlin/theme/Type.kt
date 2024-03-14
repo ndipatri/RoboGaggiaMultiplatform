@@ -12,13 +12,13 @@ import androidx.compose.ui.unit.sp
 val Typography = Typography(
     body1 = TextStyle(
         fontFamily = FontFamily.Default,
-        fontWeight = FontWeight.Normal,
+        fontWeight = FontWeight.ExtraBold,
         color = Color.White,
         fontSize = 38.sp
     ),
     body2 = TextStyle(
         fontFamily = FontFamily.Default,
-        fontWeight = FontWeight.Light,
+        fontWeight = FontWeight.Bold,
         color = Color.White,
         fontSize = 30.sp
     ),

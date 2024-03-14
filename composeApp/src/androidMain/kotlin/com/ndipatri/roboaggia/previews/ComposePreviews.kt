@@ -11,8 +11,8 @@ import vms.GaggiaState
 import vms.TelemetryMessage
 import vms.UIState
 
-//@Preview(locale = "ar")  just for fun...
-@Preview(device = Devices.AUTOMOTIVE_1024p, widthDp = 720, heightDp = 360)
+@Preview()
+//@Preview(device = Devices.AUTOMOTIVE_1024p, widthDp = 720, heightDp = 360)
 @Composable
 fun PreviewJoiningNetworkScreen() {
     AppContent(

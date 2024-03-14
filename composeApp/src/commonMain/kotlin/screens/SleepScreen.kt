@@ -7,9 +7,11 @@ import robogaggiamultiplatform.composeapp.generated.resources.*
 
 @OptIn(ExperimentalResourceApi::class)
 @Composable
-fun SleepScreen(onFirstButtonClick: () -> Unit) {
+fun SleepScreen(onWakeClicked: () -> Unit) {
     ScreenContent(
         body1Resource = Res.string.sleep_primary,
-        body2Resource = Res.string.sleep_secondary,
+        button1Resource = Res.string.wake,
+        onFirstButtonClick = onWakeClicked,
+        backgroundImage = Res.drawable.night
     )
 }

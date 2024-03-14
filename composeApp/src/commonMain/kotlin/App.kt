@@ -107,7 +107,7 @@ fun AppContent(
                         GaggiaState.NA -> WelcomeScreen()
 
                         GaggiaState.SLEEP -> SleepScreen(
-                            onFirstButtonClick = _onFirstButtonClick
+                            onWakeClicked = _onFirstButtonClick
                         )
 
                         GaggiaState.JOINING_NETWORK -> JoiningNetworkScreen(

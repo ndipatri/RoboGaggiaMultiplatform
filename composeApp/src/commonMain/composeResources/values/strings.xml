@@ -10,7 +10,7 @@
     <string name="ignore_network">Ignore network</string>
 
     <string name="sleep_primary">Hi (yawn), I am sleeping</string>
-    <string name="sleep_secondary">Press red button to wake me up</string>
+    <string name="wake">Wake</string>
 
     <string name="preheat_primary">Hello! Welcome to RoboGaggia</string>
     <string name="preheat_subtitle_one">Place your empty cup on the scale.</string>

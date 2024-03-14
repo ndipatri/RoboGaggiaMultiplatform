@@ -2,6 +2,7 @@ package screens
 
 import SingleFloatContent
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.BlendMode.Companion.Color
 import content.ScreenContent
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import robogaggiamultiplatform.composeapp.generated.resources.*
@@ -21,7 +22,8 @@ fun PreheatScreen(
         button1Resource = if (uiState.isScaleWeighted) Res.string.preheat_cta else null,
         button2Resource = Res.string.preheat_cta2,
         onFirstButtonClick = onFirstButtonClick,
-        onSecondButtonClick = onSecondButtonClick
+        onSecondButtonClick = onSecondButtonClick,
+        //backgroundColor = androidx.compose.ui.graphics.Color.Black,
     ) {
         println("*** VM: updating content in preheat screen with temp: ${uiState.currentTemperature?.toStringWithTenths()}")
         SingleFloatContent(Res.string.preheat_content, uiState.currentTemperature ?: 0F)

@@ -256,13 +256,6 @@ class TelemetryViewModel(val context: ApplicationContext) : CoroutineViewModel()
     private fun sendBLECommand(commandType: CommandType) {
         connectedBLEPeripheral?.let { peripheral ->
             gaggiaReceiveBLECharacteristic?.let {characteristic ->
-
-                // according to:
-                // https://stackoverflow.com/a/51347365/1827707
-                // need to make copy of Peripheral first...
-                val writePeripheral = BluetoothPeripheral()
-
-
                 blueFalcon.writeCharacteristic(
                     peripheral, // We wouldn't be sending this command if we weren't connected.
                     characteristic,
