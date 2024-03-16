@@ -260,7 +260,7 @@ class TelemetryViewModel(val context: ApplicationContext) : CoroutineViewModel()
                     peripheral, // We wouldn't be sending this command if we weren't connected.
                     characteristic,
                     commandType.transmitName,
-                    0x02  // BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT
+                    0x01  // write without response
                 )
             }
         }
