@@ -23,7 +23,6 @@ fun PreheatScreen(
         button2Resource = Res.string.preheat_cta2,
         onFirstButtonClick = onFirstButtonClick,
         onSecondButtonClick = onSecondButtonClick,
-        //backgroundColor = androidx.compose.ui.graphics.Color.Black,
     ) {
         println("*** VM: updating content in preheat screen with temp: ${uiState.currentTemperature?.toStringWithTenths()}")
         SingleFloatContent(Res.string.preheat_content, uiState.currentTemperature ?: 0F)
