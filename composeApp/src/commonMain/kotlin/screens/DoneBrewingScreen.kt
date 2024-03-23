@@ -20,6 +20,7 @@ fun DoneBrewingScreen(uiState: UIState,
             button2Resource = Res.string.exit,
             onFirstButtonClick = onReadyClicked,
             onSecondButtonClick = onExitClicked,
+            backgroundImage = null,
             backgroundColor = Color.Transparent
         )
     }

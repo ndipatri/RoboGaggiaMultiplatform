@@ -54,7 +54,7 @@ class TelemetryViewModel(val context: ApplicationContext) : CoroutineViewModel()
     //
     // If we're within brew cycle (Preinfusion or Brewing), we accumulate only those values,
     // otherwise we just accumulate last TELEMETRY_WINDOW_SIZE values...
-    private val UI_STATE_FLOW_MAX_AGE_MILLIS = 30000L
+    private val UI_STATE_FLOW_MAX_AGE_MILLIS = 3000L
     private var uiStateFlowLastUpdatedTimeMillis: Long = -1L
     val uiStateFlow: MutableStateFlow<UIState> = MutableStateFlow(UIState())
 
@@ -68,6 +68,8 @@ class TelemetryViewModel(val context: ApplicationContext) : CoroutineViewModel()
                 }
             }
         }
+
+        checkForStaleTelemetry()
     }
 
     fun firstButtonClick() {
@@ -145,7 +147,11 @@ class TelemetryViewModel(val context: ApplicationContext) : CoroutineViewModel()
                         )
                     )
                     println("*** VM connecting to MQTT broker.")
-                    client.run() // Blocking method, use step() if you don't want to block the thread
+                    while (client.running) {
+                        // this keep the client alive and listening
+                        client.step()
+                        delay(250)
+                    }
 
                 } catch (ex: Exception) {
                     ex.printStackTrace()
@@ -153,7 +159,9 @@ class TelemetryViewModel(val context: ApplicationContext) : CoroutineViewModel()
                 }
             }
         }
+    }
 
+    private fun checkForStaleTelemetry() {
         coroutineScope.launch(Dispatchers.Default) {
             while (true) {
 
@@ -164,7 +172,7 @@ class TelemetryViewModel(val context: ApplicationContext) : CoroutineViewModel()
 
                     // and not in sleep state (obviously in sleep state we aren't getting updates)
                     if (uiStateFlow.value.currentTelemetryMessage?.state != GaggiaState.SLEEP) {
-                        uiStateFlow.emit(UIState())
+                        uiStateFlow.emit(UIState()) // will foward to 'unknown' state until we receive new telemetry
                     }
                 }
             }
@@ -206,7 +214,6 @@ class TelemetryViewModel(val context: ApplicationContext) : CoroutineViewModel()
             val newAccumulatedTelemetry = mutableListOf<TelemetryMessage>()
 
             val existingValues = uiStateFlow.value.telemetry
-            val lastState = if (existingValues.isEmpty()) null else existingValues.last().state
 
             if (state in setOf(GaggiaState.PREINFUSION_AND_BREWING, GaggiaState.DONE_BREWING)) {
                 newAccumulatedTelemetry.addAll(existingValues)
@@ -249,6 +256,7 @@ class TelemetryViewModel(val context: ApplicationContext) : CoroutineViewModel()
                 topic = commandTopic,
                 payload = commandType.transmitName.encodeToByteArray().toUByteArray()
             )
+            client.step()
         }
     }
 

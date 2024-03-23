@@ -4,9 +4,7 @@ import MQTTClient
 import com.ndipatri.robogaggia.BuildKonfig
 import currentTimeMillis
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.IO
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import mqtt.MQTTVersion
@@ -24,16 +22,15 @@ class GaggiaSimulator(val coroutineScope: CoroutineScope) {
 
     lateinit var client: MQTTClient
 
-    lateinit var currentState: GaggiaState
+    var currentTelemetry = TelemetryMessage(GaggiaState.NA, "0.0", "0.0", "0.0", "0.0", "0.0")
 
     var timeSinceLastCommandMillis = currentTimeMillis()
 
     // How long until Gaggia redirects to the SLEEP state
     var USER_INACTIVITY_TIMEOUT_MILLIS = 300000L
 
-    // We use these just to help us know when to stop sending fake telemetry
-    var scaleSettled = false
-    var scaleWeighted = false
+    // Adafruit.IO doesn't want these faster than every second...
+    var MQTT_TRANSMIT_INTERVAL_MILLIS = 1200L
 
     init {
         startClientAndSubscribeToCommandTopic(600)
@@ -45,7 +42,6 @@ class GaggiaSimulator(val coroutineScope: CoroutineScope) {
         coroutineScope.launch(Dispatchers.Default) {
             var connected = false
             while (true) {
-
                 delay(startDelayMillis)
 
                 client = MQTTClient(
@@ -67,17 +63,22 @@ class GaggiaSimulator(val coroutineScope: CoroutineScope) {
                 try {
                     client.subscribe(subscriptionTopic)
 
+                    sendTelemetryContinuously()
+
                     println("*** Simulator: connecting to MQTT broker.")
                     // will throw exception if not connected...
                     while (client.running) {
 
                         // This has a delay to make this loop kind to the CPU
                         client.step()
+                        delay(250)
 
                         if (!connected) {
                             // we need to make sure we're connected first before we
                             // try to publish.. duh
-                            moveToState(GaggiaState.JOINING_NETWORK)
+                            currentTelemetry = currentTelemetry.copy(state = GaggiaState.JOINING_NETWORK)
+
+                            scheduleNextStateAutomaticallyIfNecessary(GaggiaState.JOINING_NETWORK)
                         }
                         connected = true
 
@@ -94,17 +95,26 @@ class GaggiaSimulator(val coroutineScope: CoroutineScope) {
         val now = currentTimeMillis()
 
         if (now - timeSinceLastCommandMillis > USER_INACTIVITY_TIMEOUT_MILLIS) {
-            if (currentState != GaggiaState.SLEEP) {
+            if (currentTelemetry.state != GaggiaState.SLEEP) {
                 println("*** Simulator: user inactivity. moving to sleep state.")
-                moveToState(GaggiaState.SLEEP)
+
+                currentTelemetry = currentTelemetry.copy(state = GaggiaState.SLEEP)
             }
         }
     }
 
     private fun handleIncomingCommand(command: String) {
         println("*** Simulator: Incoming command: $command")
+        timeSinceLastCommandMillis = currentTimeMillis()
 
-        moveToState(getNextState(currentState, CommandType.byTransmitName(command)))
+        currentTelemetry = currentTelemetry.copy(
+            state = getNextState(
+                currentTelemetry.state,
+                CommandType.byTransmitName(command)
+            )
+        )
+
+        scheduleNextStateAutomaticallyIfNecessary(currentTelemetry.state)
     }
 
     // If we receive a command from mobile, we need to move to a new state....
@@ -276,17 +286,23 @@ class GaggiaSimulator(val coroutineScope: CoroutineScope) {
     }
 
     private fun scheduleNextStateAutomaticallyIfNecessary(currentState: GaggiaState) {
+
+        // Sometimes moving to a state triggers internal behavior
+        // which may result in a state change.... this is where we
+        // are truly simulating internal gaggia behavior
+        //
+        // We also simulate user behavior in here as well.. e.g. putting a
+        // cup or beans on the scale...
+
         when (currentState) {
             GaggiaState.JOINING_NETWORK -> {
                 coroutineScope.launch(Dispatchers.Default) {
-                    println("*** Simulator: ready to send PREHEAT.")
-
                     // assume it takes 5 seconds to join the network
-                    delay(5000)
+                    delay(2000)
 
-                    println("*** Simulator: sending PREHEAT.")
-                    moveToState(GaggiaState.PREHEAT)
-                    println("*** Simulator: send PREHEAT.")
+                    currentTelemetry = currentTelemetry.copy(state = GaggiaState.PREHEAT)
+
+                    scheduleNextStateAutomaticallyIfNecessary(GaggiaState.PREHEAT)
                 }
             }
 
@@ -296,141 +312,123 @@ class GaggiaSimulator(val coroutineScope: CoroutineScope) {
                     // assume gaggia has now stopped trying to join network...
                     delay(3000)
 
-                    moveToState(GaggiaState.PREHEAT)
+                    currentTelemetry= currentTelemetry.copy(state = GaggiaState.PREHEAT)
+
+                    scheduleNextStateAutomaticallyIfNecessary(GaggiaState.PREHEAT)
                 }
             }
 
             GaggiaState.PREHEAT -> {
-                if (!scaleSettled) {
-                    coroutineScope.launch(Dispatchers.Default) {
-                        scaleSettled = true
+                coroutineScope.launch(Dispatchers.Default) {
 
-                        // we simulate the scale first being empty and then putting
-                        // their empty cup on the scale ...
+                    // we simulate the scale first being empty and then putting
+                    // their empty cup on the scale ...
 
-                        delay(3000)
-                        moveToState(GaggiaState.PREHEAT, measuredWeightGrams = "2")
+                    delay(3000)
 
-                        delay(1000)
-                        moveToState(GaggiaState.PREHEAT, measuredWeightGrams = "4.5")
+                    currentTelemetry = currentTelemetry.copy(state = GaggiaState.PREHEAT, weightGrams = "2")
 
-                        delay(1000)
-                        moveToState(GaggiaState.PREHEAT, measuredWeightGrams = "23.1")
+                    delay(1000)
+                    currentTelemetry = currentTelemetry.copy(state = GaggiaState.PREHEAT, weightGrams = "4.5")
 
-                        delay(1000)
-                        moveToState(GaggiaState.PREHEAT, measuredWeightGrams = "30.5")
+                    delay(1000)
+                    currentTelemetry = currentTelemetry.copy(state = GaggiaState.PREHEAT, weightGrams = "23.1")
 
-                        // weight of scale + cup
-                        delay(1000)
-                        moveToState(GaggiaState.PREHEAT, measuredWeightGrams = "50.5")
+                    delay(1000)
+                    currentTelemetry = currentTelemetry.copy(state = GaggiaState.PREHEAT, weightGrams = "30.5")
 
-                        // This should trigger a 'scale settled' event in the client.
-                        // and the weight of the scale and cup should register
-                        // on the app.
-                        delay(1000)
-                        moveToState(GaggiaState.PREHEAT, measuredWeightGrams = "50.5")
+                    // weight of scale + cup
+                    delay(1000)
+                    currentTelemetry = currentTelemetry.copy(state = GaggiaState.PREHEAT, weightGrams = "50.5")
 
-                        scaleSettled = false
-                    }
+                    // This should trigger a 'scale settled' event in the client.
+                    // and the weight of the scale and cup should register
+                    // on the app.
+                    delay(1000)
+                    currentTelemetry = currentTelemetry.copy(state = GaggiaState.PREHEAT, weightGrams = "50.5")
+
+                    // we don't trigger any more state changes as now we wait for user to interact.
                 }
             }
 
             GaggiaState.MEASURE_BEANS -> {
-                if (!scaleWeighted) {
-                    coroutineScope.launch(Dispatchers.Default) {
-                        scaleWeighted = true
+                coroutineScope.launch(Dispatchers.Default) {
 
-                        // simulate somebody slowly filling the cup with beans
-                        //
-                        // at first.. only thing on scale is the cup... but remember,
-                        // this is tared weight so we start at 0
-                        delay(4000)
-                        moveToState(GaggiaState.MEASURE_BEANS, measuredWeightGrams = "0.0")
+                    // simulate somebody slowly filling the cup with beans
+                    //
+                    // at first.. only thing on scale is the cup... but remember,
+                    // this is tared weight so we start at 0
+                    delay(4000)
+                    currentTelemetry = currentTelemetry.copy(state = GaggiaState.MEASURE_BEANS, weightGrams = "0.0")
 
-                        // at first.. only thing on scale is the cup...
-                        delay(1000)
-                        moveToState(GaggiaState.MEASURE_BEANS, measuredWeightGrams = "2.5")
+                    // at first.. only thing on scale is the cup...
+                    delay(1000)
+                    currentTelemetry = currentTelemetry.copy(state = GaggiaState.MEASURE_BEANS, weightGrams = "2.5")
 
-                        // finally, they begin to pour beans in the cup
-                        // the scale usually jumps up when an object is first placed...
-                        delay(1000)
-                        moveToState(GaggiaState.MEASURE_BEANS, measuredWeightGrams = "15.0")
+                    // finally, they begin to pour beans in the cup
+                    // the scale usually jumps up when an object is first placed...
+                    delay(1000)
+                    currentTelemetry = currentTelemetry.copy(state = GaggiaState.MEASURE_BEANS, weightGrams = "15.0")
 
-                        // let's change hte value a bit so it has to settle..
-                        delay(1000)
-                        moveToState(GaggiaState.MEASURE_BEANS, measuredWeightGrams = "18.0")
+                    // let's change hte value a bit so it has to settle..
+                    delay (1000)
+                    currentTelemetry = currentTelemetry.copy(state = GaggiaState.MEASURE_BEANS, weightGrams = "18.0")
 
-                        delay(1000)
-                        moveToState(GaggiaState.MEASURE_BEANS, measuredWeightGrams = "25.0")
+                    delay(1000)
+                    currentTelemetry = currentTelemetry.copy(state = GaggiaState.MEASURE_BEANS, weightGrams = "25.0")
 
-                        delay(1000)
-                        moveToState(GaggiaState.MEASURE_BEANS, measuredWeightGrams = "20.0")
+                    delay(1000)
+                    currentTelemetry = currentTelemetry.copy(state = GaggiaState.MEASURE_BEANS, weightGrams = "20.0")
 
-                        delay(1000)
-                        // assume 19 grams of beans
-                        moveToState(GaggiaState.MEASURE_BEANS, measuredWeightGrams = "19.0")
+                    delay(1000)
+                    // assume 19 grams of beans
+                    currentTelemetry = currentTelemetry.copy(state = GaggiaState.MEASURE_BEANS, weightGrams = "19.0")
 
-                        // this should finally trigger the app to declare bean value settled...
-                        delay(1000)
-                        moveToState(GaggiaState.MEASURE_BEANS, measuredWeightGrams = "19.0")
+                    // this should finally trigger the app to declare bean value settled...
+                    delay(1000)
+                    currentTelemetry = currentTelemetry.copy(state = GaggiaState.MEASURE_BEANS, weightGrams = "19.0")
 
-                        scaleWeighted = false
-                    }
+                    // we don't trigger any more state changes as now we wait for user to interact.
                 }
             }
 
             GaggiaState.TARE_CUP_AFTER_MEASURE -> {
-                if (!scaleWeighted) {
-                    coroutineScope.launch(Dispatchers.Default) {
-                        scaleWeighted = true
+                coroutineScope.launch(Dispatchers.Default) {
 
-                        // we're simulating the user taking the cup full of beans off
-                        // the scale, grinding the beans, then replacing the empty cup
-                        // on the scale...
-                        //
-                        // The thing to note here is that at this point in the process, the gaggia
-                        // has tared the scale and the empty cup.. so any measured weight is only
-                        // the beans... so an empty reading means the cup is on the scale...
+                    // we're simulating the user taking the cup full of beans off
+                    // the scale, grinding the beans, then replacing the empty cup
+                    // on the scale...
+                    //
+                    // The thing to note here is that at this point in the process, the gaggia
+                    // has tared the scale and the empty cup.. so any measured weight is only
+                    // the beans... so an empty reading means the cup is on the scale...
 
-                        delay(1000)
-                        // removing the cup makes the weight go negative because it's tared with
-                        // the weight of hte cup...
-                        moveToState(
-                            GaggiaState.TARE_CUP_AFTER_MEASURE,
-                            measuredWeightGrams = "-1.0"
-                        )
+                    delay(1000)
+                    // removing the cup makes the weight go negative because it's tared with
+                    // the weight of hte cup...
+                    currentTelemetry = currentTelemetry.copy(state = GaggiaState.TARE_CUP_AFTER_MEASURE, weightGrams = "-1.0")
 
-                        delay(1000)
-                        moveToState(
-                            GaggiaState.TARE_CUP_AFTER_MEASURE,
-                            measuredWeightGrams = "-2.0"
-                        )
+                    delay(1000)
+                    currentTelemetry = currentTelemetry.copy(state = GaggiaState.TARE_CUP_AFTER_MEASURE, weightGrams = "-2.0")
 
-                        delay(1000)
-                        // while the scale is settling, the user is emptying the cup and putting the
-                        // beans in the portrafilter.. and returning the empty cup to the scale...
-                        moveToState(
-                            GaggiaState.TARE_CUP_AFTER_MEASURE,
-                            measuredWeightGrams = "-2.0"
-                        )
+                    delay(1000)
+                    // while the scale is settling, the user is emptying the cup and putting the
+                    // beans in the portrafilter.. and returning the empty cup to the scale...
+                    currentTelemetry = currentTelemetry.copy(state = GaggiaState.TARE_CUP_AFTER_MEASURE, weightGrams = "-2.0")
 
-                        // finally the user paces the cup ...
-                        delay(1000)
-                        moveToState(
-                            GaggiaState.TARE_CUP_AFTER_MEASURE,
-                            measuredWeightGrams = "-1.0"
-                        )
+                    // finally the user paces the cup ...
+                    delay(1000)
+                    currentTelemetry = currentTelemetry.copy(state = GaggiaState.TARE_CUP_AFTER_MEASURE, weightGrams = "-1.0")
 
-                        delay(1000)
-                        // Assume the cup that has been placed on scale weighs
-                        moveToState(GaggiaState.TARE_CUP_AFTER_MEASURE, measuredWeightGrams = "0.0")
+                    delay(1000)
+                    // Assume the cup that has been placed on scale weighs
+                    currentTelemetry = currentTelemetry.copy(state = GaggiaState.TARE_CUP_AFTER_MEASURE, weightGrams = "0.0")
 
-                        // Finally trigger the cup settled on the scale.
-                        delay(1000)
-                        moveToState(GaggiaState.TARE_CUP_AFTER_MEASURE, measuredWeightGrams = "0.0")
+                    // Finally trigger the cup settled on the scale.
+                    delay(1000)
+                    currentTelemetry = currentTelemetry.copy(state = GaggiaState.TARE_CUP_AFTER_MEASURE, weightGrams = "0.0")
 
-                        scaleWeighted = false
-                    }
+                    // we don't trigger any more state changes as now we wait for user to interact.
                 }
             }
 
@@ -439,8 +437,9 @@ class GaggiaSimulator(val coroutineScope: CoroutineScope) {
 
                     // assume it takes 5 seconds to preheat
                     delay(2000)
+                    currentTelemetry = currentTelemetry.copy(state = GaggiaState.PREINFUSION_AND_BREWING)
 
-                    moveToState(GaggiaState.PREINFUSION_AND_BREWING)
+                    scheduleNextStateAutomaticallyIfNecessary(GaggiaState.PREINFUSION_AND_BREWING)
                 }
             }
 
@@ -449,11 +448,20 @@ class GaggiaSimulator(val coroutineScope: CoroutineScope) {
 
                     // it takes some time for preinfusion and brewing
                     for (telemetryMessage in renderTelemetry(typicalBrewCycleTelemetryString)) {
-                        publishTelemetryMessage("${telemetryMessage.state}, ${telemetryMessage.weightGrams}, ${telemetryMessage.pressureBars}, ${telemetryMessage.dutyCyclePercent}, ${telemetryMessage.flowRateGPS}, ${telemetryMessage.brewTempC}")
-                        delay(1000)
+                        currentTelemetry = currentTelemetry.copy(
+                            state = telemetryMessage.state,
+                            weightGrams = telemetryMessage.weightGrams,
+                            pressureBars = telemetryMessage.pressureBars,
+                            dutyCyclePercent = telemetryMessage.dutyCyclePercent,
+                            flowRateGPS = telemetryMessage.flowRateGPS,
+                            brewTempC = telemetryMessage.brewTempC
+                        )
+
+                        delay(MQTT_TRANSMIT_INTERVAL_MILLIS)
                     }
 
-                    moveToState(GaggiaState.DONE_BREWING)
+                    currentTelemetry = currentTelemetry.copy(state = GaggiaState.DONE_BREWING)
+                    // we don't trigger any more state changes as now we wait for user to interact.
                 }
             }
 
@@ -463,7 +471,8 @@ class GaggiaSimulator(val coroutineScope: CoroutineScope) {
                     // it takes some time to brew
                     delay(4000)
 
-                    moveToState(GaggiaState.STEAMING)
+                    currentTelemetry = currentTelemetry.copy(state = GaggiaState.STEAMING)
+                    // we don't trigger any more state changes as now we wait for user to interact.
                 }
             }
 
@@ -473,7 +482,9 @@ class GaggiaSimulator(val coroutineScope: CoroutineScope) {
                     // assume it takes a couple seconds to clean
                     delay(2000)
 
-                    moveToState(GaggiaState.PREHEAT)
+                    currentTelemetry = currentTelemetry.copy(state = GaggiaState.PREHEAT)
+
+                    scheduleNextStateAutomaticallyIfNecessary(GaggiaState.PREHEAT)
                 }
             }
 
@@ -483,7 +494,7 @@ class GaggiaSimulator(val coroutineScope: CoroutineScope) {
                     // assume it takes 5 seconds to preheat
                     delay(5000)
 
-                    moveToState(GaggiaState.DISPENSE_HOT_WATER)
+                    currentTelemetry = currentTelemetry.copy(state = GaggiaState.DISPENSE_HOT_WATER)
                 }
             }
 
@@ -491,34 +502,27 @@ class GaggiaSimulator(val coroutineScope: CoroutineScope) {
         }
     }
 
-    @OptIn(DelicateCoroutinesApi::class)
-    private fun moveToState(nextState: GaggiaState, measuredWeightGrams: String = "0.058937") {
-        println("*** Simulator: movingToState : $nextState")
-        timeSinceLastCommandMillis = currentTimeMillis()
-        currentState = nextState
-
-        // Only the state matters here so far; we don't care about other values.
-        publishTelemetryMessage("${currentState.stateName}, $measuredWeightGrams, 0.000000, 0, 0.000000, 0.000000")
-
-        // Sometimes moving to a state triggers internal behavior
-        // which may result in a state change.... this is where we
-        // are truly simulating internal gaggia behavior
-        //
-        // We also simulate user behavior in here as well.. e.g. putting a
-        // cup or beans on the scale...
-        scheduleNextStateAutomaticallyIfNecessary(currentState)
-    }
-
     @OptIn(ExperimentalUnsignedTypes::class)
-    private fun publishTelemetryMessage(payload: String) {
-        println("*** Simulator: publishing message: $payload")
+    private fun sendTelemetryContinuously() {
         coroutineScope.launch(Dispatchers.Default) {
-            client.publish(
-                retain = false,
-                qos = Qos.AT_MOST_ONCE,
-                topic = telemetryTopic,
-                payload = payload.encodeToByteArray().toUByteArray()
-            )
+
+            // We continuously transmit telemetry to the app
+            while (true) {
+                val payload =
+                    currentTelemetry.state.stateName + ", " + currentTelemetry.weightGrams + ", " + currentTelemetry.pressureBars + ", " + currentTelemetry.dutyCyclePercent + ", " + currentTelemetry.flowRateGPS + ", " + currentTelemetry.brewTempC
+
+                println("*** Simulator: publishing message: $payload")
+
+                client.publish(
+                    retain = false,
+                    qos = Qos.AT_MOST_ONCE,
+                    topic = telemetryTopic,
+                    payload = payload.encodeToByteArray().toUByteArray()
+                )
+                client.step()
+
+                delay(MQTT_TRANSMIT_INTERVAL_MILLIS)
+            }
         }
     }
 

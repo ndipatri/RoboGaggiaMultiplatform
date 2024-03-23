@@ -45,14 +45,21 @@ fun ScreenContent(
     body2Resource: StringResource? = null,
     button1Resource: StringResource? = null,
     button2Resource: StringResource? = null,
-    backgroundImage: DrawableResource = Res.drawable.dark_circuitboard,
+    backgroundImage: DrawableResource? = Res.drawable.dark_circuitboard,
     backgroundColor: Color? = null,
     content: (@Composable ColumnScope.() -> Unit)? = null
 ) =
     Box(modifier = Modifier.fillMaxSize()
-        .paint(painterResource(backgroundImage),
-              contentScale = ContentScale.FillBounds)
-        .background(color = backgroundColor ?: Color.Transparent)
+        .background(color = backgroundColor ?: Color.Transparent).then(
+            if (backgroundImage != null) {
+                Modifier.paint(
+                    painterResource(backgroundImage),
+                    contentScale = ContentScale.FillBounds
+                )
+            } else {
+                Modifier
+            }
+        )
     ) {
         Row(modifier = Modifier.fillMaxWidth()) {
             Column(
@@ -65,7 +72,7 @@ fun ScreenContent(
                         shape = CircleShape,
                         border = BorderStroke(5.dp, Color(0XFF0F9D58)),
                         contentPadding = PaddingValues(0.dp),
-                        colors = ButtonDefaults.outlinedButtonColors(contentColor = androidx.compose.ui.graphics.Color.White)
+                        colors = ButtonDefaults.outlinedButtonColors(contentColor = androidx.compose.ui.graphics.Color.White, backgroundColor = androidx.compose.ui.graphics.Color.Black)
                     ) {
                         Text(text = stringResource(button2Resource))
                     }
@@ -110,7 +117,7 @@ fun ScreenContent(
                         shape = CircleShape,
                         border = BorderStroke(5.dp, Color(0XFF0F9D58)),
                         contentPadding = PaddingValues(0.dp),
-                        colors = ButtonDefaults.outlinedButtonColors(contentColor = androidx.compose.ui.graphics.Color.White)
+                        colors = ButtonDefaults.outlinedButtonColors(contentColor = androidx.compose.ui.graphics.Color.White, backgroundColor = androidx.compose.ui.graphics.Color.Black)
                     ) {
                         Text(text = stringResource(button1Resource))
                     }
