@@ -18,10 +18,13 @@ fun MeasureBeansScreen(
     ScreenContent(
         body1Resource = Res.string.measure_beans_primary,
         body2Resource = if (!uiState.isScaleWeighted)
+            // add whole beans to cup
             Res.string.measure_beans_subtitle_one
         else if (!uiState.isScaleSettled)
+            // weighing...
             Res.string.measure_beans_subtitle_two
         else
+            // Click done to grind beans
             Res.string.measure_beans_subtitle_three,
         button1Resource = if (uiState.isScaleWeighted) Res.string.done else null,
         button2Resource = Res.string.exit,

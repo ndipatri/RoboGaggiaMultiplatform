@@ -206,6 +206,7 @@ class TelemetryViewModel(val context: ApplicationContext) : CoroutineViewModel()
             flowRateGPS = flowRateGPS,
             brewTempC = brewTempC,
         )
+        println("*** NJD: new telemetry: $newTelemetry")
 
         // If we're within brew cycle (Preinfusion or Brewing), we accumulate only those values,
         // otherwise we just accumulate last TELEMETRY_WINDOW_SIZE values...
@@ -451,9 +452,9 @@ enum class GaggiaState(val stateName: String) {
 
 // The treshold nees to be a big higher/lower than the real value
 // to allow for the trigger
-val WEIGHT_OF_EMPTY_SCALE_GRAMS = 5F
+val WEIGHT_OF_EMPTY_SCALE_GRAMS = 11F
 val SCHMITT_TRIGGER_THRESHOLD = 1.1F
-fun lowerSettleWeightThresholdGrams(state: GaggiaState): Float? {
+fun lowerWeightedThresholdGrams(state: GaggiaState): Float? {
     return when (state) {
         GaggiaState.PREHEAT -> {
             // PREHEAT weight is NOT tared... So the weight we are
@@ -478,7 +479,7 @@ fun lowerSettleWeightThresholdGrams(state: GaggiaState): Float? {
     }
 }
 
-fun upperSettleWeightThresholdGrams(state: GaggiaState): Float? {
+fun upperWeightedThresholdGrams(state: GaggiaState): Float? {
     return when (state) {
         GaggiaState.PREHEAT -> {
 
@@ -507,29 +508,42 @@ data class UIState(
     val previousIsScaleWeighted: Boolean = false,
 ) {
 
+    // 'weighted' means that the scale has something on it that we care about
+    // This shows raw weight without waiting for scale to settle.
+    val isScaleWeightedRaw: Boolean
+        get() {
+            val state = currentTelemetryMessage?.state ?: return false
+            val measuredWeightGrams = currentTelemetryMessage?.weightGrams ?: return false
+
+            return (previousIsScaleWeighted &&
+                    lowerWeightedThresholdGrams(state) != null &&
+                    measuredWeightGrams.trim()
+                        .toFloat() >= lowerWeightedThresholdGrams(state)!!) ||
+
+                    (!previousIsScaleWeighted &&
+                            upperWeightedThresholdGrams(state) != null &&
+                            measuredWeightGrams.trim()
+                                .toFloat() > upperWeightedThresholdGrams(state)!!)
+        }
+
+    // 'settled' means the scale has finally stopped changing in value enough to consider the value for calculations
+    // For settling, only consider decimal value of weight
+    val SETTLED_WEIGHT_THRESHOLD = 4
+    val isScaleSettled =
+        if (currentTelemetryMessage?.weightGrams != null && previousTelemetryMessage?.weightGrams != null) {
+            abs(
+                (currentTelemetryMessage!!.weightGrams.trim().toFloat().toInt() -
+                        (previousTelemetryMessage!!.weightGrams.trim().toFloat().toInt()))
+            ) < SETTLED_WEIGHT_THRESHOLD
+        } else {
+            false
+        }
+
     // if something is on the scale
     val isScaleWeighted: Boolean
         get() {
             return isScaleSettled && isScaleWeightedRaw
         }
-
-    // This shows raw weight without waiting for scale to settle.
-    val isScaleWeightedRaw: Boolean
-        get() {
-            val state = telemetry.lastOrNull()?.state ?: return false
-            val measuredWeightGrams = telemetry.lastOrNull()?.weightGrams ?: return false
-
-            return (previousIsScaleWeighted &&
-                    lowerSettleWeightThresholdGrams(state) != null &&
-                    measuredWeightGrams.trim()
-                        .toFloat() >= lowerSettleWeightThresholdGrams(state)!!) ||
-
-                    (!previousIsScaleWeighted &&
-                            upperSettleWeightThresholdGrams(state) != null &&
-                            measuredWeightGrams.trim()
-                                .toFloat() > upperSettleWeightThresholdGrams(state)!!)
-        }
-
 
     // 'tared' in this case means this weight represents not necessarily
     // everything on the scale, but what is supposed to be measured.. For
@@ -578,18 +592,6 @@ data class UIState(
             } else {
                 null
             }
-        }
-
-    // For settling, only consider decimal value of weight
-    val SETTLED_WEIGHT_THRESHOLD = 3
-    val isScaleSettled =
-        if (currentTelemetryMessage?.weightGrams != null && previousTelemetryMessage?.weightGrams != null) {
-            abs(
-                (currentTelemetryMessage!!.weightGrams.trim().toFloat().toInt() -
-                        (previousTelemetryMessage!!.weightGrams.trim().toFloat().toInt()))
-            ) < SETTLED_WEIGHT_THRESHOLD
-        } else {
-            false
         }
 
     // Only valid during TARE_CUP_AFTER_MEASURE state
