@@ -16,23 +16,20 @@ fun MeasureBeansScreen(
     onSecondButtonClick: () -> Unit
 ) {
     ScreenContent(
-        body1Resource = Res.string.measure_beans_primary,
+        body1Resource = Res.string.weigh_your_beans,
         body2Resource = if (!uiState.isScaleWeighted)
-            // add whole beans to cup
-            Res.string.measure_beans_subtitle_one
+            Res.string.add_whole_beans
         else if (!uiState.isScaleSettled)
-            // weighing...
-            Res.string.measure_beans_subtitle_two
+            Res.string.weighing
         else
-            // Click done to grind beans
-            Res.string.measure_beans_subtitle_three,
+            Res.string.click_done_to_grind_beans,
         button1Resource = if (uiState.isScaleWeighted) Res.string.done else null,
         button2Resource = Res.string.exit,
         onFirstButtonClick = onFirstButtonClick,
         onSecondButtonClick = onSecondButtonClick
     ) {
         if (uiState.isScaleWeightedRaw) {
-            SingleFloatContent(Res.string.measure_beans_content, uiState.currentTaredWeight ?: 0F)
+            SingleFloatContent(Res.string.beans_weigh, uiState.currentTaredWeight ?: 0F)
         }
     }
 }

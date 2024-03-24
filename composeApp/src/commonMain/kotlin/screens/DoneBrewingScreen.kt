@@ -15,7 +15,7 @@ fun DoneBrewingScreen(uiState: UIState,
 
     BrewChart(uiState) {
         ScreenContent(
-            body1Resource = Res.string.done_brewing_primary,
+            body1Resource = Res.string.done_brewing,
             button1Resource = Res.string.ready,
             button2Resource = Res.string.exit,
             onFirstButtonClick = onReadyClicked,

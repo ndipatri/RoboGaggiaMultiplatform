@@ -9,8 +9,8 @@ import robogaggiamultiplatform.composeapp.generated.resources.*
 @Composable
 fun CleanGroupReadyScreen(onFirstButtonClick: () -> Unit) {
     ScreenContent(
-        body1Resource = Res.string.clean_group_ready_primary,
-        body2Resource = Res.string.clean_group_ready_secondary,
+        body1Resource = Res.string.ready_to_clean_group,
+        body2Resource = Res.string.hold_towel_under_group,
         button1Resource = Res.string.ready,
         onFirstButtonClick = onFirstButtonClick,
     )

@@ -12,11 +12,11 @@ import vms.UIState
 fun DispensingHotWaterScreen(uiState: UIState,
                              onDoneClick: () -> Unit) {
     ScreenContent(
-        body1Resource = Res.string.dispensing_hot_water_primary,
-        body2Resource = Res.string.dispensing_hot_water_subtitle,
+        body1Resource = Res.string.dispense_hot_water,
+        body2Resource = Res.string.use_steam_wand_to_dispense,
         button1Resource = Res.string.done,
         onFirstButtonClick = onDoneClick,
     ) {
-        SingleFloatContent(Res.string.heating_to_dispense_content, uiState.currentTemperature ?: 0F)
+        SingleFloatContent(Res.string.temp_is_120, uiState.currentTemperature ?: 0F)
     }
 }

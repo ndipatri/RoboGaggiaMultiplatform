@@ -17,14 +17,14 @@ fun PreheatScreen(
     onSecondButtonClick: () -> Unit
 ) {
     ScreenContent(
-        body1Resource = Res.string.preheat_primary,
-        body2Resource = if (!uiState.isScaleWeighted) Res.string.preheat_subtitle_one else null,
-        button1Resource = if (uiState.isScaleWeighted) Res.string.preheat_cta else null,
-        button2Resource = Res.string.preheat_cta2,
+        body1Resource = Res.string.hello_welcome_to_robogaggia,
+        body2Resource = if (!uiState.isScaleWeighted) Res.string.place_your_empty_cup else null,
+        button1Resource = if (uiState.isScaleWeighted) Res.string.start else null,
+        button2Resource = Res.string.clean,
         onFirstButtonClick = onFirstButtonClick,
         onSecondButtonClick = onSecondButtonClick,
         backgroundColor = androidx.compose.ui.graphics.Color.Transparent
     ) {
-        SingleFloatContent(Res.string.preheat_content, uiState.currentTemperature ?: 0F)
+        SingleFloatContent(Res.string.temp_is_120, uiState.currentTemperature ?: 0F)
     }
 }

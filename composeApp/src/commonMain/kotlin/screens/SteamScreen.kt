@@ -12,10 +12,10 @@ import vms.UIState
 fun SteamingScreen(uiState: UIState,
                    onDoneSteamingClick: () -> Unit) {
     ScreenContent(
-        body1Resource = Res.string.steaming_primary,
+        body1Resource = Res.string.operate_steam_wand,
         button1Resource = Res.string.done,
         onFirstButtonClick = onDoneSteamingClick
     ) {
-        SingleFloatContent(Res.string.heating_to_steam_content, uiState.currentTemperature ?: 0F)
+        SingleFloatContent(Res.string.temp_is_140, uiState.currentTemperature ?: 0F)
     }
 }

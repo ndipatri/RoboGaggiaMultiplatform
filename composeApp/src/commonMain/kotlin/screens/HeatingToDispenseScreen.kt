@@ -12,10 +12,10 @@ import vms.UIState
 fun HeatingToDispenseScreen(uiState: UIState,
                             onExitClick: () -> Unit) {
     ScreenContent(
-        body1Resource = Res.string.heating_to_dispense_primary,
+        body1Resource = Res.string.heating_to_dispense,
         body2Resource = Res.string.please_wait,
         button2Resource = Res.string.exit,
         onSecondButtonClick = onExitClick,
     ) {
-        SingleFloatContent(Res.string.heating_to_dispense_content, uiState.currentTemperature ?: 0F)
+        SingleFloatContent(Res.string.temp_is_120, uiState.currentTemperature ?: 0F)
     }}

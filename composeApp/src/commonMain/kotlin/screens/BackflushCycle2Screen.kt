@@ -12,14 +12,14 @@ import vms.UIState
 fun BackflushCycle2Screen(uiState: UIState,
                           onExitClick: () -> Unit) {
     ScreenContent(
-        body1Resource = Res.string.backflush_cycle2_primary,
-        body2Resource = Res.string.backflush_cycle2_subtitle,
+        body1Resource = Res.string.backflushing_with_water,
+        body2Resource = Res.string.please_wait,
         button2Resource = Res.string.exit,
         onSecondButtonClick = onExitClick
     ) {
         // When in this state, the telemetry weight is the currentPass and the
         // telemetry pressure is the target number of passes.
         // We have to round up given the nature of this 'averaged' telemetry
-        DoubleIntContent(Res.string.backflush_cycle1_content, uiState.currentTaredWeight?.plus(0.5)?.toInt() ?: 0, uiState.currentPressure?.toInt() ?: 0)
+        DoubleIntContent(Res.string.pass_number, uiState.currentTaredWeight?.plus(0.5)?.toInt() ?: 0, uiState.currentPressure?.toInt() ?: 0)
     }
 }

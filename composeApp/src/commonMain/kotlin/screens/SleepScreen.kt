@@ -9,7 +9,7 @@ import robogaggiamultiplatform.composeapp.generated.resources.*
 @Composable
 fun SleepScreen(onWakeClicked: () -> Unit) {
     ScreenContent(
-        body1Resource = Res.string.sleep_primary,
+        body1Resource = Res.string.i_am_sleeping,
         button1Resource = Res.string.wake,
         onFirstButtonClick = onWakeClicked,
         backgroundImage = Res.drawable.night

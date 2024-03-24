@@ -9,7 +9,7 @@ import robogaggiamultiplatform.composeapp.generated.resources.*
 @Composable
 fun CleanOptionsScreen(onDescaleClick: () -> Unit, onBackflushClick: () -> Unit) {
     ScreenContent(
-        body1Resource = Res.string.clean_options_primary,
+        body1Resource = Res.string.select_cleaning_option,
         button1Resource = Res.string.backflush,
         button2Resource = Res.string.descale,
         onFirstButtonClick = onBackflushClick,

@@ -9,8 +9,8 @@ import robogaggiamultiplatform.composeapp.generated.resources.*
 @Composable
 fun CleanGroupDoneScreen(onSecondButtonClick: () -> Unit) {
     ScreenContent(
-        body1Resource = Res.string.clean_group_done_primary,
-        body2Resource = Res.string.clean_group_done_secondary,
+        body1Resource = Res.string.cleaning_group,
+        body2Resource = Res.string.please_wait,
         button2Resource = Res.string.exit,
         onSecondButtonClick = onSecondButtonClick
     )

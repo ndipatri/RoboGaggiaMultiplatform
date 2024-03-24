@@ -12,11 +12,11 @@ import vms.UIState
 fun HeatingToBrewScreen(uiState: UIState,
                         onSecondButtonClick: () -> Unit) {
     ScreenContent(
-        body1Resource = Res.string.heating_to_brew_primary,
-        body2Resource = Res.string.heating_to_brew_secondary,
+        body1Resource = Res.string.heating_to_brew,
+        body2Resource = Res.string.please_wait,
         button2Resource = Res.string.exit,
         onSecondButtonClick = onSecondButtonClick,
     ) {
-        SingleFloatContent(Res.string.heating_to_brew_content, uiState.currentTemperature ?: 0F)
+        SingleFloatContent(Res.string.temp_is_120, uiState.currentTemperature ?: 0F)
     }
 }

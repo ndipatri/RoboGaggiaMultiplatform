@@ -14,12 +14,12 @@ fun TareCupAfterMeasureScreen(
     onSecondButtonClick: () -> Unit
 ) {
     ScreenContent(
-        body1Resource = Res.string.tare_cup_after_measure_primary,
+        body1Resource = Res.string.grind_your_beans,
         body2Resource = when {
             !uiState.isCupOnlyOnScale!! ->
-                Res.string.tare_cup_after_measure_subtitle_one
+                Res.string.put_empty_cup_back_on_scale
             uiState.isCupOnlyOnScale ->
-                Res.string.tare_cup_after_measure_subtitle_two
+                Res.string.click_done_to_begin_brewing
             else -> null
         },
         button1Resource = if (uiState.isCupOnlyOnScale) Res.string.done else null,

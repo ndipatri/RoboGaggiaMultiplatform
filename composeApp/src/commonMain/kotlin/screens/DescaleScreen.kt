@@ -9,8 +9,8 @@ import robogaggiamultiplatform.composeapp.generated.resources.*
 @Composable
 fun DescaleScreen(onReadyClick: () -> Unit, onExitClick: () -> Unit) {
     ScreenContent(
-        body1Resource = Res.string.descale_primary,
-        body2Resource = Res.string.descale_subtitle,
+        body1Resource = Res.string.descale_boiler,
+        body2Resource = Res.string.fill_water_reservouir_with_descale,
         button1Resource = Res.string.ready,
         button2Resource = Res.string.exit,
         onFirstButtonClick = onReadyClick,

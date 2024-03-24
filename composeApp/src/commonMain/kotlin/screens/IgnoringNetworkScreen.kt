@@ -9,7 +9,7 @@ import robogaggiamultiplatform.composeapp.generated.resources.*
 @Composable
 fun IgnoringNetworkScreen() {
     ScreenContent(
-        body1Resource = Res.string.ignoring_network_primary,
-        body2Resource = Res.string.ignoring_network_secondary
+        body1Resource = Res.string.ignoring_network,
+        body2Resource = Res.string.please_wait
     )
 }

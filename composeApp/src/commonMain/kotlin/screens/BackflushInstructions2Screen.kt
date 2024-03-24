@@ -9,8 +9,8 @@ import robogaggiamultiplatform.composeapp.generated.resources.*
 @Composable
 fun BackflushInsructions2Screen(onReadyClick: () -> Unit, onExitClick: () -> Unit) {
     ScreenContent(
-        body1Resource = Res.string.backflush_inst2_primary,
-        body2Resource = Res.string.backflush_inst2_subtitle,
+        body1Resource = Res.string.prepare_to_backflush_cleaner,
+        body2Resource = Res.string.remove_scale,
         button1Resource = Res.string.ready,
         button2Resource = Res.string.exit,
         onFirstButtonClick = onReadyClick,

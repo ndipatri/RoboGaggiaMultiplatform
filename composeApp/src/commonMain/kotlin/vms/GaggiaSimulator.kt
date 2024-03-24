@@ -325,7 +325,6 @@ class GaggiaSimulator(val coroutineScope: CoroutineScope) {
                     // their empty cup on the scale ...
 
                     delay(3000)
-
                     currentTelemetry = currentTelemetry.copy(state = GaggiaState.PREHEAT, weightGrams = "2")
 
                     delay(1000)

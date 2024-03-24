@@ -9,8 +9,8 @@ import robogaggiamultiplatform.composeapp.generated.resources.*
 @Composable
 fun BackflushDoneScreen(onDoneClick: () -> Unit) {
     ScreenContent(
-        body1Resource = Res.string.backflush_done_primary,
-        body2Resource = Res.string.backflush_done_subtitle,
+        body1Resource = Res.string.done_backflushing,
+        body2Resource = Res.string.install_normal_basket,
         button1Resource = Res.string.done,
         onFirstButtonClick = onDoneClick,
     )
