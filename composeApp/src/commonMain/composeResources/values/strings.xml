@@ -2,81 +2,73 @@
 <resources>
     <string name="welcome_primary">Robo Gaggia</string>
 
-    <string name="joining_network_primary">Joining Network</string>
-    <string name="joining_network_secondary">Please wait</string>
+    <string name="joining_network">Joining Network</string>
+    <string name="please_wait">Please wait</string>
 
-    <string name="ignoring_network_primary">Ignoring Network</string>
-    <string name="ignoring_network_secondary">Please wait</string>
+    <string name="ignoring_network">Ignoring Network</string>
     <string name="ignore_network">Ignore network</string>
 
-    <string name="sleep_primary">Hi (yawn), I am sleeping</string>
+    <string name="i_am_sleeping">Hi (yawn), I am sleeping</string>
     <string name="wake">Wake</string>
 
-    <string name="preheat_primary">Hello! Welcome to RoboGaggia</string>
-    <string name="preheat_subtitle_one">Place your empty cup on the scale.</string>
-    <string name="preheat_cta">Start</string>
-    <string name="preheat_cta2">Clean</string>
-    <string name="preheat_content">Temp is %.1fC (target is 120C)</string>
+    <string name="hello_welcome_to_robogaggia">Hello! Welcome to RoboGaggia</string>
+    <string name="place_your_empty_cup">Place your empty cup on the scale.</string>
+    <string name="start">Start</string>
+    <string name="clean">Clean</string>
+    <string name="temp_is_120">Temp is %.1fC (target is 120C)</string>
 
-    <string name="measure_beans_primary">Weigh your beans</string>
-    <string name="measure_beans_subtitle_one">Add whole beans to the cup.</string>
-    <string name="measure_beans_subtitle_two">Weighing ...</string>
-    <string name="measure_beans_subtitle_three">Click Done to grind beans</string>
-    <string name="measure_beans_content">Beans weighs %.1f grams\n(suggestion is 19g)</string>
+    <string name="weigh_your_beans">Weigh your beans</string>
+    <string name="add_whole_beans">Add whole beans to the cup.</string>
+    <string name="weighing">Weighing ...</string>
+    <string name="click_done_to_grind_beans">Click Done to grind beans</string>
+    <string name="beans_weigh">Beans weigh %.1f grams\n(suggestion is 19g)</string>
 
-    <string name="tare_cup_after_measure_primary">Grind your beans and load Portafilter</string>
-    <string name="tare_cup_after_measure_subtitle_one">Put empty cup back on scale.</string>
-    <string name="tare_cup_after_measure_subtitle_two">Click Done to begin brewing</string>
+    <string name="grind_your_beans">Grind your beans and load Portafilter</string>
+    <string name="put_empty_cup_back_on_scale">Put empty cup back on scale.</string>
+    <string name="click_done_to_begin_brewing">Click Done to begin brewing</string>
 
-    <string name="heating_to_brew_primary">Heating to Brew</string>
-    <string name="heating_to_brew_secondary">Please Wait</string>
-    <string name="heating_to_brew_content">Temp is %.1fC (target is 120C)</string>
+    <string name="heating_to_brew">Heating to Brew</string>
 
-    <string name="done_brewing_primary">Done Brewing</string>
+    <string name="done_brewing">Done Brewing</string>
 
-    <string name="heating_to_steam_primary">Heating to Steam</string>
-    <string name="heating_to_steam_secondary">Remove and clean Portafilter</string>
-    <string name="heating_to_steam_content">Temp is %.1fC (target is 140C)</string>
+    <string name="heating_to_steam">Heating to Steam</string>
+    <string name="remove_and_clean_portafilter">Remove and clean Portafilter</string>
+    <string name="temp_is_140">Temp is %.1fC (target is 140C)</string>
 
-    <string name="steaming_primary">Operate Steam Wand</string>
+    <string name="operate_steam_wand">Operate Steam Wand</string>
 
-    <string name="clean_group_ready_primary">Ready to Clean Group Head</string>
-    <string name="clean_group_ready_secondary">Hold towel under group</string>
+    <string name="ready_to_clean_group">Ready to Clean Group Head</string>
+    <string name="hold_towel_under_group">Hold towel under group</string>
 
-    <string name="clean_group_done_primary">Cleaning Group Head</string>
-    <string name="clean_group_done_secondary">Please Wait</string>
+    <string name="cleaning_group">Cleaning Group Head</string>
 
-    <string name="backflush_inst1_primary">Prepare to Backflush with Cleaner</string>
-    <string name="backflush_inst1_subtitle">Install backflush basket in Portafilter\nand\nLoad with 3 grams of Cafiza cleaner.</string>
+    <string name="prepare_to_backflush_cleaner">Prepare to Backflush with Cleaner</string>
+    <string name="install_backflush_basket">Install backflush basket in Portafilter\nand\nLoad with 3 grams of Cafiza cleaner.</string>
 
-    <string name="backflush_inst2_primary">Prepare to Backflush with Cleaner</string>
-    <string name="backflush_inst2_subtitle">Remove scale from drain pan\nand\nMake sure drain pan is empty.</string>
+    <string name="remove_scale">Remove scale from drain pan\nand\nMake sure drain pan is empty.</string>
 
-    <string name="backflush_cycle1_primary">Backflushing with Cleaner</string>
-    <string name="backflush_cycle1_subtitle">Please Wait</string>
-    <string name="backflush_cycle1_content">Pass (%1$d/%2$d)</string>
+    <string name="backflushing_with_cleaner">Backflushing with Cleaner</string>
+    <string name="pass_number">Pass (%1$d/%2$d)</string>
 
-    <string name="backflush_inst3_primary">Prepare to Backflush with Water</string>
-    <string name="backflush_inst3_subtitle">Rinse out backflush Portafilter.</string>
+    <string name="prepare_to_backflush_water">Prepare to Backflush with Water</string>
+    <string name="rinse_out_backflush_portafilter">Rinse out backflush Portafilter.</string>
 
-    <string name="backflush_cycle2_primary">Backflushing with Water</string>
-    <string name="backflush_cycle2_subtitle">Please Wait</string>
+    <string name="backflushing_with_water">Backflushing with Water</string>
 
-    <string name="backflush_done_primary">Done Backflushing</string>
-    <string name="backflush_done_subtitle">Install normal basket in Portafilter\nand\nReturn scale to drain pan.</string>
+    <string name="done_backflushing">Done Backflushing</string>
+    <string name="install_normal_basket">Install normal basket in Portafilter\nand\nReturn scale to drain pan.</string>
 
-    <string name="clean_options_primary">Select Cleaning Option</string>
+    <string name="select_cleaning_option">Select Cleaning Option</string>
     <string name="descale">Descale</string>
     <string name="backflush">Backflush</string>
 
-    <string name="descale_primary">Descale Boiler</string>
-    <string name="descale_subtitle">Fill water reservoir with descale\nsolution or water.</string>
+    <string name="descale_boiler">Descale Boiler</string>
+    <string name="fill_water_reservouir_with_descale">Fill water reservoir with descale\nsolution or water.</string>
 
-    <string name="heating_to_dispense_primary">Heating to Dispense Water</string>
-    <string name="heating_to_dispense_content">Temp is %.1fC (target is 120C)</string>
+    <string name="heating_to_dispense">Heating to Dispense Water</string>
 
-    <string name="dispensing_hot_water_primary">Dispense Hot Water</string>
-    <string name="dispensing_hot_water_subtitle">Use steam wand to dispense\nhot water.</string>
+    <string name="dispense_hot_water">Dispense Hot Water</string>
+    <string name="use_steam_wand_to_dispense">Use steam wand to dispense\nhot water.</string>
 
     <string name="ready">Ready</string>
 
@@ -85,9 +77,5 @@
     <string name="exit">Exit</string>
 
     <string name="waiting_for_scale_to_settle">Waiting for scale to settle ...</string>
-
-    <string name="please_wait">Please wait ...</string>
-
-    <string name="hello_world">Hello moko-resources World</string>
 
 </resources>
