@@ -29,9 +29,6 @@ class GaggiaSimulator(val coroutineScope: CoroutineScope) {
     // How long until Gaggia redirects to the SLEEP state
     var USER_INACTIVITY_TIMEOUT_MILLIS = 300000L
 
-    // Adafruit.IO doesn't want these faster than every second...
-    var MQTT_TRANSMIT_INTERVAL_MILLIS = 1200L
-
     init {
         startClientAndSubscribeToCommandTopic(600)
     }
@@ -76,9 +73,11 @@ class GaggiaSimulator(val coroutineScope: CoroutineScope) {
                         if (!connected) {
                             // we need to make sure we're connected first before we
                             // try to publish.. duh
-                            currentTelemetry = currentTelemetry.copy(state = GaggiaState.JOINING_NETWORK)
 
-                            scheduleNextStateAutomaticallyIfNecessary(GaggiaState.JOINING_NETWORK)
+                            currentTelemetry = currentTelemetry.copy(state = GaggiaState.JOINING_NETWORK)
+                            //currentTelemetry = currentTelemetry.copy(state = GaggiaState.PREINFUSION_AND_BREWING)
+
+                            scheduleNextStateAutomaticallyIfNecessary()
                         }
                         connected = true
 
@@ -114,7 +113,7 @@ class GaggiaSimulator(val coroutineScope: CoroutineScope) {
             )
         )
 
-        scheduleNextStateAutomaticallyIfNecessary(currentTelemetry.state)
+        scheduleNextStateAutomaticallyIfNecessary()
     }
 
     // If we receive a command from mobile, we need to move to a new state....
@@ -285,7 +284,7 @@ class GaggiaSimulator(val coroutineScope: CoroutineScope) {
         return GaggiaState.NA
     }
 
-    private fun scheduleNextStateAutomaticallyIfNecessary(currentState: GaggiaState) {
+    private fun scheduleNextStateAutomaticallyIfNecessary() {
 
         // Sometimes moving to a state triggers internal behavior
         // which may result in a state change.... this is where we
@@ -294,7 +293,7 @@ class GaggiaSimulator(val coroutineScope: CoroutineScope) {
         // We also simulate user behavior in here as well.. e.g. putting a
         // cup or beans on the scale...
 
-        when (currentState) {
+        when (currentTelemetry.state) {
             GaggiaState.JOINING_NETWORK -> {
                 coroutineScope.launch(Dispatchers.Default) {
                     // assume it takes 5 seconds to join the network
@@ -302,7 +301,7 @@ class GaggiaSimulator(val coroutineScope: CoroutineScope) {
 
                     currentTelemetry = currentTelemetry.copy(state = GaggiaState.PREHEAT)
 
-                    scheduleNextStateAutomaticallyIfNecessary(GaggiaState.PREHEAT)
+                    scheduleNextStateAutomaticallyIfNecessary()
                 }
             }
 
@@ -314,7 +313,7 @@ class GaggiaSimulator(val coroutineScope: CoroutineScope) {
 
                     currentTelemetry= currentTelemetry.copy(state = GaggiaState.PREHEAT)
 
-                    scheduleNextStateAutomaticallyIfNecessary(GaggiaState.PREHEAT)
+                    scheduleNextStateAutomaticallyIfNecessary()
                 }
             }
 
@@ -438,7 +437,7 @@ class GaggiaSimulator(val coroutineScope: CoroutineScope) {
                     delay(2000)
                     currentTelemetry = currentTelemetry.copy(state = GaggiaState.PREINFUSION_AND_BREWING)
 
-                    scheduleNextStateAutomaticallyIfNecessary(GaggiaState.PREINFUSION_AND_BREWING)
+                    scheduleNextStateAutomaticallyIfNecessary()
                 }
             }
 
@@ -456,7 +455,8 @@ class GaggiaSimulator(val coroutineScope: CoroutineScope) {
                             brewTempC = telemetryMessage.brewTempC
                         )
 
-                        delay(MQTT_TRANSMIT_INTERVAL_MILLIS)
+                        //delay(BuildKonfig.MQTT_SERVER_ADDRESS)
+                        delay(BuildKonfig.MQTT_SERVER_TELEMETRY_INTERVAL_MILLIS.toLong())
                     }
 
                     currentTelemetry = currentTelemetry.copy(state = GaggiaState.DONE_BREWING)
@@ -483,7 +483,7 @@ class GaggiaSimulator(val coroutineScope: CoroutineScope) {
 
                     currentTelemetry = currentTelemetry.copy(state = GaggiaState.PREHEAT)
 
-                    scheduleNextStateAutomaticallyIfNecessary(GaggiaState.PREHEAT)
+                    scheduleNextStateAutomaticallyIfNecessary()
                 }
             }
 
@@ -520,7 +520,7 @@ class GaggiaSimulator(val coroutineScope: CoroutineScope) {
                 )
                 client.step()
 
-                delay(MQTT_TRANSMIT_INTERVAL_MILLIS)
+                delay(BuildKonfig.MQTT_SERVER_TELEMETRY_INTERVAL_MILLIS.toLong())
             }
         }
     }

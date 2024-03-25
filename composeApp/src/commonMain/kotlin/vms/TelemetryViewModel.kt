@@ -54,7 +54,7 @@ class TelemetryViewModel(val context: ApplicationContext) : CoroutineViewModel()
     //
     // If we're within brew cycle (Preinfusion or Brewing), we accumulate only those values,
     // otherwise we just accumulate last TELEMETRY_WINDOW_SIZE values...
-    private val UI_STATE_FLOW_MAX_AGE_MILLIS = 3000L
+    private val UI_STATE_FLOW_MAX_AGE_MILLIS = 30000L
     private var uiStateFlowLastUpdatedTimeMillis: Long = -1L
     val uiStateFlow: MutableStateFlow<UIState> = MutableStateFlow(UIState())
 

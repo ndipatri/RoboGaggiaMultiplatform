@@ -1,8 +1,11 @@
 package content
 
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement.Absolute.Center
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
@@ -18,22 +21,27 @@ import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.OutlinedButton
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.paint
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.delay
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import robogaggiamultiplatform.composeapp.generated.resources.Res
-import robogaggiamultiplatform.composeapp.generated.resources.circuit_board
 import robogaggiamultiplatform.composeapp.generated.resources.dark_circuitboard
-import robogaggiamultiplatform.composeapp.generated.resources.night
 import theme.Typography
 
 @OptIn(ExperimentalResourceApi::class)
@@ -47,8 +55,10 @@ fun ScreenContent(
     button2Resource: StringResource? = null,
     backgroundImage: DrawableResource? = Res.drawable.dark_circuitboard,
     backgroundColor: Color? = null,
+    shouldDisappear: Boolean = false,
     content: (@Composable ColumnScope.() -> Unit)? = null
 ) =
+
     Box(modifier = Modifier.fillMaxSize()
         .background(color = backgroundColor ?: Color.Transparent).then(
             if (backgroundImage != null) {
@@ -61,9 +71,29 @@ fun ScreenContent(
             }
         )
     ) {
-        Row(modifier = Modifier.fillMaxWidth()) {
+
+        var shouldBeVisible by remember { mutableStateOf(true) }
+
+        val alpha: Float by animateFloatAsState(
+            targetValue = if (shouldBeVisible) 1f else 0f,
+            animationSpec = tween(durationMillis = 500, easing = FastOutSlowInEasing)
+        )
+
+        if (shouldDisappear) {
+            LaunchedEffect(shouldBeVisible) {
+                delay(4000)
+
+                // after 2 seconds, the buttons disappear again...
+                shouldBeVisible = false
+            }
+        }
+
+        Row(modifier = Modifier.fillMaxWidth().graphicsLayer(alpha = alpha).clickable { if (shouldDisappear) shouldBeVisible = !shouldBeVisible }) {
             Column(
-                modifier = Modifier.fillMaxHeight().weight(.20F).padding(horizontal = 10.dp)
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .weight(.20F)
+                    .padding(horizontal = 10.dp)
             ) {
                 button2Resource?.let {
                     OutlinedButton(

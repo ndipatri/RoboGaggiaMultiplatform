@@ -21,6 +21,10 @@ fun DoneBrewingScreen(uiState: UIState,
             onFirstButtonClick = onReadyClicked,
             onSecondButtonClick = onExitClicked,
             backgroundImage = null,
+            shouldDisappear = true,
+
+            // We want the buttons from ScreenContent, but it's background needs to be
+            // transparent so we can see the BrewChart behind it.
             backgroundColor = Color.Transparent
         )
     }

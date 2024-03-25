@@ -107,6 +107,12 @@ buildkonfig {
         )
 
         buildConfigField(
+            Type.STRING,
+            "MQTT_SERVER_TELEMETRY_INTERVAL_MILLIS",
+            gradleLocalProperties(rootDir).getProperty("mqtt.server.telemetry.interval.millis")
+        )
+
+        buildConfigField(
             com.codingfeline.buildkonfig.compiler.FieldSpec.Type.STRING,
             "USE_BLE",
             gradleLocalProperties(rootDir).getProperty("use.ble")
