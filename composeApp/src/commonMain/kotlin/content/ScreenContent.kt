@@ -4,6 +4,7 @@ import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -41,7 +42,9 @@ import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import robogaggiamultiplatform.composeapp.generated.resources.Res
+import robogaggiamultiplatform.composeapp.generated.resources.coffee_face
 import robogaggiamultiplatform.composeapp.generated.resources.dark_circuitboard
+import robogaggiamultiplatform.composeapp.generated.resources.fire
 import theme.Typography
 
 @OptIn(ExperimentalResourceApi::class)
@@ -88,7 +91,16 @@ fun ScreenContent(
             }
         }
 
-        Row(modifier = Modifier.fillMaxWidth().graphicsLayer(alpha = alpha).clickable { if (shouldDisappear) shouldBeVisible = !shouldBeVisible }) {
+//        Image(
+//            painter = painterResource(Res.drawable.fire),
+//            contentDescription = null
+//        )
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .graphicsLayer(alpha = alpha)
+                .clickable { if (shouldDisappear) shouldBeVisible = !shouldBeVisible }) {
             Column(
                 modifier = Modifier
                     .fillMaxHeight()

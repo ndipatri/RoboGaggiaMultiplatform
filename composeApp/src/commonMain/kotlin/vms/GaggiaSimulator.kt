@@ -30,6 +30,8 @@ class GaggiaSimulator(val coroutineScope: CoroutineScope) {
     var USER_INACTIVITY_TIMEOUT_MILLIS = 300000L
 
     init {
+        println("*** NJD: simulator init")
+
         startClientAndSubscribeToCommandTopic(600)
     }
 
@@ -74,7 +76,8 @@ class GaggiaSimulator(val coroutineScope: CoroutineScope) {
                             // we need to make sure we're connected first before we
                             // try to publish.. duh
 
-                            currentTelemetry = currentTelemetry.copy(state = GaggiaState.JOINING_NETWORK)
+                            //currentTelemetry = currentTelemetry.copy(state = GaggiaState.JOINING_NETWORK)
+                            currentTelemetry = currentTelemetry.copy(state = GaggiaState.PREHEAT)
                             //currentTelemetry = currentTelemetry.copy(state = GaggiaState.PREINFUSION_AND_BREWING)
 
                             scheduleNextStateAutomaticallyIfNecessary()

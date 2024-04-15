@@ -595,10 +595,13 @@ data class UIState(
         }
 
     // Only valid during TARE_CUP_AFTER_MEASURE state
+    // This is because at this time, the telemetry 'weightGrams' value
+    // is tared with the cup, so if the weight is close to zero, this means
+    // the cup is back on the scale.
     val isCupOnlyOnScale: Boolean? =
         if (currentTelemetryMessage?.state == GaggiaState.TARE_CUP_AFTER_MEASURE) {
             isScaleSettled && (currentTelemetryMessage?.weightGrams?.trim()?.toFloat()
-                ?.let { abs(it) < 2F } ?: false)
+                ?.let { abs(it) < 3F } ?: false)
         } else {
             null
         }

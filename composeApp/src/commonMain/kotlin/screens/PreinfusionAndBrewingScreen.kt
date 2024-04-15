@@ -393,12 +393,13 @@ fun LineGraph(
             previousXPosition = xPosition
             previousYPosition = yPosition
 
+            // NJD TODO getting rid of dots for now...
             // we want an explicit mark at every data point
-            drawCircle(
-                color = pathColor,
-                radius = 10f,
-                center = Offset(xPosition, yPosition)
-            )
+//            drawCircle(
+//                color = pathColor,
+//                radius = 10f,
+//                center = Offset(xPosition, yPosition)
+//            )
 
             drawPath(
                 path = path,
