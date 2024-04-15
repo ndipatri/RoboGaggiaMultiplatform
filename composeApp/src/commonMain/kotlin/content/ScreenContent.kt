@@ -42,9 +42,7 @@ import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import robogaggiamultiplatform.composeapp.generated.resources.Res
-import robogaggiamultiplatform.composeapp.generated.resources.coffee_face
 import robogaggiamultiplatform.composeapp.generated.resources.dark_circuitboard
-import robogaggiamultiplatform.composeapp.generated.resources.fire
 import theme.Typography
 
 @OptIn(ExperimentalResourceApi::class)
