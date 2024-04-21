@@ -12,8 +12,10 @@
     <string name="wake">Wake</string>
 
     <string name="hello_welcome_to_robogaggia">Hello! Welcome to RoboGaggia</string>
-    <string name="place_your_empty_cup">Place your empty cup on the scale.</string>
+    <string name="place_your_empty_cup">Place your empty cup on the scale to start brewing.</string>
     <string name="start">Start</string>
+    <string name="time_to_backflush">It's time to Backflush. Tap 'Clean' or ...</string>
+    <string name="shots_brewed_so_far">%1$d shots have been brewed so far.</string>
     <string name="clean">Clean</string>
     <string name="temp_is_120">Temp is %.1fC (target is 120C)</string>
 
@@ -43,7 +45,7 @@
     <string name="cleaning_group">Cleaning Group Head</string>
 
     <string name="prepare_to_backflush_cleaner">Prepare to Backflush with Cleaner</string>
-    <string name="install_backflush_basket">Install backflush basket in Portafilter\nand\nLoad with 3 grams of Cafiza cleaner.</string>
+    <string name="install_backflush_basket">Install backflush basket in Portafilter\nand\nLoad with 3g of Cafiza cleaner.</string>
 
     <string name="remove_scale">Remove scale from drain pan\nand\nMake sure drain pan is empty.</string>
 
@@ -51,7 +53,7 @@
     <string name="pass_number">Pass (%1$d/%2$d)</string>
 
     <string name="prepare_to_backflush_water">Prepare to Backflush with Water</string>
-    <string name="rinse_out_backflush_portafilter">Rinse out backflush Portafilter.</string>
+    <string name="rinse_out_backflush_portafilter">Rinse out backflush Portafilter\nand\nreturn to Portafilter.</string>
 
     <string name="backflushing_with_water">Backflushing with Water</string>
 

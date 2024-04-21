@@ -22,7 +22,7 @@ class GaggiaSimulator(val coroutineScope: CoroutineScope) {
 
     lateinit var client: MQTTClient
 
-    var currentTelemetry = TelemetryMessage(GaggiaState.NA, "0.0", "0.0", "0.0", "0.0", "0.0", "0", "0", "0")
+    var currentTelemetry = TelemetryMessage(GaggiaState.NA, "0.0", "0.0", "0.0", "0.0", "0.0", "2", "2235", "0")
 
     var timeSinceLastCommandMillis = currentTimeMillis()
 

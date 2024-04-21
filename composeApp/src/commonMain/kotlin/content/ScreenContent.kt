@@ -166,33 +166,37 @@ fun ScreenContent(
 
 @OptIn(ExperimentalResourceApi::class)
 @Composable
-fun RowScope.RotatingMessageTextBox(message1: String, message2: String?) {
+fun RowScope.RotatingMessageTextBox(
+    message1: String,
+    message2: String?,
+    lingerTimeMillis: Long = 4000
+) {
 
     var showMessage1 by remember { mutableStateOf(true) }
     var fadeOut by remember { mutableStateOf(false) }
 
     val alpha: Float by animateFloatAsState(
         targetValue = if (fadeOut) 0f else 1f,
-        animationSpec = tween(durationMillis = 500, easing = FastOutSlowInEasing)
+        animationSpec = tween(durationMillis = (lingerTimeMillis/2).toInt(), easing = FastOutSlowInEasing)
     )
 
     LaunchedEffect(message2 != null) {
         while(message2 != null) {
             // message is currently being shown
-            delay(500)
+            delay(lingerTimeMillis/2)
 
             // start the animation to fade out message
             fadeOut = true
 
             // wait for animation to finish
-            delay(500)
+            delay(lingerTimeMillis/2)
 
             // switch to other message and fade it back in
             showMessage1 = !showMessage1
             fadeOut = false
 
             // wait for animation to finish
-            delay(500)
+            delay(lingerTimeMillis/2)
 
             // now next message is being shown
         }

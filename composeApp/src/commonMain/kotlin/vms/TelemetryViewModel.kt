@@ -588,6 +588,15 @@ data class UIState(
             }
         }
 
+    val currentTotalShots: Int?
+        get() {
+            return if (telemetry.isNotEmpty()) {
+                telemetry.last().totalShots.trim().toInt()
+            } else {
+                null
+            }
+        }
+
     val currentPressure: Float?
         get() {
             return if (telemetry.isNotEmpty()) {

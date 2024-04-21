@@ -193,8 +193,8 @@ fun AppContent(
                         )
 
                         GaggiaState.CLEAN_OPTIONS -> CleanOptionsScreen(
-                            onBackflushClick = _onFirstButtonClick,
-                            onDescaleClick = _onSecondButtonClick
+                            onBackflushClick = _onSecondButtonClick,
+                            onDescaleClick = _onFirstButtonClick
                         )
 
                         GaggiaState.DESCALE -> DescaleScreen(

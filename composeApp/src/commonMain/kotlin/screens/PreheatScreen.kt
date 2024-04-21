@@ -22,9 +22,11 @@ fun PreheatScreen(
         body2Resource = if (!uiState.isScaleWeighted) Res.string.place_your_empty_cup else null,
         button1Resource = if (uiState.isScaleWeighted) Res.string.start else null,
         userMessage = if (uiState.currentShotsUntilBackflush == 0) {
-            "Time to backflush!"
+            stringResource(Res.string.time_to_backflush)
         } else {
-            "Shots until backflush: ${uiState.currentShotsUntilBackflush}"
+            uiState.currentTotalShots?.let {
+                stringResource(Res.string.shots_brewed_so_far, it)
+            } ?: null
         },
         button2Resource = Res.string.clean,
         onFirstButtonClick = onFirstButtonClick,
