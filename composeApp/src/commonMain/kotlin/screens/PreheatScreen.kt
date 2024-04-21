@@ -5,6 +5,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.BlendMode.Companion.Color
 import content.ScreenContent
 import org.jetbrains.compose.resources.ExperimentalResourceApi
+import org.jetbrains.compose.resources.stringResource
 import robogaggiamultiplatform.composeapp.generated.resources.*
 import utils.toStringWithTenths
 import vms.UIState
@@ -20,6 +21,11 @@ fun PreheatScreen(
         body1Resource = Res.string.hello_welcome_to_robogaggia,
         body2Resource = if (!uiState.isScaleWeighted) Res.string.place_your_empty_cup else null,
         button1Resource = if (uiState.isScaleWeighted) Res.string.start else null,
+        userMessage = if (uiState.currentShotsUntilBackflush == 0) {
+            "Time to backflush!"
+        } else {
+            "Shots until backflush: ${uiState.currentShotsUntilBackflush}"
+        },
         button2Resource = Res.string.clean,
         onFirstButtonClick = onFirstButtonClick,
         onSecondButtonClick = onSecondButtonClick,

@@ -13,6 +13,9 @@ fun renderTelemetry(rawTelemetryString: String): List<TelemetryMessage> {
                 dutyCyclePercent = it[3],
                 flowRateGPS = it[4],
                 brewTempC = it[5],
+                shotsUntilBackflush = it[6],
+                totalShots = it[7],
+                boilerState = it[8],
             )
         }
     }

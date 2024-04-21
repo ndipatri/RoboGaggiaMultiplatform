@@ -4,7 +4,6 @@ import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -12,6 +11,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -52,25 +52,26 @@ fun ScreenContent(
     onSecondButtonClick: (() -> Unit)? = null,
     body1Resource: StringResource? = null,
     body2Resource: StringResource? = null,
+    userMessage: String? = null,
     button1Resource: StringResource? = null,
     button2Resource: StringResource? = null,
     backgroundImage: DrawableResource? = Res.drawable.dark_circuitboard,
     backgroundColor: Color? = null,
-    shouldDisappear: Boolean = false,
+    shouldUIDisappear: Boolean = false,
     content: (@Composable ColumnScope.() -> Unit)? = null
-) =
-
-    Box(modifier = Modifier.fillMaxSize()
-        .background(color = backgroundColor ?: Color.Transparent).then(
-            if (backgroundImage != null) {
-                Modifier.paint(
-                    painterResource(backgroundImage),
-                    contentScale = ContentScale.FillBounds
-                )
-            } else {
-                Modifier
-            }
-        )
+) {
+    Box(
+        modifier = Modifier.fillMaxSize()
+            .background(color = backgroundColor ?: Color.Transparent).then(
+                if (backgroundImage != null) {
+                    Modifier.paint(
+                        painterResource(backgroundImage),
+                        contentScale = ContentScale.FillBounds
+                    )
+                } else {
+                    Modifier
+                }
+            )
     ) {
 
         var shouldBeVisible by remember { mutableStateOf(true) }
@@ -80,7 +81,7 @@ fun ScreenContent(
             animationSpec = tween(durationMillis = 500, easing = FastOutSlowInEasing)
         )
 
-        if (shouldDisappear) {
+        if (shouldUIDisappear) {
             LaunchedEffect(shouldBeVisible) {
                 delay(4000)
 
@@ -89,16 +90,11 @@ fun ScreenContent(
             }
         }
 
-//        Image(
-//            painter = painterResource(Res.drawable.fire),
-//            contentDescription = null
-//        )
-
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .graphicsLayer(alpha = alpha)
-                .clickable { if (shouldDisappear) shouldBeVisible = !shouldBeVisible }) {
+                .clickable { if (shouldUIDisappear) shouldBeVisible = !shouldBeVisible }) {
             Column(
                 modifier = Modifier
                     .fillMaxHeight()
@@ -112,7 +108,10 @@ fun ScreenContent(
                         shape = CircleShape,
                         border = BorderStroke(5.dp, Color(0XFF0F9D58)),
                         contentPadding = PaddingValues(0.dp),
-                        colors = ButtonDefaults.outlinedButtonColors(contentColor = androidx.compose.ui.graphics.Color.White, backgroundColor = androidx.compose.ui.graphics.Color.Black)
+                        colors = ButtonDefaults.outlinedButtonColors(
+                            contentColor = androidx.compose.ui.graphics.Color.White,
+                            backgroundColor = androidx.compose.ui.graphics.Color.Black
+                        )
                     ) {
                         Text(text = stringResource(button2Resource))
                     }
@@ -133,12 +132,7 @@ fun ScreenContent(
 
                 Row(modifier = Modifier.weight(.40f).align(Alignment.CenterHorizontally)) {
                     body2Resource?.let {
-                        Text(
-                            modifier = Modifier.align(Alignment.CenterVertically),
-                            style = Typography.body2,
-                            textAlign = TextAlign.Center,
-                            text = stringResource(it)
-                        )
+                        RotatingMessageTextBox(stringResource(body2Resource), userMessage)
                     }
                 }
 
@@ -157,7 +151,10 @@ fun ScreenContent(
                         shape = CircleShape,
                         border = BorderStroke(5.dp, Color(0XFF0F9D58)),
                         contentPadding = PaddingValues(0.dp),
-                        colors = ButtonDefaults.outlinedButtonColors(contentColor = androidx.compose.ui.graphics.Color.White, backgroundColor = androidx.compose.ui.graphics.Color.Black)
+                        colors = ButtonDefaults.outlinedButtonColors(
+                            contentColor = androidx.compose.ui.graphics.Color.White,
+                            backgroundColor = androidx.compose.ui.graphics.Color.Black
+                        )
                     ) {
                         Text(text = stringResource(button1Resource))
                     }
@@ -165,3 +162,47 @@ fun ScreenContent(
             }
         }
     }
+}
+
+@OptIn(ExperimentalResourceApi::class)
+@Composable
+fun RowScope.RotatingMessageTextBox(message1: String, message2: String?) {
+
+    var showMessage1 by remember { mutableStateOf(true) }
+    var fadeOut by remember { mutableStateOf(false) }
+
+    val alpha: Float by animateFloatAsState(
+        targetValue = if (fadeOut) 0f else 1f,
+        animationSpec = tween(durationMillis = 500, easing = FastOutSlowInEasing)
+    )
+
+    LaunchedEffect(message2 != null) {
+        while(message2 != null) {
+            // message is currently being shown
+            delay(500)
+
+            // start the animation to fade out message
+            fadeOut = true
+
+            // wait for animation to finish
+            delay(500)
+
+            // switch to other message and fade it back in
+            showMessage1 = !showMessage1
+            fadeOut = false
+
+            // wait for animation to finish
+            delay(500)
+
+            // now next message is being shown
+        }
+    }
+
+    Text(
+        modifier = Modifier.align(Alignment.CenterVertically)
+            .graphicsLayer(alpha = alpha),
+        style = Typography.body2,
+        textAlign = TextAlign.Center,
+        text = if (showMessage1) message1 else message2!!
+    )
+}

@@ -22,7 +22,7 @@ class GaggiaSimulator(val coroutineScope: CoroutineScope) {
 
     lateinit var client: MQTTClient
 
-    var currentTelemetry = TelemetryMessage(GaggiaState.NA, "0.0", "0.0", "0.0", "0.0", "0.0")
+    var currentTelemetry = TelemetryMessage(GaggiaState.NA, "0.0", "0.0", "0.0", "0.0", "0.0", "0", "0", "0")
 
     var timeSinceLastCommandMillis = currentTimeMillis()
 
@@ -511,7 +511,7 @@ class GaggiaSimulator(val coroutineScope: CoroutineScope) {
             // We continuously transmit telemetry to the app
             while (true) {
                 val payload =
-                    currentTelemetry.state.stateName + ", " + currentTelemetry.weightGrams + ", " + currentTelemetry.pressureBars + ", " + currentTelemetry.dutyCyclePercent + ", " + currentTelemetry.flowRateGPS + ", " + currentTelemetry.brewTempC
+                    currentTelemetry.state.stateName + ", " + currentTelemetry.weightGrams + ", " + currentTelemetry.pressureBars + ", " + currentTelemetry.dutyCyclePercent + ", " + currentTelemetry.flowRateGPS + ", " + currentTelemetry.brewTempC + ", " + currentTelemetry.shotsUntilBackflush + ", " + currentTelemetry.totalShots + ", " + currentTelemetry.boilerState
 
                 println("*** Simulator: publishing message: $payload")
 

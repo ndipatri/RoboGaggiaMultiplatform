@@ -186,6 +186,9 @@ class TelemetryViewModel(val context: ApplicationContext) : CoroutineViewModel()
         lateinit var pumpDutyCycle: String
         lateinit var flowRateGPS: String
         lateinit var brewTempC: String
+        lateinit var shotsUntilBackflush: String
+        lateinit var totalShots: String
+        lateinit var boilerState: String
 
         message.split(",").forEachIndexed() { index, element ->
             when (index) {
@@ -195,6 +198,9 @@ class TelemetryViewModel(val context: ApplicationContext) : CoroutineViewModel()
                 3 -> pumpDutyCycle = element
                 4 -> flowRateGPS = element
                 5 -> brewTempC = element
+                6 -> shotsUntilBackflush = element
+                7 -> totalShots = element
+                8 -> boilerState = element
             }
         }
 
@@ -205,6 +211,9 @@ class TelemetryViewModel(val context: ApplicationContext) : CoroutineViewModel()
             dutyCyclePercent = pumpDutyCycle,
             flowRateGPS = flowRateGPS,
             brewTempC = brewTempC,
+            shotsUntilBackflush = shotsUntilBackflush,
+            totalShots = totalShots,
+            boilerState = boilerState
         )
         println("*** NJD: new telemetry: $newTelemetry")
 
@@ -387,7 +396,10 @@ data class TelemetryMessage(
     val pressureBars: String,
     val dutyCyclePercent: String,
     val flowRateGPS: String,
-    val brewTempC: String
+    val brewTempC: String,
+    val shotsUntilBackflush: String,
+    val totalShots: String,
+    val boilerState: String
 )
 
 enum class GaggiaState(val stateName: String) {
@@ -562,6 +574,15 @@ data class UIState(
         get() {
             return if (telemetry.isNotEmpty()) {
                 telemetry.last().brewTempC.trim().toFloat()
+            } else {
+                null
+            }
+        }
+
+    val currentShotsUntilBackflush: Int?
+        get() {
+            return if (telemetry.isNotEmpty()) {
+                telemetry.last().shotsUntilBackflush.trim().toInt()
             } else {
                 null
             }
