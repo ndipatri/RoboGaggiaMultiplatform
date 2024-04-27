@@ -4,6 +4,7 @@ import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -17,6 +18,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.OutlinedButton
@@ -43,6 +45,7 @@ import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import robogaggiamultiplatform.composeapp.generated.resources.Res
 import robogaggiamultiplatform.composeapp.generated.resources.dark_circuitboard
+import robogaggiamultiplatform.composeapp.generated.resources.flames
 import theme.Typography
 
 @OptIn(ExperimentalResourceApi::class)
@@ -58,6 +61,7 @@ fun ScreenContent(
     backgroundImage: DrawableResource? = Res.drawable.dark_circuitboard,
     backgroundColor: Color? = null,
     shouldUIDisappear: Boolean = false,
+    boilerIsOn: Boolean = false,
     content: (@Composable ColumnScope.() -> Unit)? = null
 ) {
     Box(
@@ -88,6 +92,19 @@ fun ScreenContent(
                 // after 2 seconds, the buttons disappear again...
                 shouldBeVisible = false
             }
+        }
+
+        val flameAlpha: Float by animateFloatAsState(
+            targetValue = if (boilerIsOn) 1f else 0f,
+            animationSpec = tween(durationMillis = 500, easing = FastOutSlowInEasing)
+        )
+
+        if (boilerIsOn) {
+            Image(
+                modifier = Modifier.align(Alignment.BottomCenter).width(400.dp).graphicsLayer(alpha = flameAlpha),
+                painter = painterResource(Res.drawable.flames),
+                contentDescription = null
+            )
         }
 
         Row(

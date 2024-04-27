@@ -588,6 +588,19 @@ data class UIState(
             }
         }
 
+    val currentBoilerIsOn: Boolean?
+        get() {
+            return if (telemetry.isNotEmpty()) {
+                if (telemetry.last().boilerState.trim().toInt() == 1) {
+                    true
+                } else {
+                    false
+                }
+            } else {
+                null
+            }
+        }
+
     val currentTotalShots: Int?
         get() {
             return if (telemetry.isNotEmpty()) {

@@ -17,7 +17,7 @@
     <string name="time_to_backflush">It's time to Backflush. Tap 'Clean' or ...</string>
     <string name="shots_brewed_so_far">%1$d shots have been brewed so far.</string>
     <string name="clean">Clean</string>
-    <string name="temp_is_120">Temp is %.1fC (target is 120C)</string>
+    <string name="temp_is_120">Temp is %.1fC (heating to 120C)</string>
 
     <string name="weigh_your_beans">Weigh your beans</string>
     <string name="add_whole_beans">Add whole beans to the cup.</string>
@@ -35,7 +35,7 @@
 
     <string name="heating_to_steam">Heating to Steam</string>
     <string name="remove_and_clean_portafilter">Remove and clean Portafilter</string>
-    <string name="temp_is_140">Temp is %.1fC (target is 140C)</string>
+    <string name="temp_is_140">Temp is %.1fC (heating to 140C)</string>
 
     <string name="operate_steam_wand">Operate Steam Wand</string>
 

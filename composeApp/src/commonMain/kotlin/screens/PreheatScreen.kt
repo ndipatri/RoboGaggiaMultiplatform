@@ -28,6 +28,7 @@ fun PreheatScreen(
                 stringResource(Res.string.shots_brewed_so_far, it)
             } ?: null
         },
+        boilerIsOn = uiState.currentBoilerIsOn ?: false,
         button2Resource = Res.string.clean,
         onFirstButtonClick = onFirstButtonClick,
         onSecondButtonClick = onSecondButtonClick,
