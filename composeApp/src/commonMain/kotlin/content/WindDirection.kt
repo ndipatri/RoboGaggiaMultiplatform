@@ -1,4 +1,4 @@
-package dev.adambennett.doomcompose
+package content
 
 sealed class WindDirection {
     object Right : WindDirection()

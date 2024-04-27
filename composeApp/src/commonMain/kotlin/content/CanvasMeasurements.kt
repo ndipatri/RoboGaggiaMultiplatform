@@ -1,6 +1,5 @@
-package dev.adambennett.doomcompose
+package content
 
-import kotlin.math.ceil
 
 data class CanvasMeasurements(
     val width: Int,

@@ -1,20 +1,16 @@
-package dev.adambennett.doomcompose
+package content
 
-import android.view.Choreographer
-import androidx.compose.Composable
-import androidx.compose.Model
-import androidx.compose.remember
-import androidx.ui.core.DrawScope
-import androidx.ui.core.Modifier
-import androidx.ui.foundation.Canvas
-import androidx.ui.geometry.Rect
-import androidx.ui.graphics.Paint
-import androidx.ui.layout.fillMaxSize
-import kotlin.math.floor
-import kotlin.random.Random
+import androidx.collection.emptyIntList
+import androidx.collection.intListOf
+import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Paint
+import androidx.compose.ui.graphics.drawscope.DrawScope
 
-@Model
-data class DoomState(var pixels: List<Int> = emptyList())
+data class DoomState(var pixels: List<Int> = emptyList<Int>())
 
 @Composable
 fun DoomCompose(
