@@ -52,15 +52,15 @@ fun FireContent(
                 fireElements = MutableList(fireDimensions.numberOfFireElements) { 0 }
                     .apply { makeBottomRowOfFireWhiteHot(this, fireDimensions) }
 
-                // now periodically shift the fire elements up and to the right
+                // now periodically shift the fire elements up and to the right/center/left
+                // depending on wind direction
                 while (true) {
                     val newFireElements = fireElements.toMutableList()
                     updateFireElements(newFireElements, fireDimensions, windDirection)
 
-                    delay(100)
+                    delay(50)
 
                     fireElements = newFireElements
-
                 }
             }
         }
@@ -143,18 +143,24 @@ private fun updateFireElements(
     fireDimensions: FireDimensions,
     windDirection: WindDirection
 ) {
-    for (column in 0 until fireDimensions.fireWidthInElements) {
-        for (row in 1 until fireDimensions.fireHeightInElements) {
+    for (column in 0 .. fireDimensions.fireWidthInElements) {
+        for (row in 1 .. fireDimensions.fireHeightInElements-2) {
             val currentElementIndex = column + (fireDimensions.fireWidthInElements * row)
 
-            val bellowPixelIndex = currentElementIndex + fireDimensions.fireWidthInElements
-            if (bellowPixelIndex >= fireDimensions.fireWidthInElements * fireDimensions.fireHeightInElements) return
+            val belowElementIndex = currentElementIndex + fireDimensions.fireWidthInElements
+
+            // if we are at the bottom of the fire, we can't go any further
+            if (belowElementIndex >= fireDimensions.fireWidthInElements * fireDimensions.fireHeightInElements) {
+                return
+            }
 
             val offset = if (fireDimensions.tallerThanWide) 2 else 3
             val decay = floor(Random.nextDouble() * offset).toInt()
-            val bellowPixelFireIntensity = fireElements[bellowPixelIndex]
+
+            val belowElementFireIntensity = fireElements[belowElementIndex]
+
             val newFireIntensity = when {
-                bellowPixelFireIntensity - decay >= 0 -> bellowPixelFireIntensity - decay
+                belowElementFireIntensity - decay >= 0 -> belowElementFireIntensity - decay
                 else -> 0
             }
 
@@ -165,8 +171,6 @@ private fun updateFireElements(
             }
 
             fireElements[newPosition] = newFireIntensity
-
-
         }
     }
 }
@@ -210,8 +214,8 @@ sealed class WindDirection {
 
 
 val fireColors = arrayOf(
-    Color(7, 7, 7),
-    Color(31, 7, 7),
+    Color(red = 7, green = 7, blue = 7, alpha = 1),
+    Color(red = 31, green = 7, blue = 7, alpha = 1),
     Color(47, 15, 7),
     Color(71, 15, 7),
     Color(87, 23, 7),

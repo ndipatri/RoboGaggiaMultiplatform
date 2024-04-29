@@ -101,17 +101,12 @@ fun ScreenContent(
         )
 
         if (boilerIsOn) {
-//            Image(
-//                modifier = Modifier.align(Alignment.BottomCenter).width(400.dp).graphicsLayer(alpha = flameAlpha),
-//                painter = painterResource(Res.drawable.flames),
-//                contentDescription = null
-//            )
             FireContent(
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
-                    .width(400.dp)
-                    .height(300.dp)
-                    .graphicsLayer(alpha = alpha)
+                    .fillMaxWidth()
+                    .height(200.dp)
+                    .graphicsLayer(alpha = .5F)
             )
         }
 
