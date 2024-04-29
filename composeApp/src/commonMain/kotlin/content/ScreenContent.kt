@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.width
@@ -100,10 +101,17 @@ fun ScreenContent(
         )
 
         if (boilerIsOn) {
-            Image(
-                modifier = Modifier.align(Alignment.BottomCenter).width(400.dp).graphicsLayer(alpha = flameAlpha),
-                painter = painterResource(Res.drawable.flames),
-                contentDescription = null
+//            Image(
+//                modifier = Modifier.align(Alignment.BottomCenter).width(400.dp).graphicsLayer(alpha = flameAlpha),
+//                painter = painterResource(Res.drawable.flames),
+//                contentDescription = null
+//            )
+            FireContent(
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .width(400.dp)
+                    .height(300.dp)
+                    .graphicsLayer(alpha = alpha)
             )
         }
 

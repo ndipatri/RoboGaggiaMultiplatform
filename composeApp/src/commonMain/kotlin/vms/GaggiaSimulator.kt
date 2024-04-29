@@ -325,29 +325,30 @@ class GaggiaSimulator(val coroutineScope: CoroutineScope) {
 
                     // we simulate the scale first being empty and then putting
                     // their empty cup on the scale ...
-
-                    delay(3000)
-                    currentTelemetry = currentTelemetry.copy(state = GaggiaState.PREHEAT, weightGrams = "2", boilerState = "0")
-
-                    delay(1000)
                     currentTelemetry = currentTelemetry.copy(state = GaggiaState.PREHEAT, weightGrams = "4.5", boilerState = "1")
 
-                    delay(1000)
-                    currentTelemetry = currentTelemetry.copy(state = GaggiaState.PREHEAT, weightGrams = "23.1", boilerState = "0")
-
-                    delay(1000)
-                    currentTelemetry = currentTelemetry.copy(state = GaggiaState.PREHEAT, weightGrams = "30.5", boilerState = "1")
-
-                    // weight of scale + cup
-                    delay(1000)
-                    currentTelemetry = currentTelemetry.copy(state = GaggiaState.PREHEAT, weightGrams = "50.5", boilerState = "0")
-
-                    // This should trigger a 'scale settled' event in the client.
-                    // and the weight of the scale and cup should register
-                    // on the app.
-                    delay(1000)
-                    currentTelemetry = currentTelemetry.copy(state = GaggiaState.PREHEAT, weightGrams = "50.5", boilerState = "1")
-
+//                    delay(3000)
+//                    currentTelemetry = currentTelemetry.copy(state = GaggiaState.PREHEAT, weightGrams = "2", boilerState = "0")
+//
+//                    delay(1000)
+//                    currentTelemetry = currentTelemetry.copy(state = GaggiaState.PREHEAT, weightGrams = "4.5", boilerState = "1")
+//
+//                    delay(1000)
+//                    currentTelemetry = currentTelemetry.copy(state = GaggiaState.PREHEAT, weightGrams = "23.1", boilerState = "0")
+//
+//                    delay(1000)
+//                    currentTelemetry = currentTelemetry.copy(state = GaggiaState.PREHEAT, weightGrams = "30.5", boilerState = "1")
+//
+//                    // weight of scale + cup
+//                    delay(1000)
+//                    currentTelemetry = currentTelemetry.copy(state = GaggiaState.PREHEAT, weightGrams = "50.5", boilerState = "0")
+//
+//                    // This should trigger a 'scale settled' event in the client.
+//                    // and the weight of the scale and cup should register
+//                    // on the app.
+//                    delay(1000)
+//                    currentTelemetry = currentTelemetry.copy(state = GaggiaState.PREHEAT, weightGrams = "50.5", boilerState = "1")
+//
                     // we don't trigger any more state changes as now we wait for user to interact.
                 }
             }
