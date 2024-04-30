@@ -95,23 +95,18 @@ fun ScreenContent(
             }
         }
 
-//        val flameAlpha: Float by animateFloatAsState(
-//            targetValue = if (boilerIsOn) 1f else 0f,
-//            animationSpec = tween(durationMillis = 500, easing = FastOutSlowInEasing)
-//        )
+        val flameAlpha: Float by animateFloatAsState(
+            targetValue = if (boilerIsOn) 1f else 0f,
+            animationSpec = tween(durationMillis = 500, easing = FastOutSlowInEasing)
+        )
 
-        //if (boilerIsOn) {
-        // NJD TODO
-        if (true) {
-            println("*** NJD: nick1")
-
-            FireContent(
-                modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .width(500.dp)
-                    .height(400.dp)
-            )
-        }
+        FireContent(
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .fillMaxWidth()
+                .height(180.dp)
+                .graphicsLayer(alpha = flameAlpha)
+        )
 
         Row(
             modifier = Modifier

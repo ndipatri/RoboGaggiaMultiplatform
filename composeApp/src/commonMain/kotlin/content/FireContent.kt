@@ -1,6 +1,7 @@
 package content
 
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -25,7 +26,6 @@ import kotlin.random.Random
 @Composable
 fun FireContent(
     modifier: Modifier,
-    windDirection: WindDirection = WindDirection.Right
 ) {
     // The fire is an array of elements. Each element is expressed as an integer which
     // is an index into an array of color values.
@@ -33,59 +33,42 @@ fun FireContent(
     // Physically, the fire is drawn as a rectangle of these elements.  The first element is the
     // upper left corner of the rectangle, and the last element is the lower right corner.
     var fireElements: MutableList<Int> by remember { mutableStateOf(mutableListOf()) }
-    var fireDimensions: FireDimensions? = null
-    println("*** NJD: drawing fire canvas")
+    var fireDimensions: FireDimensions? by remember { mutableStateOf(null) }
 
-    FireCanvas(
-        modifier = modifier,
-        fireElements = fireElements,
-        onFireDimensions = { fireDimensions = it })
+    Canvas(modifier = modifier) {
+        fireDimensions = FireDimensions(
+            size.width.toInt(),
+            size.height.toInt()
+        )
 
-    LaunchedEffect(fireDimensions) {
-
-        // for now, just do one pass....
-        var done = false
-        if (!done) {
-            fireDimensions?.let { fireDimensions ->
-
-                done = true
-                // start with black fire with single row of bright white at the bottom
-                fireElements = MutableList(fireDimensions.numberOfFireElements) { 0 }
-                    .apply { makeBottomRowOfFireWhiteHot(this, fireDimensions) }
-
-                // now periodically shift the fire elements up and to the right/center/left
-                // depending on wind direction
-                while (true) {
-                    println("*** NJD: updating fire")
-                    val newFireElements = fireElements.toMutableList()
-                    updateFireElements(newFireElements, fireDimensions, windDirection)
-
-                    delay(1000)
-
-                    fireElements = newFireElements
-                }
+        if (fireElements.isNotEmpty()) {
+            fireDimensions?.let {
+                drawFire(
+                    fireElements,
+                    it
+                )
             }
         }
     }
-}
 
-@Composable
-fun FireCanvas(
-    modifier: Modifier,
-    fireElements: List<Int>,
-    onFireDimensions: (FireDimensions) -> Unit
-) {
-    Canvas(modifier = modifier) {
-        val fireDimensions = FireDimensions(
-            size.width.toInt(),
-            size.height.toInt()
-        ).apply(onFireDimensions)
+    LaunchedEffect(fireDimensions) {
 
-        if (fireElements.isNotEmpty()) {
-            drawFire(
-                fireElements,
-                fireDimensions
-            )
+        fireDimensions?.let { fireDimensions ->
+
+            // start with black fire with single row of bright white at the bottom
+            fireElements = MutableList(fireDimensions.numberOfFireElements) { 0 }
+                .apply { makeBottomRowOfFireWhiteHot(this, fireDimensions) }
+
+            // now periodically shift the fire elements up and to the right/center/left
+            // depending on wind direction
+            while (true) {
+                val newFireElements = fireElements.toMutableList()
+                updateFireElements(newFireElements, fireDimensions)
+
+                delay(100)
+
+                fireElements = newFireElements
+            }
         }
     }
 }
@@ -143,7 +126,7 @@ private fun makeBottomRowOfFireWhiteHot(fireElements: MutableList<Int>, canvas: 
 private fun updateFireElements(
     fireElements: MutableList<Int>,
     fireDimensions: FireDimensions,
-    windDirection: WindDirection
+    windDirection: WindDirection = WindDirection.Right
 ) {
     for (column in 0 .. fireDimensions.fireWidthInElements) {
         for (row in 1 .. fireDimensions.fireHeightInElements-2) {
@@ -151,7 +134,7 @@ private fun updateFireElements(
 
             val belowElementIndex = currentElementIndex + fireDimensions.fireWidthInElements
 
-            // if we are at the bottom of the fire, we can't go any further
+            // if we are at the bottom-right-most element the fire, we can't go any further
             if (belowElementIndex >= fireDimensions.fireWidthInElements * fireDimensions.fireHeightInElements) {
                 return
             }
