@@ -24,7 +24,7 @@ import kotlin.random.Random
  */
 @Composable
 fun FireContent(
-    modifier: Modifier = Modifier.fillMaxSize(),
+    modifier: Modifier,
     windDirection: WindDirection = WindDirection.Right
 ) {
     // The fire is an array of elements. Each element is expressed as an integer which
@@ -34,6 +34,7 @@ fun FireContent(
     // upper left corner of the rectangle, and the last element is the lower right corner.
     var fireElements: MutableList<Int> by remember { mutableStateOf(mutableListOf()) }
     var fireDimensions: FireDimensions? = null
+    println("*** NJD: drawing fire canvas")
 
     FireCanvas(
         modifier = modifier,
@@ -55,10 +56,11 @@ fun FireContent(
                 // now periodically shift the fire elements up and to the right/center/left
                 // depending on wind direction
                 while (true) {
+                    println("*** NJD: updating fire")
                     val newFireElements = fireElements.toMutableList()
                     updateFireElements(newFireElements, fireDimensions, windDirection)
 
-                    delay(50)
+                    delay(1000)
 
                     fireElements = newFireElements
                 }
@@ -214,8 +216,10 @@ sealed class WindDirection {
 
 
 val fireColors = arrayOf(
-    Color(red = 7, green = 7, blue = 7, alpha = 1),
-    Color(red = 31, green = 7, blue = 7, alpha = 1),
+    //Color(red = 7, green = 7, blue = 7, alpha = 1),
+    //Color(red = 31, green = 7, blue = 7, alpha = 1),
+    Color(red = 7, green = 7, blue = 7, alpha = 0),
+    Color(red = 31, green = 7, blue = 7, alpha = 0),
     Color(47, 15, 7),
     Color(71, 15, 7),
     Color(87, 23, 7),
