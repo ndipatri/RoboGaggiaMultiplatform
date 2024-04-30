@@ -1,8 +1,6 @@
 package content
 
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -51,6 +49,7 @@ fun FireContent(
         }
     }
 
+    // only once dimensions are known can we begin animation ...
     LaunchedEffect(fireDimensions) {
 
         fireDimensions?.let { fireDimensions ->
@@ -59,8 +58,9 @@ fun FireContent(
             fireElements = MutableList(fireDimensions.numberOfFireElements) { 0 }
                 .apply { makeBottomRowOfFireWhiteHot(this, fireDimensions) }
 
-            // now periodically shift the fire elements up and to the right/center/left
-            // depending on wind direction
+            // now periodically copy the fire elements up and to the right/center/left
+            // depending on wind direction.. as elements are copied they are also
+            // decayed in intensity ( so they grow white, yellow, orange, red, then black)
             while (true) {
                 val newFireElements = fireElements.toMutableList()
                 updateFireElements(newFireElements, fireDimensions)
@@ -102,6 +102,7 @@ private fun DrawScope.drawFire(
                 color = fireColors[currentElementValue],
 
                 topLeft = Offset(
+                    // Recall that origin is in upper left corner...
                     (column * elementSizePX).toFloat(),
                     (row * elementSizePX).toFloat()
                 ),
