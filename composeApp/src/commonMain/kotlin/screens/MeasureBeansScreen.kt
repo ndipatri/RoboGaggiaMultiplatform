@@ -25,6 +25,7 @@ fun MeasureBeansScreen(
             Res.string.click_done_to_grind_beans,
         button1Resource = if (uiState.isScaleWeighted) Res.string.done else null,
         button2Resource = Res.string.exit,
+        boilerIsOn = uiState.currentBoilerIsOn ?: false,
         onFirstButtonClick = onFirstButtonClick,
         onSecondButtonClick = onSecondButtonClick
     ) {

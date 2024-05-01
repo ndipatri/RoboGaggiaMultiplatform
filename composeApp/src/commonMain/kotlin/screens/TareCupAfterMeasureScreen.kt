@@ -24,6 +24,7 @@ fun TareCupAfterMeasureScreen(
         },
         button1Resource = if (uiState.isCupOnlyOnScale) Res.string.done else null,
         button2Resource = Res.string.exit,
+        boilerIsOn = uiState.currentBoilerIsOn ?: false,
         onFirstButtonClick = onFirstButtonClick,
         onSecondButtonClick = onSecondButtonClick
     )

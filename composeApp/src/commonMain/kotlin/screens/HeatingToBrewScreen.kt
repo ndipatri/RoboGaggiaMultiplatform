@@ -15,6 +15,7 @@ fun HeatingToBrewScreen(uiState: UIState,
         body1Resource = Res.string.heating_to_brew,
         body2Resource = Res.string.please_wait,
         button2Resource = Res.string.exit,
+        boilerIsOn = uiState.currentBoilerIsOn ?: false,
         onSecondButtonClick = onSecondButtonClick,
     ) {
         SingleFloatContent(Res.string.temp_is_120, uiState.currentTemperature ?: 0F)

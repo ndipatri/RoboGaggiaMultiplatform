@@ -24,6 +24,7 @@ import kotlin.random.Random
 @Composable
 fun FireContent(
     modifier: Modifier,
+    igniteFire: Boolean = true
 ) {
     // The fire is an array of elements. Each element is expressed as an integer which
     // is an index into an array of color values.
@@ -50,13 +51,19 @@ fun FireContent(
     }
 
     // only once dimensions are known can we begin animation ...
-    LaunchedEffect(fireDimensions) {
+    LaunchedEffect(fireDimensions, igniteFire) {
 
         fireDimensions?.let { fireDimensions ->
 
-            // start with black fire with single row of bright white at the bottom
-            fireElements = MutableList(fireDimensions.numberOfFireElements) { 0 }
-                .apply { makeBottomRowOfFireWhiteHot(this, fireDimensions) }
+            // We start with placing the bottom row of the fire.. Keep in mind that a fire
+            // might already exist..  if so, we will just overwrite the bottom row.
+            fireElements.run {
+                if (isEmpty()) {
+                    fireElements.addAll(MutableList(fireDimensions.numberOfFireElements) { 0 })
+                }
+
+                buildBottomRowOfFire(this, fireDimensions, igniteFire)
+            }
 
             // now periodically copy the fire elements up and to the right/center/left
             // depending on wind direction.. as elements are copied they are also
@@ -113,14 +120,15 @@ private fun DrawScope.drawFire(
     }
 }
 
-private fun makeBottomRowOfFireWhiteHot(fireElements: MutableList<Int>, canvas: FireDimensions) {
+private fun buildBottomRowOfFire(fireElements: MutableList<Int>, canvas: FireDimensions, igniteFire: Boolean) {
     val overFlowFireIndex = canvas.fireWidthInElements * canvas.fireHeightInElements
     val elementIndexOfFirstElementInBottomRowOfFire = overFlowFireIndex - canvas.fireWidthInElements
     val brightestColorIndex = fireColors.size - 1
+    val darkestColorIndex = 0
 
     for (column in 0 until canvas.fireWidthInElements) {
         val elementIndex = elementIndexOfFirstElementInBottomRowOfFire + column
-        fireElements[elementIndex] = brightestColorIndex
+        fireElements[elementIndex] = if (igniteFire) brightestColorIndex else darkestColorIndex
     }
 }
 

@@ -95,17 +95,12 @@ fun ScreenContent(
             }
         }
 
-        val flameAlpha: Float by animateFloatAsState(
-            targetValue = if (boilerIsOn) 1f else 0f,
-            animationSpec = tween(durationMillis = 500, easing = FastOutSlowInEasing)
-        )
-
         FireContent(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .fillMaxWidth()
-                .height(180.dp)
-                .graphicsLayer(alpha = flameAlpha)
+                .height(180.dp),
+            igniteFire = boilerIsOn
         )
 
         Row(
