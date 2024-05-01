@@ -77,7 +77,7 @@ class GaggiaSimulator(val coroutineScope: CoroutineScope) {
                             // try to publish.. duh
 
                             //currentTelemetry = currentTelemetry.copy(state = GaggiaState.JOINING_NETWORK)
-                            currentTelemetry = currentTelemetry.copy(state = GaggiaState.PREHEAT)
+                            currentTelemetry = currentTelemetry.copy(state = GaggiaState.MEASURE_BEANS)
                             //currentTelemetry = currentTelemetry.copy(state = GaggiaState.PREINFUSION_AND_BREWING)
 
                             scheduleNextStateAutomaticallyIfNecessary()
@@ -361,30 +361,30 @@ class GaggiaSimulator(val coroutineScope: CoroutineScope) {
                     // at first.. only thing on scale is the cup... but remember,
                     // this is tared weight so we start at 0
                     delay(4000)
-                    currentTelemetry = currentTelemetry.copy(state = GaggiaState.MEASURE_BEANS, weightGrams = "0.0")
+                    currentTelemetry = currentTelemetry.copy(state = GaggiaState.MEASURE_BEANS, weightGrams = "0.0", boilerState = "1")
 
                     // at first.. only thing on scale is the cup...
-                    delay(1000)
-                    currentTelemetry = currentTelemetry.copy(state = GaggiaState.MEASURE_BEANS, weightGrams = "2.5")
+                    delay(3000)
+                    currentTelemetry = currentTelemetry.copy(state = GaggiaState.MEASURE_BEANS, weightGrams = "2.5", boilerState = "0")
 
                     // finally, they begin to pour beans in the cup
                     // the scale usually jumps up when an object is first placed...
                     delay(1000)
-                    currentTelemetry = currentTelemetry.copy(state = GaggiaState.MEASURE_BEANS, weightGrams = "15.0")
+                    currentTelemetry = currentTelemetry.copy(state = GaggiaState.MEASURE_BEANS, weightGrams = "15.0", boilerState = "1")
 
                     // let's change hte value a bit so it has to settle..
                     delay (1000)
-                    currentTelemetry = currentTelemetry.copy(state = GaggiaState.MEASURE_BEANS, weightGrams = "18.0")
+                    currentTelemetry = currentTelemetry.copy(state = GaggiaState.MEASURE_BEANS, weightGrams = "18.0", boilerState = "0")
 
                     delay(1000)
-                    currentTelemetry = currentTelemetry.copy(state = GaggiaState.MEASURE_BEANS, weightGrams = "25.0")
+                    currentTelemetry = currentTelemetry.copy(state = GaggiaState.MEASURE_BEANS, weightGrams = "25.0", boilerState = "0")
 
                     delay(1000)
-                    currentTelemetry = currentTelemetry.copy(state = GaggiaState.MEASURE_BEANS, weightGrams = "20.0")
+                    currentTelemetry = currentTelemetry.copy(state = GaggiaState.MEASURE_BEANS, weightGrams = "20.0", boilerState = "1")
 
                     delay(1000)
                     // assume 19 grams of beans
-                    currentTelemetry = currentTelemetry.copy(state = GaggiaState.MEASURE_BEANS, weightGrams = "19.0")
+                    currentTelemetry = currentTelemetry.copy(state = GaggiaState.MEASURE_BEANS, weightGrams = "19.0", boilerState = "1")
 
                     // this should finally trigger the app to declare bean value settled...
                     delay(1000)
