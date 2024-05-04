@@ -24,7 +24,6 @@ import screens.CleanGroupReadyScreen
 import screens.CleanOptionsScreen
 import screens.DescaleScreen
 import screens.DispensingHotWaterScreen
-import screens.DoneBrewingScreen
 import screens.HeatingToBrewScreen
 import screens.HeatingToDispenseScreen
 import screens.HeatingToSteamScreen
@@ -135,11 +134,7 @@ fun AppContent(
                             onSecondButtonClick = _onSecondButtonClick
                         )
 
-                        GaggiaState.PREINFUSION, GaggiaState.BREWING -> PreinfusionAndBrewingScreen(
-                            uiState = uiState
-                        )
-
-                        GaggiaState.DONE_BREWING -> DoneBrewingScreen(
+                        GaggiaState.PREINFUSION, GaggiaState.BREWING, GaggiaState.DONE_BREWING -> PreinfusionAndBrewingScreen(
                             uiState = uiState,
                             onReadyClicked = _onFirstButtonClick,
                             onExitClicked = _onSecondButtonClick

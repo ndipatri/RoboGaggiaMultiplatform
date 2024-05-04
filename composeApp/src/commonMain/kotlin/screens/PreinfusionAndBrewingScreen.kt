@@ -34,7 +34,13 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import content.ScreenContent
 import kotlinx.coroutines.delay
+import org.jetbrains.compose.resources.ExperimentalResourceApi
+import robogaggiamultiplatform.composeapp.generated.resources.Res
+import robogaggiamultiplatform.composeapp.generated.resources.done_brewing
+import robogaggiamultiplatform.composeapp.generated.resources.exit
+import robogaggiamultiplatform.composeapp.generated.resources.ready
 import theme.Purple40
 import theme.PurpleGrey40_50
 import theme.PurpleGrey80
@@ -43,15 +49,35 @@ import vms.GaggiaState
 import vms.TelemetryMessage
 import vms.UIState
 
+@OptIn(ExperimentalResourceApi::class)
 @Composable
-fun PreinfusionAndBrewingScreen(uiState: UIState) {
-    BrewChart(uiState)
+fun PreinfusionAndBrewingScreen(uiState: UIState,
+                                onReadyClicked: () -> Unit,
+                                onExitClicked: () -> Unit) {
+
+    BrewChart(uiState = uiState) {
+        if (uiState.currentState == GaggiaState.DONE_BREWING) {
+            ScreenContent(
+                body1Resource = Res.string.done_brewing,
+                button1Resource = Res.string.ready,
+                button2Resource = Res.string.exit,
+                onFirstButtonClick = onReadyClicked,
+                onSecondButtonClick = onExitClicked,
+                backgroundImage = null,
+                shouldUIDisappear = true,
+
+                // We want the buttons from ScreenContent, but it's background needs to be
+                // transparent so we can see the BrewChart behind it.
+                backgroundColor = Color.Transparent
+            )
+        }
+    }
 }
 
 @Composable
 // This composable assumes the UIState telemetry includes preinfusion
 // and brewing data.
-fun BrewChart(uiState: UIState, showCounter: Boolean = true, content: (@Composable () -> Unit)? = null) {
+fun BrewChart(uiState: UIState, content: (@Composable () -> Unit)? = null) {
     RoboGaggiaTheme {
         Surface(
             // uses theme
@@ -80,7 +106,7 @@ fun BrewChart(uiState: UIState, showCounter: Boolean = true, content: (@Composab
             val secondsPerStep = 1.2
 
             LaunchedEffect(uiState.currentState) {
-                while (showCounter) {
+                while (true) {
                     delay(1000)
                     when (uiState.currentState) {
                         GaggiaState.PREINFUSION -> {
@@ -100,7 +126,7 @@ fun BrewChart(uiState: UIState, showCounter: Boolean = true, content: (@Composab
                                 append("Preinfusion (${preinfusionTimeSeconds}) sec")
                             }
 
-                            GaggiaState.BREWING -> {
+                            GaggiaState.BREWING, GaggiaState.DONE_BREWING -> {
                                 append("Brew (${preinfusionTimeSeconds}, ${brewTimeSeconds}) sec")
                             }
 
