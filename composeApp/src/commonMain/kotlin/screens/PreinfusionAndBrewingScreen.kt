@@ -16,8 +16,13 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.sourceInformationMarkerEnd
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithCache
@@ -25,9 +30,11 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlinx.coroutines.delay
 import theme.Purple40
 import theme.PurpleGrey40_50
 import theme.PurpleGrey80
@@ -44,7 +51,7 @@ fun PreinfusionAndBrewingScreen(uiState: UIState) {
 @Composable
 // This composable assumes the UIState telemetry includes preinfusion
 // and brewing data.
-fun BrewChart(uiState: UIState, content: (@Composable () -> Unit)? = null) {
+fun BrewChart(uiState: UIState, showCounter: Boolean = true, content: (@Composable () -> Unit)? = null) {
     RoboGaggiaTheme {
         Surface(
             // uses theme
@@ -54,6 +61,10 @@ fun BrewChart(uiState: UIState, content: (@Composable () -> Unit)? = null) {
             val (seriesList, maxValueList, unitList, colorList, weightIndex) = SeriesData(
                 uiState.telemetry
             )
+
+            var preinfusionTimeSeconds by remember { mutableStateOf(0)}
+            var brewTimeSeconds by remember { mutableStateOf(0)}
+            var timeString by remember { mutableStateOf("")}
 
             val visibleSeriesMap = remember {
                 mutableStateMapOf(
@@ -68,6 +79,37 @@ fun BrewChart(uiState: UIState, content: (@Composable () -> Unit)? = null) {
             val xStepsPerScreen = 40
             val secondsPerStep = 1.2
 
+            LaunchedEffect(uiState.currentState) {
+                while (showCounter) {
+                    delay(1000)
+                    when (uiState.currentState) {
+                        GaggiaState.PREINFUSION -> {
+                            preinfusionTimeSeconds += 1
+                        }
+
+                        GaggiaState.BREWING -> {
+                            brewTimeSeconds += 1
+                        }
+
+                        else -> {}
+                    }
+
+                    timeString = buildString {
+                        when (uiState.currentState) {
+                            GaggiaState.PREINFUSION -> {
+                                append("Preinfusion (${preinfusionTimeSeconds}) sec")
+                            }
+
+                            GaggiaState.BREWING -> {
+                                append("Brew (${preinfusionTimeSeconds}, ${brewTimeSeconds}) sec")
+                            }
+
+                            else -> {}
+                        }
+                    }
+                }
+            }
+
             Box(
                 modifier = Modifier.padding(
                     start = 10.dp,
@@ -81,6 +123,13 @@ fun BrewChart(uiState: UIState, content: (@Composable () -> Unit)? = null) {
                 GridBackground(
                     numberOfColumns = numberOfVisibleRows + 2,
                     numberOfRows = numberOfVisibleRows
+                )
+
+                Text(
+                    modifier = Modifier.align(Alignment.Center).graphicsLayer(alpha = .5F),
+                    text = timeString,
+                    color = Color.White,
+                    fontSize = 48.sp
                 )
 
                 Legend(
@@ -420,11 +469,11 @@ data class SeriesData constructor(
     constructor(accumulatedTelemetry: List<TelemetryMessage>) :
             this(
                 seriesList = listOf(
-                    accumulatedTelemetry.filter { it.state  == GaggiaState.PREINFUSION_AND_BREWING }.map { it.weightGrams.toFloat() },
-                    accumulatedTelemetry.filter { it.state  == GaggiaState.PREINFUSION_AND_BREWING }.map { it.pressureBars.toFloat() },
-                    accumulatedTelemetry.filter { it.state  == GaggiaState.PREINFUSION_AND_BREWING }.map { it.flowRateGPS.toFloat() },
-                    accumulatedTelemetry.filter { it.state  == GaggiaState.PREINFUSION_AND_BREWING }.map { it.brewTempC.toFloat() },
-                    accumulatedTelemetry.filter { it.state  == GaggiaState.PREINFUSION_AND_BREWING }.map { it.dutyCyclePercent.toFloat() }),
+                    accumulatedTelemetry.filter { it.state in setOf(GaggiaState.PREINFUSION, GaggiaState.BREWING) }.map { it.weightGrams.toFloat() },
+                    accumulatedTelemetry.filter { it.state in setOf(GaggiaState.PREINFUSION, GaggiaState.BREWING) }.map { it.pressureBars.toFloat() },
+                    accumulatedTelemetry.filter { it.state in setOf(GaggiaState.PREINFUSION, GaggiaState.BREWING) }.map { it.flowRateGPS.toFloat() },
+                    accumulatedTelemetry.filter { it.state in setOf(GaggiaState.PREINFUSION, GaggiaState.BREWING) }.map { it.brewTempC.toFloat() },
+                    accumulatedTelemetry.filter { it.state in setOf(GaggiaState.PREINFUSION, GaggiaState.BREWING) }.map { it.dutyCyclePercent.toFloat() }),
 
                 maxValueList = listOf(50f, 15f, 5f, 150f, 100f),
                 unitList = listOf("grams", "bars", "grams/sec", "tempC", "pumpPower"),

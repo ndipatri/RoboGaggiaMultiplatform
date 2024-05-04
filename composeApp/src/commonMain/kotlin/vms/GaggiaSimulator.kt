@@ -13,6 +13,7 @@ import mqtt.packets.Qos
 import mqtt.packets.mqttv5.SubscriptionOptions
 import utils.renderTelemetry
 import utils.typicalBrewCycleTelemetryString
+import utils.typicalPreinfusionCycleTelemetryString
 import vms.TelemetryViewModel.Companion.telemetryTopic
 
 // This implements a simple state machine in an attempt to
@@ -76,9 +77,11 @@ class GaggiaSimulator(val coroutineScope: CoroutineScope) {
                             // we need to make sure we're connected first before we
                             // try to publish.. duh
 
+                            // choose which starting screen....
+
                             //currentTelemetry = currentTelemetry.copy(state = GaggiaState.JOINING_NETWORK)
-                            currentTelemetry = currentTelemetry.copy(state = GaggiaState.MEASURE_BEANS)
-                            //currentTelemetry = currentTelemetry.copy(state = GaggiaState.PREINFUSION_AND_BREWING)
+                            //currentTelemetry = currentTelemetry.copy(state = GaggiaState.MEASURE_BEANS)
+                            currentTelemetry = currentTelemetry.copy(state = GaggiaState.HEATING_TO_BREW)
 
                             scheduleNextStateAutomaticallyIfNecessary()
                         }
@@ -439,13 +442,38 @@ class GaggiaSimulator(val coroutineScope: CoroutineScope) {
 
                     // assume it takes 5 seconds to preheat
                     delay(2000)
-                    currentTelemetry = currentTelemetry.copy(state = GaggiaState.PREINFUSION_AND_BREWING)
+                    currentTelemetry = currentTelemetry.copy(state = GaggiaState.PREINFUSION)
 
                     scheduleNextStateAutomaticallyIfNecessary()
                 }
             }
 
-            GaggiaState.PREINFUSION_AND_BREWING -> {
+            GaggiaState.PREINFUSION -> {
+                coroutineScope.launch(Dispatchers.Default) {
+
+                    // it takes some time for preinfusion and brewing
+                    for (telemetryMessage in renderTelemetry(typicalPreinfusionCycleTelemetryString)) {
+                        currentTelemetry = currentTelemetry.copy(
+                            state = telemetryMessage.state,
+                            weightGrams = telemetryMessage.weightGrams,
+                            pressureBars = telemetryMessage.pressureBars,
+                            dutyCyclePercent = telemetryMessage.dutyCyclePercent,
+                            flowRateGPS = telemetryMessage.flowRateGPS,
+                            brewTempC = telemetryMessage.brewTempC
+                        )
+
+                        //delay(BuildKonfig.MQTT_SERVER_ADDRESS)
+                        delay(BuildKonfig.MQTT_SERVER_TELEMETRY_INTERVAL_MILLIS.toLong())
+                    }
+
+                    currentTelemetry = currentTelemetry.copy(state = GaggiaState.BREWING)
+                    // we don't trigger any more state changes as now we wait for user to interact.
+
+                    scheduleNextStateAutomaticallyIfNecessary()
+                }
+            }
+
+            GaggiaState.BREWING -> {
                 coroutineScope.launch(Dispatchers.Default) {
 
                     // it takes some time for preinfusion and brewing

@@ -21,7 +21,7 @@ fun renderTelemetry(rawTelemetryString: String): List<TelemetryMessage> {
     }
 }
 
-val typicalBrewCycleTelemetryString =
+val typicalPreinfusionCycleTelemetryString =
     "preInfusion, 0, -1.000000, 40.400000, 0.000000, 105.750000, 2, 2235, 0\n" +
     "preInfusion, 0, 0.000000, 40.400000, 0.000000, 105.000000, 2, 2235, 0\n" +
     "preInfusion, 0, 0.000000, 40.400000, 0.000000, 104.750000, 2, 2235, 0\n" +
@@ -36,7 +36,9 @@ val typicalBrewCycleTelemetryString =
     "preInfusion, 0, 1.000000, 40.400000, 0.000000, 101.500000, 2, 2235, 0\n" +
     "preInfusion, 0, 1.000000, 40.400000, 0.000000, 104.000000, 2, 2235, 0\n" +
     "preInfusion, 0, 1.000000, 40.400000, 0.000000, 106.250000, 2, 2235, 0\n" +
-    "preInfusion, 1, 2.000000, 40.400000, 0.833333, 109.250000, 2, 2235, 0\n" +
+    "preInfusion, 1, 2.000000, 40.400000, 0.833333, 109.250000, 2, 2235, 0"
+
+val typicalBrewCycleTelemetryString =
     "brewing, 2, 2.000000, 41.266667, 0.833333, 110.250000, 2, 2235, 0\n" +
     "brewing, 4, 2.000000, 43.000000, 1.666667, 111.750000, 2, 2235, 0\n" +
     "brewing, 5, 2.000000, 43.900000, 0.833333, 111.750000, 2, 2235, 0\n" +

@@ -225,7 +225,7 @@ class TelemetryViewModel(val context: ApplicationContext) : CoroutineViewModel()
 
             val existingValues = uiStateFlow.value.telemetry
 
-            if (state in setOf(GaggiaState.PREINFUSION_AND_BREWING, GaggiaState.DONE_BREWING)) {
+            if (state in setOf(GaggiaState.PREINFUSION, GaggiaState.BREWING, GaggiaState.DONE_BREWING)) {
                 newAccumulatedTelemetry.addAll(existingValues)
             } else {
                 // keep last TELEMETRY_WINDOW_SIZE-1 values  (we're about to add one more)
@@ -411,10 +411,8 @@ enum class GaggiaState(val stateName: String) {
     TARE_CUP_AFTER_MEASURE("tareCupAfterMeasure"),
     HEATING_TO_BREW("heating"),
 
-    // We consolidate the 'preInfusion' and 'brewing' states in this
-    // mobile app.. On the Gaggia, they are separate..
-    // We use the 'byName' function to do the fusing.
-    PREINFUSION_AND_BREWING("preInfusionAndBrewing"),
+    PREINFUSION("preInfusion"),
+    BREWING("brewing"),
 
     DONE_BREWING("doneBrewing"),
     HEATING_TO_STEAM("heatingToSteam"),
@@ -439,15 +437,7 @@ enum class GaggiaState(val stateName: String) {
 
     companion object {
         fun byName(name: String): GaggiaState {
-
-            // exception logic to fuse together two gaggia states
-            // into one mobile state
-            if (name in setOf("preInfusion", "brewing")) {
-                return GaggiaState.PREINFUSION_AND_BREWING
-            }
-
             for (candidate in GaggiaState.values()) {
-
                 if (candidate.stateName == name) {
                     return candidate
                 }
@@ -574,6 +564,15 @@ data class UIState(
         get() {
             return if (telemetry.isNotEmpty()) {
                 telemetry.last().brewTempC.trim().toFloat()
+            } else {
+                null
+            }
+        }
+
+    val currentState: GaggiaState?
+        get() {
+            return if (telemetry.isNotEmpty()) {
+                telemetry.last().state
             } else {
                 null
             }

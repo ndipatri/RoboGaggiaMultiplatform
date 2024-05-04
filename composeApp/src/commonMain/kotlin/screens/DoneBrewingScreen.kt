@@ -4,7 +4,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import content.ScreenContent
 import org.jetbrains.compose.resources.ExperimentalResourceApi
-import robogaggiamultiplatform.composeapp.generated.resources.*
+import robogaggiamultiplatform.composeapp.generated.resources.Res
+import robogaggiamultiplatform.composeapp.generated.resources.done_brewing
+import robogaggiamultiplatform.composeapp.generated.resources.exit
+import robogaggiamultiplatform.composeapp.generated.resources.ready
 import vms.UIState
 
 @OptIn(ExperimentalResourceApi::class)
@@ -13,7 +16,7 @@ fun DoneBrewingScreen(uiState: UIState,
                       onReadyClicked: () -> Unit,
                       onExitClicked: () -> Unit) {
 
-    BrewChart(uiState) {
+    BrewChart(uiState = uiState, showCounter = false) {
         ScreenContent(
             body1Resource = Res.string.done_brewing,
             button1Resource = Res.string.ready,

@@ -135,7 +135,7 @@ fun AppContent(
                             onSecondButtonClick = _onSecondButtonClick
                         )
 
-                        GaggiaState.PREINFUSION_AND_BREWING -> PreinfusionAndBrewingScreen(
+                        GaggiaState.PREINFUSION, GaggiaState.BREWING -> PreinfusionAndBrewingScreen(
                             uiState = uiState
                         )
 
