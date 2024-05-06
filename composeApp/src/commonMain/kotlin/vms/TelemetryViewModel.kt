@@ -181,7 +181,7 @@ class TelemetryViewModel(val context: ApplicationContext) : CoroutineViewModel()
 
     private fun handleMessage(message: String) {
         lateinit var state: GaggiaState
-        lateinit var measuredWeightGrams: String
+        lateinit var measuredWeight: String
         lateinit var measuredPressureBars: String
         lateinit var pumpDutyCycle: String
         lateinit var flowRateGPS: String
@@ -193,7 +193,7 @@ class TelemetryViewModel(val context: ApplicationContext) : CoroutineViewModel()
         message.split(",").forEachIndexed() { index, element ->
             when (index) {
                 0 -> state = GaggiaState.byName(element)
-                1 -> measuredWeightGrams = element
+                1 -> measuredWeight = element
                 2 -> measuredPressureBars = element
                 3 -> pumpDutyCycle = element
                 4 -> flowRateGPS = element
@@ -206,7 +206,7 @@ class TelemetryViewModel(val context: ApplicationContext) : CoroutineViewModel()
 
         val newTelemetry = TelemetryMessage(
             state = state,
-            weightGrams = measuredWeightGrams,
+            weight = Weight(measuredWeight),
             pressureBars = measuredPressureBars,
             dutyCyclePercent = pumpDutyCycle,
             flowRateGPS = flowRateGPS,
@@ -392,7 +392,10 @@ enum class CommandType(val transmitName: String) {
 
 data class TelemetryMessage(
     val state: GaggiaState,
-    val weightGrams: String,
+
+    // of form: <currentWeight>:<targetWeight>
+    val weight: Weight,
+
     val pressureBars: String,
     val dutyCyclePercent: String,
     val flowRateGPS: String,
@@ -401,6 +404,13 @@ data class TelemetryMessage(
     val totalShots: String,
     val boilerState: String
 )
+
+data class Weight(val currentWeight: Float, val targetWeight: Float?) {
+    constructor(weight: String) : this(
+        weight.trim().split(":")[0].toFloat(),
+        if (weight.trim().split(":").size == 2) weight.trim().split(":")[1].toFloat() else null
+    )
+}
 
 enum class GaggiaState(val stateName: String) {
     IGNORING_NETWORK("ignoringNetwork"),
@@ -515,27 +525,25 @@ data class UIState(
     val isScaleWeightedRaw: Boolean
         get() {
             val state = currentTelemetryMessage?.state ?: return false
-            val measuredWeightGrams = currentTelemetryMessage?.weightGrams ?: return false
+            val measuredWeightGrams = currentTelemetryMessage?.weight?.currentWeight ?: return false
 
             return (previousIsScaleWeighted &&
                     lowerWeightedThresholdGrams(state) != null &&
-                    measuredWeightGrams.trim()
-                        .toFloat() >= lowerWeightedThresholdGrams(state)!!) ||
+                    measuredWeightGrams >= lowerWeightedThresholdGrams(state)!!) ||
 
                     (!previousIsScaleWeighted &&
                             upperWeightedThresholdGrams(state) != null &&
-                            measuredWeightGrams.trim()
-                                .toFloat() > upperWeightedThresholdGrams(state)!!)
+                            measuredWeightGrams > upperWeightedThresholdGrams(state)!!)
         }
 
     // 'settled' means the scale has finally stopped changing in value enough to consider the value for calculations
     // For settling, only consider decimal value of weight
     val SETTLED_WEIGHT_THRESHOLD = 4
     val isScaleSettled =
-        if (currentTelemetryMessage?.weightGrams != null && previousTelemetryMessage?.weightGrams != null) {
+        if (currentTelemetryMessage?.weight?.currentWeight != null && previousTelemetryMessage?.weight?.currentWeight != null) {
             abs(
-                (currentTelemetryMessage!!.weightGrams.trim().toFloat().toInt() -
-                        (previousTelemetryMessage!!.weightGrams.trim().toFloat().toInt()))
+                (currentTelemetryMessage!!.weight.currentWeight.toInt() -
+                        (previousTelemetryMessage!!.weight.currentWeight.toInt()))
             ) < SETTLED_WEIGHT_THRESHOLD
         } else {
             false
@@ -554,7 +562,7 @@ data class UIState(
     val currentTaredWeight: Float?
         get() {
             return if (telemetry.isNotEmpty()) {
-                telemetry.last().weightGrams.trim().toFloat()
+                telemetry.last().weight.currentWeight
             } else {
                 null
             }
@@ -642,7 +650,7 @@ data class UIState(
     // the cup is back on the scale.
     val isCupOnlyOnScale: Boolean? =
         if (currentTelemetryMessage?.state == GaggiaState.TARE_CUP_AFTER_MEASURE) {
-            isScaleSettled && (currentTelemetryMessage?.weightGrams?.trim()?.toFloat()
+            isScaleSettled && (currentTelemetryMessage?.weight?.currentWeight
                 ?.let { abs(it) < 3F } ?: false)
         } else {
             null

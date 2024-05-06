@@ -22,7 +22,6 @@ import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.sourceInformationMarkerEnd
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithCache
@@ -48,6 +47,7 @@ import theme.RoboGaggiaTheme
 import vms.GaggiaState
 import vms.TelemetryMessage
 import vms.UIState
+import vms.Weight
 
 @OptIn(ExperimentalResourceApi::class)
 @Composable
@@ -84,7 +84,7 @@ fun BrewChart(uiState: UIState, content: (@Composable () -> Unit)? = null) {
             modifier = Modifier.fillMaxSize(),
             color = Color.Black,
         ) {
-            val (seriesList, maxValueList, unitList, colorList, weightIndex) = SeriesData(
+            val (seriesList, maxValueList, unitList, colorList) = SeriesData(
                 uiState.telemetry
             )
 
@@ -105,6 +105,7 @@ fun BrewChart(uiState: UIState, content: (@Composable () -> Unit)? = null) {
             val xStepsPerScreen = 40
             val secondsPerStep = 1.2
 
+            // Track preinfusion and brew time for shot clock overlay
             LaunchedEffect(uiState.currentState) {
                 while (true) {
                     delay(1000)
@@ -151,6 +152,7 @@ fun BrewChart(uiState: UIState, content: (@Composable () -> Unit)? = null) {
                     numberOfRows = numberOfVisibleRows
                 )
 
+                // Shot clock overlay
                 Text(
                     modifier = Modifier.align(Alignment.Center).graphicsLayer(alpha = .5F),
                     text = timeString,
@@ -167,7 +169,6 @@ fun BrewChart(uiState: UIState, content: (@Composable () -> Unit)? = null) {
                     },
                     unitList = unitList,
                     colorList = colorList,
-                    accumulatedTelemetry = uiState.telemetry
                 )
 
                 Column(
@@ -190,7 +191,9 @@ fun BrewChart(uiState: UIState, content: (@Composable () -> Unit)? = null) {
                 content?.invoke()
             }
 
-            TimeBar(xStepsPerScreen, seriesList[0].size, secondsPerStep)
+            // NJD TODO - The TimeBar uses native canvas operations which would require the
+            // expected/actual mechanism which i'm not ready to do for this yes.
+            //TimeBar(xStepsPerScreen, seriesList[0].size, secondsPerStep)
         }
     }
 }
@@ -312,12 +315,11 @@ private fun GridBackground(
 @Composable
 private fun Legend(
     modifier: Modifier,
-    seriesList: List<List<Float>>,
+    seriesList: List<List<Any>>,
     visibleSeriesMap: Map<Int, Boolean>,
     onSeriesSelected: (Int) -> Unit,
     unitList: List<String>,
     colorList: List<Color>,
-    accumulatedTelemetry: List<TelemetryMessage>
 ) {
     Box(
         modifier = modifier
@@ -349,23 +351,16 @@ private fun Legend(
 
             // Row for each series being displayed
             seriesList.forEachIndexed { index, series ->
+
                 if (visibleSeriesMap[index] != false) {
                     SeriesTitleRow(unitList[index],
                         colorList[index],
-                        series.max(),
+                        series.toSeriesDataValues().last(),
+                        series.toSeriesTargetValues().last(),
                         onClick = { onSeriesSelected(index) })
                 }
             }
         }
-
-        Text(
-            modifier = Modifier
-                .align(Alignment.TopEnd)
-                .padding(20.dp),
-            text = accumulatedTelemetry.last().state.stateName,
-            color = Color.White,
-            fontSize = 14.sp
-        )
     }
 }
 
@@ -373,7 +368,8 @@ private fun Legend(
 private fun ColumnScope.SeriesTitleRow(
     seriesTitle: String,
     seriesColor: Color,
-    seriesMax: Float,
+    seriesCurrentValue: Float,
+    seriesTargetValue: Float?,
     onClick: () -> Unit
 ) {
 
@@ -389,12 +385,12 @@ private fun ColumnScope.SeriesTitleRow(
             Text(
                 text = seriesTitle,
                 color = seriesColor,
-                fontSize = 16.sp
+                fontSize = 22.sp
             )
             Text(
-                text = " ($seriesMax)",
+                text = " ($seriesCurrentValue${seriesTargetValue?.let { "/ $it" } ?: ""})",
                 color = seriesColor,
-                fontSize = 16.sp
+                fontSize = 20.sp
             )
         }
     }
@@ -404,7 +400,7 @@ private fun ColumnScope.SeriesTitleRow(
 fun LineGraph(
     modifier: Modifier,
     pathColor: Color,
-    yValues: List<Float>,
+    yValues: List<Any>,
     yMaxValue: Float,
     xStepsPerScreen: Int,
 ) {
@@ -424,7 +420,7 @@ fun LineGraph(
         // so we always start at 0 when drawing our graph
         val values = mutableListOf<Float>().apply {
             add(0F)
-            addAll(yValues)
+            addAll(yValues.toSeriesDataValues())
         }
 
         var previousXPosition = 0F
@@ -486,7 +482,7 @@ fun LineGraph(
 }
 
 data class SeriesData constructor(
-    val seriesList: List<List<Float>>,
+    val seriesList: List<List<Any>>,
     val maxValueList: List<Float>,
     val unitList: List<String>,
     val colorList: List<Color>,
@@ -495,7 +491,7 @@ data class SeriesData constructor(
     constructor(accumulatedTelemetry: List<TelemetryMessage>) :
             this(
                 seriesList = listOf(
-                    accumulatedTelemetry.filter { it.state in setOf(GaggiaState.PREINFUSION, GaggiaState.BREWING) }.map { it.weightGrams.toFloat() },
+                    accumulatedTelemetry.filter { it.state in setOf(GaggiaState.PREINFUSION, GaggiaState.BREWING) }.map { it.weight },
                     accumulatedTelemetry.filter { it.state in setOf(GaggiaState.PREINFUSION, GaggiaState.BREWING) }.map { it.pressureBars.toFloat() },
                     accumulatedTelemetry.filter { it.state in setOf(GaggiaState.PREINFUSION, GaggiaState.BREWING) }.map { it.flowRateGPS.toFloat() },
                     accumulatedTelemetry.filter { it.state in setOf(GaggiaState.PREINFUSION, GaggiaState.BREWING) }.map { it.brewTempC.toFloat() },
@@ -506,4 +502,22 @@ data class SeriesData constructor(
                 colorList = listOf(Color.Yellow, Color.Red, Color.Magenta, Color.Green, Purple40),
                 weightIndex = 0 // index in series where weight values reside
             )
+
 }
+
+fun List<Any>.toSeriesDataValues(): List<Float> =
+    map {
+        when (it) {
+            is Weight -> it.currentWeight
+            else -> it as Float
+        }
+    }
+
+// Value is null if this series does NOT contain target values.
+fun List<Any>.toSeriesTargetValues(): List<Float?> =
+    map {
+        when (it) {
+            is Weight -> it.targetWeight
+            else -> null
+        }
+    }
