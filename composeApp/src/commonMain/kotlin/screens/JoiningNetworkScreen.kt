@@ -10,7 +10,7 @@ import robogaggiamultiplatform.composeapp.generated.resources.*
 fun JoiningNetworkScreen(onIgnoreNetworkClick: () -> Unit) {
     ScreenContent(
         body1Resource = Res.string.joining_network,
-        body2Resource = Res.string.please_wait,
+        body2Resource = Res.string.clear_scale,
         button2Resource = Res.string.ignore_network,
         onSecondButtonClick = onIgnoreNetworkClick
     )

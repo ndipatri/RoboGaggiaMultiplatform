@@ -468,15 +468,6 @@ val WEIGHT_OF_EMPTY_SCALE_GRAMS = 11F
 val SCHMITT_TRIGGER_THRESHOLD = 1.1F
 fun lowerWeightedThresholdGrams(state: GaggiaState): Float? {
     return when (state) {
-        GaggiaState.PREHEAT -> {
-            // PREHEAT weight is NOT tared... So the weight we are
-            // getting includes the weight of the scale itself, which
-            // is a known quantity...
-
-            // below this, and the scale is considered NOT weighted
-            WEIGHT_OF_EMPTY_SCALE_GRAMS * SCHMITT_TRIGGER_THRESHOLD
-        }
-
         GaggiaState.MEASURE_BEANS, GaggiaState.TARE_CUP_AFTER_MEASURE -> {
             // weight coming back is already tared with
             // the cup and scale ... so any weight is beans
@@ -493,14 +484,6 @@ fun lowerWeightedThresholdGrams(state: GaggiaState): Float? {
 
 fun upperWeightedThresholdGrams(state: GaggiaState): Float? {
     return when (state) {
-        GaggiaState.PREHEAT -> {
-
-            // We pick a weight here that would comfortably be higher
-            // that the weight of the scale enough so that it would
-            // indicate a cup is now on the scale.
-            WEIGHT_OF_EMPTY_SCALE_GRAMS * 2
-        }
-
         GaggiaState.MEASURE_BEANS, GaggiaState.TARE_CUP_AFTER_MEASURE -> {
             // weight coming back is already tared with
             // the cup and scale ... so any weight is beans

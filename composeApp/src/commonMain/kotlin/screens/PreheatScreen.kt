@@ -19,8 +19,8 @@ fun PreheatScreen(
 ) {
     ScreenContent(
         body1Resource = Res.string.hello_welcome_to_robogaggia,
-        body2Resource = if (!uiState.isScaleWeighted) Res.string.place_your_empty_cup else null,
-        button1Resource = if (uiState.isScaleWeighted) Res.string.start else null,
+        body2Resource = Res.string.place_your_empty_cup,
+        button1Resource = Res.string.start,
         userMessage = if (uiState.currentShotsUntilBackflush == 0) {
             stringResource(Res.string.time_to_backflush)
         } else {

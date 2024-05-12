@@ -10,6 +10,6 @@ import robogaggiamultiplatform.composeapp.generated.resources.*
 fun IgnoringNetworkScreen() {
     ScreenContent(
         body1Resource = Res.string.ignoring_network,
-        body2Resource = Res.string.please_wait
+        body2Resource = Res.string.clear_scale
     )
 }

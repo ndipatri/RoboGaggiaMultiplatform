@@ -12,6 +12,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.graphicsLayer
 import kotlinx.coroutines.delay
 import kotlin.math.ceil
 import kotlin.math.floor
@@ -34,7 +35,8 @@ fun FireContent(
     var fireElements: MutableList<Int> by remember { mutableStateOf(mutableListOf()) }
     var fireDimensions: FireDimensions? by remember { mutableStateOf(null) }
 
-    Canvas(modifier = modifier) {
+    Canvas(modifier = modifier.graphicsLayer(alpha = .5f)
+    ) {
         fireDimensions = FireDimensions(
             size.width.toInt(),
             size.height.toInt()

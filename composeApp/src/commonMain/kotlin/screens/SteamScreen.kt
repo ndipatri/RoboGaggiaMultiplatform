@@ -14,6 +14,7 @@ fun SteamingScreen(uiState: UIState,
     ScreenContent(
         body1Resource = Res.string.operate_steam_wand,
         button1Resource = Res.string.done,
+        boilerIsOn = uiState.currentBoilerIsOn ?: false,
         onFirstButtonClick = onDoneSteamingClick
     ) {
         SingleFloatContent(Res.string.temp_is_140, uiState.currentTemperature ?: 0F)
