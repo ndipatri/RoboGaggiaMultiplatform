@@ -3,7 +3,7 @@
     <string name="welcome_primary">Robo Gaggia</string>
 
     <string name="joining_network">Joining Network ...</string>
-    <string name="clear_scale">Make sure scale is clear.</string>
+    <string name="clear_scale">(Make sure scale is clear.)</string>
 
     <string name="please_wait">Please wait</string>
 
@@ -16,7 +16,7 @@
     <string name="hello_welcome_to_robogaggia">Hello! Welcome to RoboGaggia</string>
     <string name="place_your_empty_cup">Place your empty cup on the scale to start brewing.</string>
     <string name="start">Start</string>
-    <string name="time_to_backflush">It's time to Backflush. Tap 'Clean' or ...</string>
+    <string name="time_to_backflush">It's time to Backflush.\nTap 'Clean' or ...</string>
     <string name="shots_brewed_so_far">%1$d shots have been brewed so far.</string>
     <string name="clean">Clean</string>
     <string name="temp_is_120">Temp is %.1fC (heating to 120C)</string>

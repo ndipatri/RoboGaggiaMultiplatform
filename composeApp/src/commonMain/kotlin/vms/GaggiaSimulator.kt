@@ -81,7 +81,7 @@ class GaggiaSimulator(val coroutineScope: CoroutineScope) {
 
                             //currentTelemetry = currentTelemetry.copy(state = GaggiaState.JOINING_NETWORK)
                             //currentTelemetry = currentTelemetry.copy(state = GaggiaState.MEASURE_BEANS)
-                            currentTelemetry = currentTelemetry.copy(state = GaggiaState.HEATING_TO_BREW)
+                            currentTelemetry = currentTelemetry.copy(state = GaggiaState.JOINING_NETWORK)
 
                             scheduleNextStateAutomaticallyIfNecessary()
                         }
