@@ -7,6 +7,7 @@ plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsCompose)
+    alias(libs.plugins.compose.compiler)
     id("com.codingfeline.buildkonfig")
 }
 
@@ -33,7 +34,7 @@ kotlin {
     sourceSets {
         
         androidMain.dependencies {
-            implementation(libs.compose.ui.tooling.preview)
+            implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
         }
         val commonMain by getting {
@@ -42,8 +43,8 @@ kotlin {
                 implementation(compose.foundation)
                 implementation(compose.material)
                 implementation(compose.ui)
-                @OptIn(ExperimentalComposeLibrary::class)
                 implementation(compose.components.resources)
+                implementation(compose.components.uiToolingPreview)
 
                 // MQTT
                 implementation("io.github.davidepianca98:kmqtt-common:0.4.5")
@@ -156,7 +157,7 @@ android {
 //    }
 
     dependencies {
-        debugImplementation(libs.compose.ui.tooling)
+        debugImplementation(compose.uiTooling)
     }
 }
 
