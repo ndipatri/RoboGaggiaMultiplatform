@@ -19,10 +19,7 @@ kotlin {
             }
         }
     }
-
-    jvm("desktop")
-
-
+    
     listOf(
         iosX64(),
         iosArm64(),
@@ -35,8 +32,7 @@ kotlin {
     }
     
     sourceSets {
-        val desktopMain by getting
-
+        
         androidMain.dependencies {
             implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
@@ -76,9 +72,6 @@ kotlin {
             dependencies {
                 api(files("src/nativeInterop/openssl-ios-simulator-arm64.klib"))
             }
-        }
-        desktopMain.dependencies {
-            implementation(compose.desktop.currentOs)
         }
     }
 }
@@ -168,14 +161,3 @@ android {
     }
 }
 
-compose.desktop {
-    application {
-        mainClass = "MainKt"
-
-        nativeDistributions {
-            targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
-            packageName = "com.ndipatri.gaggiakmpsimulator"
-            packageVersion = "1.0.0"
-        }
-    }
-}
