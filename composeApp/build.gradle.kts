@@ -97,12 +97,6 @@ buildkonfig {
 
         buildConfigField(
             Type.STRING,
-            "USE_GAGGIA_SIMULATOR",
-            gradleLocalProperties(rootDir).getProperty("use.gaggia.simulator")
-        )
-
-        buildConfigField(
-            Type.STRING,
             "MQTT_SERVER_ADDRESS",
             gradleLocalProperties(rootDir).getProperty("mqtt.server.address")
         )

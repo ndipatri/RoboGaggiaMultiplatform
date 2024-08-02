@@ -61,12 +61,6 @@ class TelemetryViewModel(val context: ApplicationContext) : CoroutineViewModel()
     init {
         if (!BuildKonfig.USE_BLE.toBooleanStrict()) {
             startMQTTClientAndSubscribeToTelemetryTopic(500)
-
-            if (BuildKonfig.USE_GAGGIA_SIMULATOR.toBooleanStrict()) {
-                if (BuildKonfig.USE_GAGGIA_SIMULATOR.toBooleanStrict()) {
-                    GaggiaSimulator(coroutineScope)
-                }
-            }
         }
 
         checkForStaleTelemetry()
