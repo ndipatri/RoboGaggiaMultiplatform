@@ -85,18 +85,6 @@ buildkonfig {
 
         buildConfigField(
             Type.STRING,
-            "AIO_USERNAME",
-            gradleLocalProperties(rootDir).getProperty("aio.username")
-        )
-
-        buildConfigField(
-            Type.STRING,
-            "AIO_PASSWORD",
-            gradleLocalProperties(rootDir).getProperty("aio.password")
-        )
-
-        buildConfigField(
-            Type.STRING,
             "MQTT_SERVER_ADDRESS",
             gradleLocalProperties(rootDir).getProperty("mqtt.server.address")
         )

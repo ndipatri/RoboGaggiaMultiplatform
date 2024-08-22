@@ -122,8 +122,6 @@ class TelemetryViewModel(val context: ApplicationContext) : CoroutineViewModel()
                     address = BuildKonfig.MQTT_SERVER_ADDRESS,
                     port = 1883,
                     tls = null,
-                    userName = BuildKonfig.AIO_USERNAME,
-                    password = BuildKonfig.AIO_PASSWORD.encodeToByteArray().toUByteArray(),
                 ) { mqttPublish ->
                     mqttPublish.payload?.let {
                         val message = it.toByteArray().decodeToString()
