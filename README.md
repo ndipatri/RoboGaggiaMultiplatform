@@ -1,14 +1,38 @@
-This is a Kotlin Multiplatform project targeting Android, iOS.
+# Robo Gaggia Multiplatform UI
 
-* `/composeApp` is for code that will be shared across your Compose Multiplatform applications.
-  It contains several subfolders:
-  - `commonMain` is for code that’s common for all targets.
-  - Other folders are for Kotlin code that will be compiled for only the platform indicated in the folder name.
-    For example, if you want to use Apple’s CoreCrypto for the iOS part of your Kotlin app,
-    `iosMain` would be the right folder for such calls.
+[Nick DiPatri](ndipatri@gmail.com)
 
-* `/iosApp` contains iOS applications. Even if you’re sharing your UI with Compose Multiplatform, 
-  you need this entry point for your iOS app. This is also where you should add SwiftUI code for your project.
+[LinkedIn](https://www.linkedin.com/in/ndipatri/)
+
+![Robo Gaggia](media/gaggia1.png)
 
 
-Learn more about [Kotlin Multiplatform](https://www.jetbrains.com/help/kotlin-multiplatform-dev/get-started.html)…
+## RoboGaggia User Interface ##
+
+This project provides a mobile-based user interface for the [Robo Gaggia](https://github.com/ndipatri/RoboGaggia) project.
+
+The mobile device hangs on the front of Robo Gaggia and covers the original mechanical Gaggia brew and steam switches which are no longer needed.
+
+Please see the [Robo Gaggia](https://github.com/ndipatri/RoboGaggia) project for details on how to hang the mobile device on the front of Robo Gaggia.
+
+
+## Compose Multiplatform UI Framework
+
+This Robo Gaggia Multiplatform UI (RGUI) project uses [Compose Multiplatform UI Framework](https://www.jetbrains.com/lp/compose-multiplatform/) technology to provide both an iOS and Android application.
+
+
+## Bluetooth Low Energy (BLE) Communications
+
+[Robo Gaggia](https://github.com/ndipatri/RoboGaggia) communicates with the RGUI mobile app using the Bluetooth Low Energy (BLE) "UART Service".
+
+RoboGaggia emits **Live Telemetry** every 250 milliseconds that declares its state (e.g. Brewing, Steaming, etc.) as well as multiple sensor values.
+
+To change state of Robo Gaggia, the RGUI mobile applications sends one of two simple commands over the serial BLE connection: 'short' and 'long'.  This is because Robo Gaggia originally had a button and there were only two possible inputs.
+
+
+
+## Testing Harness ##
+
+It's impractical to develop this mobile application while talking over Bluetooth to the real Robo Gaggia, so I developed a test harness whereby this application can be configured to communicate with the desktop-based [Gaggia KMP Simulator](https://github.com/ndipatri/GaggiaKMPSimulator).
+
+
