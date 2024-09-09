@@ -38,7 +38,7 @@ class TelemetryViewModel(val context: ApplicationContext) : CoroutineViewModel()
         set(value) {
             field = value
             if (value) {
-                if (BuildKonfig.USE_BLE.toBooleanStrict()) {
+                if (!BuildKonfig.USE_SIMULATOR.toBooleanStrict()) {
                     blueFalcon = BlueFalcon(context, GAGGIA_UART_BLE_SERVICE_UUID).apply {
                         delegates.add(bluetoothListener)
                     }
@@ -59,7 +59,7 @@ class TelemetryViewModel(val context: ApplicationContext) : CoroutineViewModel()
     val uiStateFlow: MutableStateFlow<UIState> = MutableStateFlow(UIState())
 
     init {
-        if (!BuildKonfig.USE_BLE.toBooleanStrict()) {
+        if (BuildKonfig.USE_SIMULATOR.toBooleanStrict()) {
             startMQTTClientAndSubscribeToTelemetryTopic(500)
         }
 
@@ -97,7 +97,7 @@ class TelemetryViewModel(val context: ApplicationContext) : CoroutineViewModel()
     }
 
     private fun buttonClick(commandType: CommandType) {
-        if (BuildKonfig.USE_BLE.toBooleanStrict()) {
+        if (!BuildKonfig.USE_SIMULATOR.toBooleanStrict()) {
             connectedBLEPeripheral?.let {
                 sendBLECommand(commandType)
             }

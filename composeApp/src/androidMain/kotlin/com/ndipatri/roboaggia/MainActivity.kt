@@ -53,7 +53,7 @@ class MainActivity : ComponentActivity() {
     private fun askForRuntimePermissions(doWhenPermissionAcquired: (() -> Unit)? = null) {
 
         // We only care about this permission if we're using BLE
-        if (BuildKonfig.USE_BLE.toBooleanStrict() && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+        if (!BuildKonfig.USE_SIMULATOR.toBooleanStrict() && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
 
                 if (permissions[BLUETOOTH_SCAN] == true &&

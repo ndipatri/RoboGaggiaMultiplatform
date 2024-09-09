@@ -37,7 +37,7 @@ It's impractical to develop this mobile application while talking over Bluetooth
 
 This simulator pretends that it is the Robo Gaggia device: it emits telemetry and changes state as commands are sent by the RGUI.
 
-In order to use the GaggiaKMPSimulator, set the 'use.ble' property in the [local.properties](local.properties) file of this project to 'false'.  The RGUI will, instead, use MQTT to communicate with the simulator.
+In order to use the GaggiaKMPSimulator, set the 'use.simulator' property in the [local.properties](local.properties) file of this project to 'true'.  The RGUI will, instead, use MQTT to communicate with the simulator.
 
 Please see the [Gaggia KMP Simulator](https://github.com/ndipatri/GaggiaKMPSimulator) project for details on how to start the simulator and necessary local MQTT broker. 
 

@@ -97,8 +97,8 @@ buildkonfig {
 
         buildConfigField(
             com.codingfeline.buildkonfig.compiler.FieldSpec.Type.STRING,
-            "USE_BLE",
-            gradleLocalProperties(rootDir).getProperty("use.ble")
+            "USE_SIMULATOR",
+            gradleLocalProperties(rootDir).getProperty("use.simulator")
         )
     }
 }
