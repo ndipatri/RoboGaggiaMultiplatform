@@ -13,10 +13,12 @@ fun TareCupAfterMeasureScreen(
     onFirstButtonClick: () -> Unit,
     onSecondButtonClick: () -> Unit
 ) {
+    println("*** NJD: tareCup: uiState: ${uiState.currentState}")
+
     ScreenContent(
         body1Resource = Res.string.grind_your_beans,
         body2Resource = when {
-            !uiState.isCupOnlyOnScale!! ->
+            !uiState.isCupOnlyOnScale ->
                 Res.string.put_empty_cup_back_on_scale
             uiState.isCupOnlyOnScale ->
                 Res.string.click_done_to_begin_brewing

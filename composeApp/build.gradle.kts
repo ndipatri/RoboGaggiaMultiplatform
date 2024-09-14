@@ -46,12 +46,13 @@ kotlin {
                 implementation(compose.components.resources)
                 implementation(compose.components.uiToolingPreview)
 
+                implementation("org.jetbrains.androidx.navigation:navigation-compose:2.7.0-alpha07")
+
                 // MQTT
                 implementation("io.github.davidepianca98:kmqtt-common:0.4.5")
                 implementation("io.github.davidepianca98:kmqtt-client:0.4.5")
 
                 // BLE
-                // NJD TODO - for after we get compose KMP upgraded.
                 implementation("dev.bluefalcon:blue-falcon:1.0.0")
             }
         }

@@ -2,8 +2,10 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.currentCompositionErrors
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -11,6 +13,11 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.navigation.NavGraphBuilder
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import dev.bluefalcon.ApplicationContext
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import screens.BackflushCycle1Screen
@@ -46,6 +53,7 @@ import vms.UIState
 @Composable
 fun App(context: ApplicationContext, bluetoothPermissionAcquired: Boolean) {
 
+    // NJD TODO - need to use KOIN for this eventually
     val viewModel = remember { TelemetryViewModel(context) }
 
     // If this is set to true and BLE is enabled via build config,
@@ -67,6 +75,8 @@ fun AppContent(
     onFirstButtonClick: () -> Unit,
     onSecondButtonClick: () -> Unit,
 ) {
+    val navController: NavHostController = rememberNavController()
+
     var waitingToChangeFromState: GaggiaState by remember { mutableStateOf(GaggiaState.NA) }
 
     val _onFirstButtonClick = {
@@ -91,132 +101,205 @@ fun AppContent(
                     waitingToChangeFromState = GaggiaState.NA
                 }
             } else
-
                 if (uiState.telemetry.isEmpty()) {
                     WelcomeScreen()
                 } else {
 
                     // If there is more than one telemetry message, the most recent one
                     // is the one we use to determine current state...
-                    when (uiState.currentTelemetryMessage!!.state) {
-                        GaggiaState.NA -> WelcomeScreen()
+                    val currentGaggiaState = uiState.currentTelemetryMessage!!.state.stateName
+                    LaunchedEffect(currentGaggiaState) {
+                        navController.navigate(currentGaggiaState)
+                    }
 
-                        GaggiaState.SLEEP -> SleepScreen(
-                            onWakeClicked = _onFirstButtonClick
-                        )
-
-                        GaggiaState.JOINING_NETWORK -> JoiningNetworkScreen(
-                            onIgnoreNetworkClick = _onFirstButtonClick
-                        )
-
-                        GaggiaState.IGNORING_NETWORK -> IgnoringNetworkScreen()
-
-                        GaggiaState.PREHEAT -> PreheatScreen(
+                    NavHost(
+                        navController = navController,
+                        startDestination = GaggiaState.NA.stateName
+                    ) {
+                        mainNavigationGraph(
                             uiState = uiState,
                             onFirstButtonClick = _onFirstButtonClick,
                             onSecondButtonClick = _onSecondButtonClick
                         )
-
-                        GaggiaState.MEASURE_BEANS -> MeasureBeansScreen(
-                            uiState = uiState,
-                            onFirstButtonClick = _onFirstButtonClick,
-                            onSecondButtonClick = _onSecondButtonClick
-                        )
-
-                        GaggiaState.TARE_CUP_AFTER_MEASURE -> TareCupAfterMeasureScreen(
-                            uiState = uiState,
-                            onFirstButtonClick = _onFirstButtonClick,
-                            onSecondButtonClick = _onSecondButtonClick
-                        )
-
-                        GaggiaState.HEATING_TO_BREW -> HeatingToBrewScreen(
-                            uiState = uiState,
-                            onSecondButtonClick = _onSecondButtonClick
-                        )
-
-                        GaggiaState.PREINFUSION, GaggiaState.BREWING, GaggiaState.DONE_BREWING -> PreinfusionAndBrewingScreen(
-                            uiState = uiState,
-                            onReadyClicked = _onFirstButtonClick,
-                            onExitClicked = _onSecondButtonClick
-                        )
-
-                        GaggiaState.HEATING_TO_STEAM -> HeatingToSteamScreen(
-                            uiState = uiState,
-                            onSecondButtonClick = _onSecondButtonClick
-                        )
-
-                        GaggiaState.STEAMING -> SteamingScreen(
-                            uiState = uiState,
-                            onDoneSteamingClick = _onFirstButtonClick
-                        )
-
-                        GaggiaState.CLEAN_GROUP_READY -> CleanGroupReadyScreen(
-                            onFirstButtonClick = _onFirstButtonClick
-                        )
-
-                        GaggiaState.CLEAN_GROUP_DONE -> CleanGroupDoneScreen(
-                            onSecondButtonClick = _onSecondButtonClick
-                        )
-
-                        GaggiaState.BACKFLUSH_INSTRUCTION_1 -> BackflushInsructions1Screen(
-                            onReadyClick = _onFirstButtonClick,
-                            onExitClick = _onSecondButtonClick
-                        )
-
-                        GaggiaState.BACKFLUSH_INSTRUCTION_2 -> BackflushInsructions2Screen(
-                            onReadyClick = _onFirstButtonClick,
-                            onExitClick = _onSecondButtonClick
-                        )
-
-                        GaggiaState.BACKFLUSH_CYCLE_1 -> BackflushCycle1Screen(
-                            uiState = uiState,
-                            onExitClick = _onSecondButtonClick
-                        )
-
-                        GaggiaState.BACKFLUSH_INSTRUCTION_3 -> BackflushInsructions3Screen(
-                            onReadyClick = _onFirstButtonClick,
-                            onExitClick = _onSecondButtonClick
-                        )
-
-                        GaggiaState.BACKFLUSH_CYCLE_2 -> BackflushCycle2Screen(
-                            uiState = uiState,
-                            onExitClick = _onSecondButtonClick
-                        )
-
-                        GaggiaState.BACKFLUSH_CYCLE_DONE -> BackflushDoneScreen(
-                            onDoneClick = _onFirstButtonClick
-                        )
-
-                        GaggiaState.CLEAN_OPTIONS -> CleanOptionsScreen(
-                            onBackflushClick = _onSecondButtonClick,
-                            onDescaleClick = _onFirstButtonClick
-                        )
-
-                        GaggiaState.DESCALE -> DescaleScreen(
-                            onReadyClick = _onFirstButtonClick,
-                            onExitClick = _onSecondButtonClick
-                        )
-
-                        GaggiaState.HEATING_TO_DISPENSE -> HeatingToDispenseScreen(
-                            uiState = uiState,
-                            onExitClick = _onSecondButtonClick
-                        )
-
-                        GaggiaState.DISPENSE_HOT_WATER -> DispensingHotWaterScreen(
-                            uiState = uiState,
-                            onDoneClick = _onFirstButtonClick
-                        )
-
-                        //GaggiaState.COOL_START -> TODO()
-                        //GaggiaState.COOLING -> TODO()
-                        //GaggiaState.COOL_DONE -> TODO()
-
-                        //GaggiaState.HEATING_TO_DISPENSE -> TODO()
-                        //GaggiaState.DISPENSE_HOT_WATER -> TODO()
-
-                        else -> {}
                     }
                 }
         }
     }
+}
+
+fun NavGraphBuilder.mainNavigationGraph(
+    uiState: UIState,
+    onFirstButtonClick: () -> Unit,
+    onSecondButtonClick: () -> Unit
+) {
+    composable(route = GaggiaState.NA.stateName) {
+        WelcomeScreen()
+    }
+
+    composable(route = GaggiaState.SLEEP.stateName) {
+        SleepScreen(onWakeClicked = onFirstButtonClick)
+    }
+
+    composable(route = GaggiaState.JOINING_NETWORK.stateName) {
+        JoiningNetworkScreen(onIgnoreNetworkClick = onFirstButtonClick)
+    }
+
+    composable(route = GaggiaState.IGNORING_NETWORK.stateName) {
+        IgnoringNetworkScreen()
+    }
+
+    composable(route = GaggiaState.PREHEAT.stateName) {
+        PreheatScreen(
+            uiState = uiState,
+            onFirstButtonClick = onFirstButtonClick,
+            onSecondButtonClick = onSecondButtonClick
+        )
+    }
+
+    composable(route = GaggiaState.MEASURE_BEANS.stateName) {
+        MeasureBeansScreen(
+            uiState = uiState,
+            onFirstButtonClick = onFirstButtonClick,
+            onSecondButtonClick = onSecondButtonClick
+        )
+    }
+
+    composable(route = GaggiaState.TARE_CUP_AFTER_MEASURE.stateName) {
+        TareCupAfterMeasureScreen(
+            uiState = uiState,
+            onFirstButtonClick = onFirstButtonClick,
+            onSecondButtonClick = onSecondButtonClick
+        )
+    }
+
+    composable(route = GaggiaState.HEATING_TO_BREW.stateName) {
+        HeatingToBrewScreen(
+            uiState = uiState,
+            onSecondButtonClick = onSecondButtonClick
+        )
+    }
+
+    composable(route = GaggiaState.PREINFUSION.stateName) {
+        PreinfusionAndBrewingScreen(
+            uiState = uiState,
+            onReadyClicked = onFirstButtonClick,
+            onExitClicked = onSecondButtonClick
+        )
+    }
+    composable(route = GaggiaState.BREWING.stateName) {
+        PreinfusionAndBrewingScreen(
+            uiState = uiState,
+            onReadyClicked = onFirstButtonClick,
+            onExitClicked = onSecondButtonClick
+        )
+    }
+    composable(route = GaggiaState.DONE_BREWING.stateName) {
+        PreinfusionAndBrewingScreen(
+            uiState = uiState,
+            onReadyClicked = onFirstButtonClick,
+            onExitClicked = onSecondButtonClick
+        )
+    }
+
+    composable(route = GaggiaState.HEATING_TO_STEAM.stateName) {
+        HeatingToSteamScreen(
+            uiState = uiState,
+            onSecondButtonClick = onSecondButtonClick
+        )
+    }
+
+    composable(route = GaggiaState.STEAMING.stateName) {
+        SteamingScreen(
+            uiState = uiState,
+            onDoneSteamingClick = onFirstButtonClick
+        )
+    }
+
+    composable(route = GaggiaState.CLEAN_GROUP_READY.stateName) {
+        CleanGroupReadyScreen(
+            onFirstButtonClick = onFirstButtonClick
+        )
+    }
+
+    composable(route = GaggiaState.CLEAN_GROUP_DONE.stateName) {
+        CleanGroupDoneScreen(
+            onSecondButtonClick = onSecondButtonClick
+        )
+    }
+
+    composable(route = GaggiaState.BACKFLUSH_INSTRUCTION_1.stateName) {
+        BackflushInsructions1Screen(
+            onReadyClick = onFirstButtonClick,
+            onExitClick = onSecondButtonClick
+        )
+    }
+
+    composable(route = GaggiaState.BACKFLUSH_INSTRUCTION_2.stateName) {
+        BackflushInsructions2Screen(
+            onReadyClick = onFirstButtonClick,
+            onExitClick = onSecondButtonClick
+        )
+    }
+
+    composable(route = GaggiaState.BACKFLUSH_CYCLE_1.stateName) {
+        BackflushCycle1Screen(
+            uiState = uiState,
+            onExitClick = onSecondButtonClick
+        )
+    }
+
+    composable(route = GaggiaState.BACKFLUSH_INSTRUCTION_3.stateName) {
+        BackflushInsructions3Screen(
+            onReadyClick = onFirstButtonClick,
+            onExitClick = onSecondButtonClick
+        )
+    }
+
+    composable(route = GaggiaState.BACKFLUSH_CYCLE_2.stateName) {
+        BackflushCycle2Screen(
+            uiState = uiState,
+            onExitClick = onSecondButtonClick
+        )
+    }
+
+    composable(route = GaggiaState.BACKFLUSH_CYCLE_DONE.stateName) {
+        BackflushDoneScreen(
+            onDoneClick = onFirstButtonClick
+        )
+    }
+
+    composable(route = GaggiaState.CLEAN_OPTIONS.stateName) {
+        CleanOptionsScreen(
+            onBackflushClick = onSecondButtonClick,
+            onDescaleClick = onFirstButtonClick
+        )
+    }
+
+    composable(route = GaggiaState.DESCALE.stateName) {
+        DescaleScreen(
+            onReadyClick = onFirstButtonClick,
+            onExitClick = onSecondButtonClick
+        )
+    }
+
+    composable(route = GaggiaState.HEATING_TO_DISPENSE.stateName) {
+        HeatingToDispenseScreen(
+            uiState = uiState,
+            onExitClick = onSecondButtonClick
+        )
+    }
+
+    composable(route = GaggiaState.DISPENSE_HOT_WATER.stateName) {
+        DispensingHotWaterScreen(
+            uiState = uiState,
+            onDoneClick = onFirstButtonClick
+        )
+    }
+
+    //GaggiaState.COOL_START -> TODO()
+    //GaggiaState.COOLING -> TODO()
+    //GaggiaState.COOL_DONE -> TODO()
+
+    //GaggiaState.HEATING_TO_DISPENSE -> TODO()
+    //GaggiaState.DISPENSE_HOT_WATER -> TODO()
 }
