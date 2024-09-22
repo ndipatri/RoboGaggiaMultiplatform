@@ -45,23 +45,25 @@ import theme.PurpleGrey40_50
 import theme.PurpleGrey80
 import theme.RoboGaggiaTheme
 import vms.GaggiaState
+import vms.Telemetry
 import vms.TelemetryMessage
-import vms.UIState
 import vms.Weight
 
 @OptIn(ExperimentalResourceApi::class)
 @Composable
-fun PreinfusionAndBrewingScreen(uiState: UIState,
+fun PreinfusionAndBrewingScreen(telemetry: Telemetry,
                                 onReadyClicked: () -> Unit,
                                 onExitClicked: () -> Unit) {
 
-    BrewChart(uiState = uiState) {
-        if (uiState.currentState == GaggiaState.DONE_BREWING) {
+    println("*** NJD: brewingScreen incoming telemetry: $telemetry")
+
+    BrewChart(telemetry = telemetry) {
+        if (telemetry.currentState == GaggiaState.DONE_BREWING) {
             ScreenContent(
                 body1Resource = Res.string.done_brewing,
                 button1Resource = Res.string.ready,
                 button2Resource = Res.string.exit,
-                boilerIsOn = uiState.currentBoilerIsOn ?: false,
+                boilerIsOn = telemetry.currentBoilerIsOn ?: false,
                 onFirstButtonClick = onReadyClicked,
                 onSecondButtonClick = onExitClicked,
                 backgroundImage = null,
@@ -78,7 +80,7 @@ fun PreinfusionAndBrewingScreen(uiState: UIState,
 @Composable
 // This composable assumes the UIState telemetry includes preinfusion
 // and brewing data.
-fun BrewChart(uiState: UIState, content: (@Composable () -> Unit)? = null) {
+fun BrewChart(telemetry: Telemetry, content: (@Composable () -> Unit)? = null) {
     RoboGaggiaTheme {
         Surface(
             // uses theme
@@ -86,7 +88,7 @@ fun BrewChart(uiState: UIState, content: (@Composable () -> Unit)? = null) {
             color = Color.Black,
         ) {
             val (seriesList, maxValueList, unitList, colorList) = SeriesData(
-                uiState.telemetry
+                telemetry.telemetry
             )
 
             var preinfusionTimeSeconds by remember { mutableStateOf(0)}
@@ -107,10 +109,10 @@ fun BrewChart(uiState: UIState, content: (@Composable () -> Unit)? = null) {
             val secondsPerStep = 1.2
 
             // Track preinfusion and brew time for shot clock overlay
-            LaunchedEffect(uiState.currentState) {
+            LaunchedEffect(telemetry.currentState) {
                 while (true) {
                     delay(1000)
-                    when (uiState.currentState) {
+                    when (telemetry.currentState) {
                         GaggiaState.PREINFUSION -> {
                             preinfusionTimeSeconds += 1
                         }
@@ -123,7 +125,7 @@ fun BrewChart(uiState: UIState, content: (@Composable () -> Unit)? = null) {
                     }
 
                     timeString = buildString {
-                        when (uiState.currentState) {
+                        when (telemetry.currentState) {
                             GaggiaState.PREINFUSION -> {
                                 append("Preinfusion (${preinfusionTimeSeconds}) sec")
                             }

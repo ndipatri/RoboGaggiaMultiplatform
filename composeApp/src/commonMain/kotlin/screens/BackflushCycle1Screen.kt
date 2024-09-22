@@ -4,12 +4,16 @@ import DoubleIntContent
 import androidx.compose.runtime.Composable
 import content.ScreenContent
 import org.jetbrains.compose.resources.ExperimentalResourceApi
-import robogaggiamultiplatform.composeapp.generated.resources.*
-import vms.UIState
+import robogaggiamultiplatform.composeapp.generated.resources.Res
+import robogaggiamultiplatform.composeapp.generated.resources.backflushing_with_cleaner
+import robogaggiamultiplatform.composeapp.generated.resources.exit
+import robogaggiamultiplatform.composeapp.generated.resources.pass_number
+import robogaggiamultiplatform.composeapp.generated.resources.please_wait
+import vms.Telemetry
 
 @OptIn(ExperimentalResourceApi::class)
 @Composable
-fun BackflushCycle1Screen(uiState: UIState,
+fun BackflushCycle1Screen(telemetry: Telemetry,
                           onExitClick: () -> Unit) {
     ScreenContent(
         body1Resource = Res.string.backflushing_with_cleaner,
@@ -20,5 +24,5 @@ fun BackflushCycle1Screen(uiState: UIState,
         // When in this state, the telemetry weight is the currentPass and the
         // telemetry pressure is the target number of passes.
         // We have to round up given the nature of this 'averaged' telemetry
-        DoubleIntContent(Res.string.pass_number, uiState.currentTaredWeight?.plus(0.5)?.toInt() ?: 0, uiState.currentPressure?.toInt() ?: 0)
+        DoubleIntContent(Res.string.pass_number, telemetry.currentTaredWeight?.plus(0.5)?.toInt() ?: 0, telemetry.currentPressure?.toInt() ?: 0)
     }}

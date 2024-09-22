@@ -36,6 +36,9 @@ kotlin {
         androidMain.dependencies {
             implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
+
+            implementation(libs.koin.android)
+            implementation(libs.koin.androidx.compose)
         }
         val commonMain by getting {
             dependencies {
@@ -46,7 +49,11 @@ kotlin {
                 implementation(compose.components.resources)
                 implementation(compose.components.uiToolingPreview)
 
-                implementation("org.jetbrains.androidx.navigation:navigation-compose:2.7.0-alpha07")
+                api(libs.koin.core)
+                implementation(libs.koin.compose)
+                implementation(libs.koin.compose.viewmodel)
+                implementation(libs.lifecycle.viewmodel)
+                implementation(libs.navigation.compose)
 
                 // MQTT
                 implementation("io.github.davidepianca98:kmqtt-common:0.4.5")

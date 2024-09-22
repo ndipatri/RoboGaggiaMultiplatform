@@ -2,6 +2,8 @@ package vms
 
 import AdvertisementDataRetrievalKeys
 import MQTTClient
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.ndipatri.robogaggia.BuildKonfig
 import currentTimeMillis
 import dev.bluefalcon.ApplicationContext
@@ -20,7 +22,7 @@ import mqtt.packets.Qos
 import mqtt.packets.mqttv5.SubscriptionOptions
 import kotlin.math.abs
 
-class TelemetryViewModel(val context: ApplicationContext) : CoroutineViewModel() {
+class TelemetryViewModel(val context: ApplicationContext) : ViewModel() {
 
     lateinit var client: MQTTClient
 
@@ -50,15 +52,22 @@ class TelemetryViewModel(val context: ApplicationContext) : CoroutineViewModel()
 
     var clientId = ""
 
-    // This UIState will have empty Telemetry until we start receiving messages from MQTT.
+    // This UIState will have empty Telemetry until we start receiving messages from MQTT or BLE.
     //
-    // If we're within brew cycle (Preinfusion or Brewing), we accumulate only those values,
-    // otherwise we just accumulate last TELEMETRY_WINDOW_SIZE values...
+    // If we're within brew cycle (Preinfusion or Brewing), we accumulate all telemetry,
+    // otherwise we only keep last and current value
     private val UI_STATE_FLOW_MAX_AGE_MILLIS = 30000L
     private var uiStateFlowLastUpdatedTimeMillis: Long = -1L
-    val uiStateFlow: MutableStateFlow<UIState> = MutableStateFlow(UIState())
+
+    // telemetry updates occurs very often.. every 250ms
+    val telemetryFlow = MutableStateFlow(Telemetry())
+
+    // this is the current GaggiaState which changes much less frequently than telemetry
+    // It is guaranteed that the first telemetry message in 'telemetryFlow'
+    val stateFlow = MutableStateFlow(GaggiaState.NA)
 
     init {
+        println("*** NJD: new view model")
         if (BuildKonfig.USE_SIMULATOR.toBooleanStrict()) {
             startMQTTClientAndSubscribeToTelemetryTopic(500)
         }
@@ -79,7 +88,7 @@ class TelemetryViewModel(val context: ApplicationContext) : CoroutineViewModel()
     // have to keep retrying until this doesn't happen.
     // https://github.com/Reedyuk/blue-falcon/issues/26
     private fun scanForBluetooth() {
-        coroutineScope.launch(Dispatchers.Default) {
+        viewModelScope.launch(Dispatchers.Default) {
             while (!bluetoothIsScanning) {
                 try {
                     println("*** NJD: starting scan...")
@@ -109,7 +118,7 @@ class TelemetryViewModel(val context: ApplicationContext) : CoroutineViewModel()
     @OptIn(ExperimentalUnsignedTypes::class)
     fun startMQTTClientAndSubscribeToTelemetryTopic(startDelayMillis: Long) {
 
-        coroutineScope.launch(Dispatchers.Default) {
+        viewModelScope.launch(Dispatchers.Default) {
             while (true) {
 
                 delay(startDelayMillis)
@@ -154,7 +163,7 @@ class TelemetryViewModel(val context: ApplicationContext) : CoroutineViewModel()
     }
 
     private fun checkForStaleTelemetry() {
-        coroutineScope.launch(Dispatchers.Default) {
+        viewModelScope.launch(Dispatchers.Default) {
             while (true) {
 
                 delay(5000)
@@ -163,8 +172,8 @@ class TelemetryViewModel(val context: ApplicationContext) : CoroutineViewModel()
                 if (uiStateFlowLastUpdatedTimeMillis > 0 && (currentTimeMillis() - uiStateFlowLastUpdatedTimeMillis > UI_STATE_FLOW_MAX_AGE_MILLIS)) {
 
                     // and not in sleep state (obviously in sleep state we aren't getting updates)
-                    if (uiStateFlow.value.currentTelemetryMessage?.state != GaggiaState.SLEEP) {
-                        uiStateFlow.emit(UIState()) // will foward to 'unknown' state until we receive new telemetry
+                    if (telemetryFlow.value.currentTelemetryMessage?.state != GaggiaState.SLEEP) {
+                        stateFlow.emit(GaggiaState.NA) // will foward to 'unknown' state until we receive new telemetry
                     }
                 }
             }
@@ -209,18 +218,16 @@ class TelemetryViewModel(val context: ApplicationContext) : CoroutineViewModel()
         )
         println("*** NJD: new telemetry: $newTelemetry")
 
-        // If we're within brew cycle (Preinfusion or Brewing), we accumulate only those values,
-        // otherwise we just accumulate last TELEMETRY_WINDOW_SIZE values...
-
-        coroutineScope.launch {
+        viewModelScope.launch {
             val newAccumulatedTelemetry = mutableListOf<TelemetryMessage>()
 
-            val existingValues = uiStateFlow.value.telemetry
+            val existingValues = telemetryFlow.value.telemetry
 
+            // If we're within brew cycle (Preinfusion or Brewing), we accumulate all telemetry,
+            // otherwise we only keep last and current value
             if (state in setOf(GaggiaState.PREINFUSION, GaggiaState.BREWING, GaggiaState.DONE_BREWING)) {
                 newAccumulatedTelemetry.addAll(existingValues)
             } else {
-                // keep last TELEMETRY_WINDOW_SIZE-1 values  (we're about to add one more)
                 if (existingValues.isNotEmpty()) {
                     existingValues[existingValues.size - 1].let {
                         newAccumulatedTelemetry.add(it)
@@ -229,12 +236,22 @@ class TelemetryViewModel(val context: ApplicationContext) : CoroutineViewModel()
             }
             newAccumulatedTelemetry.add(newTelemetry)
 
-            uiStateFlow.emit(
-                uiStateFlow.value.copy(
+            println("*** NJD: total telemetry size: ${newAccumulatedTelemetry.size}")
+
+            telemetryFlow.emit(
+                telemetryFlow.value.copy(
                     telemetry = newAccumulatedTelemetry,
-                    previousIsScaleWeighted = uiStateFlow.value.isScaleWeighted ?: false,
+                    previousIsScaleWeighted = telemetryFlow.value.isScaleWeighted ?: false,
                 )
             )
+
+            // Check to see if GaggiaState has changed.
+            if (stateFlow.value == GaggiaState.NA ||
+               telemetryFlow.value.currentTelemetryMessage?.state !=
+                telemetryFlow.value.previousTelemetryMessage?.state) {
+
+                stateFlow.value = telemetryFlow.value.currentTelemetryMessage?.state ?: GaggiaState.NA
+            }
 
             // Keep track of this for keep-alive reasons.
             uiStateFlowLastUpdatedTimeMillis = currentTimeMillis()
@@ -251,7 +268,7 @@ class TelemetryViewModel(val context: ApplicationContext) : CoroutineViewModel()
 
     @OptIn(ExperimentalUnsignedTypes::class)
     private fun sendMQTTCommand(commandType: CommandType) {
-        coroutineScope.launch(Dispatchers.Default) {
+        viewModelScope.launch(Dispatchers.Default) {
             client.publish(
                 retain = false,
                 qos = Qos.AT_MOST_ONCE,
@@ -490,7 +507,7 @@ fun upperWeightedThresholdGrams(state: GaggiaState): Float? {
 }
 
 
-data class UIState(
+data class Telemetry(
     val telemetry: List<TelemetryMessage> = listOf(),
     val previousIsScaleWeighted: Boolean = false,
 ) {

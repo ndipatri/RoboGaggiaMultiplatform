@@ -46,7 +46,7 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             val bluetoothPermissionAcquired by permissionAcquiredState.collectAsState()
-            App(this.application, bluetoothPermissionAcquired)
+            App(bluetoothPermissionAcquired)
         }
     }
 
@@ -99,5 +99,5 @@ class MainActivity : ComponentActivity() {
 @Preview
 @Composable
 fun AppAndroidPreview() {
-    App(LocalContext.current as Application, false)
+    App(false)
 }

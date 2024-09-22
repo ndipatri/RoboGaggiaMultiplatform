@@ -3,13 +3,10 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.currentCompositionErrors
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -18,8 +15,10 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import dev.bluefalcon.ApplicationContext
 import org.jetbrains.compose.resources.ExperimentalResourceApi
+import org.koin.compose.KoinContext
+import org.koin.compose.viewmodel.koinViewModel
+import org.koin.core.annotation.KoinExperimentalAPI
 import screens.BackflushCycle1Screen
 import screens.BackflushCycle2Screen
 import screens.BackflushDoneScreen
@@ -46,89 +45,85 @@ import screens.WaitingForStateChangeScreen
 import screens.WelcomeScreen
 import theme.RoboGaggiaTheme
 import vms.GaggiaState
+import vms.Telemetry
 import vms.TelemetryViewModel
-import vms.UIState
 
 @OptIn(ExperimentalResourceApi::class)
 @Composable
-fun App(context: ApplicationContext, bluetoothPermissionAcquired: Boolean) {
-
-    // NJD TODO - need to use KOIN for this eventually
-    val viewModel = remember { TelemetryViewModel(context) }
-
-    // If this is set to true and BLE is enabled via build config,
-    // then bluetooth scanning will begin
-    if (!viewModel.bluetoothPermissionAcquired && bluetoothPermissionAcquired) {
-        viewModel.bluetoothPermissionAcquired = bluetoothPermissionAcquired
-    }
-
-    val uiState by viewModel.uiStateFlow.collectAsState()
-    val onFirstButtonClick = { viewModel.firstButtonClick() }
-    val onSecondButtonClick = { viewModel.secondButtonClick() }
-
-    AppContent(uiState, onFirstButtonClick, onSecondButtonClick)
+fun App(bluetoothPermissionAcquired: Boolean) {
+    AppContent(bluetoothPermissionAcquired)
 }
 
+@OptIn(KoinExperimentalAPI::class)
 @Composable
-fun AppContent(
-    uiState: UIState,
-    onFirstButtonClick: () -> Unit,
-    onSecondButtonClick: () -> Unit,
-) {
+fun AppContent(bluetoothPermissionAcquired: Boolean) {
     val navController: NavHostController = rememberNavController()
 
-    var waitingToChangeFromState: GaggiaState by remember { mutableStateOf(GaggiaState.NA) }
-
-    val _onFirstButtonClick = {
-        waitingToChangeFromState = uiState.currentTelemetryMessage?.state ?: GaggiaState.NA
-        onFirstButtonClick()
-    }
-
-    val _onSecondButtonClick = {
-        waitingToChangeFromState = uiState.currentTelemetryMessage?.state ?: GaggiaState.NA
-        onSecondButtonClick()
-    }
-
     Box(modifier = Modifier.fillMaxSize().background(Color.Black)) {
-
         RoboGaggiaTheme(darkTheme = true) {
+            KoinContext {
+                val viewModel = koinViewModel<TelemetryViewModel>()
 
-            if (waitingToChangeFromState != GaggiaState.NA) {
-                WaitingForStateChangeScreen()
+                //val navState by viewModel.stateFlow.collectAsState()
+                val navState by viewModel.stateFlow.collectAsState()
+                var waitingToChangeFromState: GaggiaState by remember { mutableStateOf(GaggiaState.NA) }
 
-                // We've finally transitioned out of the state we were waiting to change from...
-                if (uiState.currentTelemetryMessage?.state != waitingToChangeFromState) {
-                    waitingToChangeFromState = GaggiaState.NA
+                val onFirstButtonClick = { viewModel.firstButtonClick() }
+                val onSecondButtonClick = { viewModel.secondButtonClick() }
+
+                val _onFirstButtonClick = {
+                    waitingToChangeFromState = navState
+                    onFirstButtonClick()
                 }
-            } else
-                if (uiState.telemetry.isEmpty()) {
-                    WelcomeScreen()
+
+                val _onSecondButtonClick = {
+                    waitingToChangeFromState = navState
+                    onSecondButtonClick()
+                }
+
+                // If this is set to true and BLE is enabled via build config,
+                // then bluetooth scanning will begin
+                if (!viewModel.bluetoothPermissionAcquired && bluetoothPermissionAcquired) {
+                    viewModel.bluetoothPermissionAcquired = bluetoothPermissionAcquired
+                }
+
+                if (waitingToChangeFromState != GaggiaState.NA) {
+                    WaitingForStateChangeScreen()
+
+                    // We've finally transitioned out of the state we were waiting to change from...
+                    if (navState != waitingToChangeFromState) {
+                        waitingToChangeFromState = GaggiaState.NA
+                    }
                 } else {
+                    if (navState == GaggiaState.NA) {
+                        WelcomeScreen()
+                    } else {
+                        LaunchedEffect(navState) {
+                            navController.navigate(navState.stateName) {
+                                // only navigate if route has changed.
+                                launchSingleTop
+                            }
+                        }
 
-                    // If there is more than one telemetry message, the most recent one
-                    // is the one we use to determine current state...
-                    val currentGaggiaState = uiState.currentTelemetryMessage!!.state.stateName
-                    LaunchedEffect(currentGaggiaState) {
-                        navController.navigate(currentGaggiaState)
-                    }
-
-                    NavHost(
-                        navController = navController,
-                        startDestination = GaggiaState.NA.stateName
-                    ) {
-                        mainNavigationGraph(
-                            uiState = uiState,
-                            onFirstButtonClick = _onFirstButtonClick,
-                            onSecondButtonClick = _onSecondButtonClick
-                        )
+                        NavHost(
+                            navController = navController,
+                            startDestination = GaggiaState.NA.stateName
+                        ) {
+                            mainNavigationGraph(
+                                viewModel = viewModel,
+                                onFirstButtonClick = _onFirstButtonClick,
+                                onSecondButtonClick = _onSecondButtonClick
+                            )
+                        }
                     }
                 }
+            }
         }
     }
 }
 
 fun NavGraphBuilder.mainNavigationGraph(
-    uiState: UIState,
+    viewModel: TelemetryViewModel,
     onFirstButtonClick: () -> Unit,
     onSecondButtonClick: () -> Unit
 ) {
@@ -149,68 +144,81 @@ fun NavGraphBuilder.mainNavigationGraph(
     }
 
     composable(route = GaggiaState.PREHEAT.stateName) {
+        val telemetry by viewModel.telemetryFlow.collectAsState()
+
         PreheatScreen(
-            uiState = uiState,
+            telemetry = telemetry,
             onFirstButtonClick = onFirstButtonClick,
             onSecondButtonClick = onSecondButtonClick
         )
     }
 
     composable(route = GaggiaState.MEASURE_BEANS.stateName) {
+        val telemetry by viewModel.telemetryFlow.collectAsState()
+
         MeasureBeansScreen(
-            uiState = uiState,
+            telemetry = telemetry,
             onFirstButtonClick = onFirstButtonClick,
             onSecondButtonClick = onSecondButtonClick
         )
     }
 
     composable(route = GaggiaState.TARE_CUP_AFTER_MEASURE.stateName) {
+        val telemetry by viewModel.telemetryFlow.collectAsState()
         TareCupAfterMeasureScreen(
-            uiState = uiState,
+            telemetry = telemetry,
             onFirstButtonClick = onFirstButtonClick,
             onSecondButtonClick = onSecondButtonClick
         )
     }
 
     composable(route = GaggiaState.HEATING_TO_BREW.stateName) {
+        val telemetry by viewModel.telemetryFlow.collectAsState()
         HeatingToBrewScreen(
-            uiState = uiState,
+            telemetry = telemetry,
             onSecondButtonClick = onSecondButtonClick
         )
     }
 
     composable(route = GaggiaState.PREINFUSION.stateName) {
+        val telemetry by viewModel.telemetryFlow.collectAsState()
         PreinfusionAndBrewingScreen(
-            uiState = uiState,
+            telemetry = telemetry,
             onReadyClicked = onFirstButtonClick,
             onExitClicked = onSecondButtonClick
         )
     }
+
     composable(route = GaggiaState.BREWING.stateName) {
+        val telemetry by viewModel.telemetryFlow.collectAsState()
         PreinfusionAndBrewingScreen(
-            uiState = uiState,
+            telemetry = telemetry,
             onReadyClicked = onFirstButtonClick,
             onExitClicked = onSecondButtonClick
         )
     }
+
     composable(route = GaggiaState.DONE_BREWING.stateName) {
+        val telemetry by viewModel.telemetryFlow.collectAsState()
         PreinfusionAndBrewingScreen(
-            uiState = uiState,
+            telemetry = telemetry,
             onReadyClicked = onFirstButtonClick,
             onExitClicked = onSecondButtonClick
         )
     }
 
     composable(route = GaggiaState.HEATING_TO_STEAM.stateName) {
+        val telemetry by viewModel.telemetryFlow.collectAsState()
         HeatingToSteamScreen(
-            uiState = uiState,
+            telemetry = telemetry,
             onSecondButtonClick = onSecondButtonClick
         )
     }
 
     composable(route = GaggiaState.STEAMING.stateName) {
+        val telemetry by viewModel.telemetryFlow.collectAsState()
         SteamingScreen(
-            uiState = uiState,
+            telemetry = telemetry,
             onDoneSteamingClick = onFirstButtonClick
         )
     }
@@ -242,8 +250,9 @@ fun NavGraphBuilder.mainNavigationGraph(
     }
 
     composable(route = GaggiaState.BACKFLUSH_CYCLE_1.stateName) {
+        val telemetry by viewModel.telemetryFlow.collectAsState()
         BackflushCycle1Screen(
-            uiState = uiState,
+            telemetry = telemetry,
             onExitClick = onSecondButtonClick
         )
     }
@@ -256,8 +265,9 @@ fun NavGraphBuilder.mainNavigationGraph(
     }
 
     composable(route = GaggiaState.BACKFLUSH_CYCLE_2.stateName) {
+        val telemetry by viewModel.telemetryFlow.collectAsState()
         BackflushCycle2Screen(
-            uiState = uiState,
+            telemetry = telemetry,
             onExitClick = onSecondButtonClick
         )
     }
@@ -283,15 +293,17 @@ fun NavGraphBuilder.mainNavigationGraph(
     }
 
     composable(route = GaggiaState.HEATING_TO_DISPENSE.stateName) {
+        val telemetry by viewModel.telemetryFlow.collectAsState()
         HeatingToDispenseScreen(
-            uiState = uiState,
+            telemetry = telemetry,
             onExitClick = onSecondButtonClick
         )
     }
 
     composable(route = GaggiaState.DISPENSE_HOT_WATER.stateName) {
+        val telemetry by viewModel.telemetryFlow.collectAsState()
         DispensingHotWaterScreen(
-            uiState = uiState,
+            telemetry = telemetry,
             onDoneClick = onFirstButtonClick
         )
     }
