@@ -22,6 +22,7 @@ fun PreheatScreen(
     onFirstButtonClick: () -> Unit,
     onSecondButtonClick: () -> Unit
 ) {
+    println("*** NJD: composing PreheatScreen")
     ScreenContent(
         body1Resource = Res.string.hello_welcome_to_robogaggia,
         body2Resource = Res.string.place_your_empty_cup,

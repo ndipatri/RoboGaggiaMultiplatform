@@ -62,10 +62,6 @@ class TelemetryViewModel(val context: ApplicationContext) : ViewModel() {
     // telemetry updates occurs very often.. every 250ms
     val telemetryFlow = MutableStateFlow(Telemetry())
 
-    // this is the current GaggiaState which changes much less frequently than telemetry
-    // It is guaranteed that the first telemetry message in 'telemetryFlow'
-    val stateFlow = MutableStateFlow(GaggiaState.NA)
-
     init {
         println("*** NJD: new view model")
         if (BuildKonfig.USE_SIMULATOR.toBooleanStrict()) {
@@ -173,7 +169,7 @@ class TelemetryViewModel(val context: ApplicationContext) : ViewModel() {
 
                     // and not in sleep state (obviously in sleep state we aren't getting updates)
                     if (telemetryFlow.value.currentTelemetryMessage?.state != GaggiaState.SLEEP) {
-                        stateFlow.emit(GaggiaState.NA) // will foward to 'unknown' state until we receive new telemetry
+                        telemetryFlow.emit(Telemetry()) // will foward to 'unknown' state until we receive new telemetry
                     }
                 }
             }
@@ -244,14 +240,6 @@ class TelemetryViewModel(val context: ApplicationContext) : ViewModel() {
                     previousIsScaleWeighted = telemetryFlow.value.isScaleWeighted ?: false,
                 )
             )
-
-            // Check to see if GaggiaState has changed.
-            if (stateFlow.value == GaggiaState.NA ||
-               telemetryFlow.value.currentTelemetryMessage?.state !=
-                telemetryFlow.value.previousTelemetryMessage?.state) {
-
-                stateFlow.value = telemetryFlow.value.currentTelemetryMessage?.state ?: GaggiaState.NA
-            }
 
             // Keep track of this for keep-alive reasons.
             uiStateFlowLastUpdatedTimeMillis = currentTimeMillis()

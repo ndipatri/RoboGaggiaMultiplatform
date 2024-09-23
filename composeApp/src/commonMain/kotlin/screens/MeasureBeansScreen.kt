@@ -15,6 +15,7 @@ fun MeasureBeansScreen(
     onFirstButtonClick: () -> Unit,
     onSecondButtonClick: () -> Unit
 ) {
+    println("*** NJD: composing MeasureBeansScreen")
     ScreenContent(
         body1Resource = Res.string.weigh_your_beans,
         body2Resource = if (!telemetry.isScaleWeighted)

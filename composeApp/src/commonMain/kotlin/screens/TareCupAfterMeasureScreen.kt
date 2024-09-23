@@ -13,8 +13,7 @@ fun TareCupAfterMeasureScreen(
     onFirstButtonClick: () -> Unit,
     onSecondButtonClick: () -> Unit
 ) {
-    println("*** NJD: tareCup: telemetry: ${telemetry.currentState}")
-
+    println("*** NJD: composing TareCupAfterMeasureScreen")
     ScreenContent(
         body1Resource = Res.string.grind_your_beans,
         body2Resource = when {
