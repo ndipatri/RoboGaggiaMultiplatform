@@ -102,18 +102,13 @@ fun AppContent(bluetoothPermissionAcquired: Boolean) {
                         }
                     }
 
-                    val previousRoute = navController.currentDestination?.route
-                    if (previousRoute != route) {
-                        println("*** NJD: (route: $route, previousRoute: $previousRoute) navigating!")
+                    // note that the previous screen will receive the new telemetry that
+                    // has caused this transition.. so screens should ignore telemetry
+                    // with a state that is different than the one they are intended to handle.
 
-                        // note that the previous screen will receive the new telemetry that
-                        // has caused this transition.. so screens should ignore telemetry
-                        // a state that is different than the one they are intended to handle.
-
-                        navController.navigate(route) {
-                            // only navigate if route has changed.
-                            launchSingleTop
-                        }
+                    navController.navigate(route) {
+                        // only navigate if route has changed.
+                        launchSingleTop
                     }
                 }
 
