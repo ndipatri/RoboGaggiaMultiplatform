@@ -2,9 +2,14 @@ package screens
 
 import SingleFloatContent
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import content.ScreenContent
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.stringResource
+import org.koin.compose.KoinContext
+import org.koin.compose.viewmodel.koinViewModel
+import org.koin.core.annotation.KoinExperimentalAPI
 import robogaggiamultiplatform.composeapp.generated.resources.Res
 import robogaggiamultiplatform.composeapp.generated.resources.clean
 import robogaggiamultiplatform.composeapp.generated.resources.hello_welcome_to_robogaggia
@@ -14,15 +19,17 @@ import robogaggiamultiplatform.composeapp.generated.resources.start
 import robogaggiamultiplatform.composeapp.generated.resources.temp_is_120
 import robogaggiamultiplatform.composeapp.generated.resources.time_to_backflush
 import vms.Telemetry
+import vms.TelemetryViewModel
 
-@OptIn(ExperimentalResourceApi::class)
+@OptIn(ExperimentalResourceApi::class, KoinExperimentalAPI::class)
 @Composable
 fun PreheatScreen(
     telemetry: Telemetry,
     onFirstButtonClick: () -> Unit,
     onSecondButtonClick: () -> Unit
 ) {
-    println("*** NJD: composing PreheatScreen")
+    println("*** NJD: composing PreheatScreen with telemetry: ${telemetry.currentState?.stateName}")
+
     ScreenContent(
         body1Resource = Res.string.hello_welcome_to_robogaggia,
         body2Resource = Res.string.place_your_empty_cup,

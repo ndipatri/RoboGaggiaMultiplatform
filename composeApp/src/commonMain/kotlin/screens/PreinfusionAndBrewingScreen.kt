@@ -35,7 +35,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import content.ScreenContent
 import kotlinx.coroutines.delay
-import org.jetbrains.compose.resources.ExperimentalResourceApi
 import robogaggiamultiplatform.composeapp.generated.resources.Res
 import robogaggiamultiplatform.composeapp.generated.resources.done_brewing
 import robogaggiamultiplatform.composeapp.generated.resources.exit
@@ -49,30 +48,30 @@ import vms.Telemetry
 import vms.TelemetryMessage
 import vms.Weight
 
-@OptIn(ExperimentalResourceApi::class)
 @Composable
-fun PreinfusionAndBrewingScreen(telemetry: Telemetry,
-                                onReadyClicked: () -> Unit,
-                                onExitClicked: () -> Unit) {
+fun PreinfusionAndBrewingScreen(
+    telemetry: Telemetry,
+    onReadyClicked: () -> Unit,
+    onExitClicked: () -> Unit
+) {
+    if (telemetry.currentState in listOf(GaggiaState.PREINFUSION, GaggiaState.BREWING, GaggiaState.DONE_BREWING)) {
+        BrewChart(telemetry = telemetry) {
+            if (telemetry.currentState == GaggiaState.DONE_BREWING) {
+                ScreenContent(
+                    body1Resource = Res.string.done_brewing,
+                    button1Resource = Res.string.ready,
+                    button2Resource = Res.string.exit,
+                    boilerIsOn = telemetry.currentBoilerIsOn ?: false,
+                    onFirstButtonClick = onReadyClicked,
+                    onSecondButtonClick = onExitClicked,
+                    backgroundImage = null,
+                    shouldUIDisappear = true,
 
-    println("*** NJD: brewingScreen incoming telemetry: $telemetry")
-
-    BrewChart(telemetry = telemetry) {
-        if (telemetry.currentState == GaggiaState.DONE_BREWING) {
-            ScreenContent(
-                body1Resource = Res.string.done_brewing,
-                button1Resource = Res.string.ready,
-                button2Resource = Res.string.exit,
-                boilerIsOn = telemetry.currentBoilerIsOn ?: false,
-                onFirstButtonClick = onReadyClicked,
-                onSecondButtonClick = onExitClicked,
-                backgroundImage = null,
-                shouldUIDisappear = true,
-
-                // We want the buttons from ScreenContent, but it's background needs to be
-                // transparent so we can see the BrewChart behind it.
-                backgroundColor = Color.Transparent
-            )
+                    // We want the buttons from ScreenContent, but it's background needs to be
+                    // transparent so we can see the BrewChart behind it.
+                    backgroundColor = Color.Transparent
+                )
+            }
         }
     }
 }
@@ -91,9 +90,9 @@ fun BrewChart(telemetry: Telemetry, content: (@Composable () -> Unit)? = null) {
                 telemetry.telemetry
             )
 
-            var preinfusionTimeSeconds by remember { mutableStateOf(0)}
-            var brewTimeSeconds by remember { mutableStateOf(0)}
-            var timeString by remember { mutableStateOf("")}
+            var preinfusionTimeSeconds by remember { mutableStateOf(0) }
+            var brewTimeSeconds by remember { mutableStateOf(0) }
+            var timeString by remember { mutableStateOf("") }
 
             val visibleSeriesMap = remember {
                 mutableStateMapOf(
@@ -494,11 +493,36 @@ data class SeriesData constructor(
     constructor(accumulatedTelemetry: List<TelemetryMessage>) :
             this(
                 seriesList = listOf(
-                    accumulatedTelemetry.filter { it.state in setOf(GaggiaState.PREINFUSION, GaggiaState.BREWING) }.map { it.weight },
-                    accumulatedTelemetry.filter { it.state in setOf(GaggiaState.PREINFUSION, GaggiaState.BREWING) }.map { it.pressureBars.toFloat() },
-                    accumulatedTelemetry.filter { it.state in setOf(GaggiaState.PREINFUSION, GaggiaState.BREWING) }.map { it.flowRateGPS.toFloat() },
-                    accumulatedTelemetry.filter { it.state in setOf(GaggiaState.PREINFUSION, GaggiaState.BREWING) }.map { it.brewTempC.toFloat() },
-                    accumulatedTelemetry.filter { it.state in setOf(GaggiaState.PREINFUSION, GaggiaState.BREWING) }.map { it.dutyCyclePercent.toFloat() }),
+                    accumulatedTelemetry.filter {
+                        it.state in setOf(
+                            GaggiaState.PREINFUSION,
+                            GaggiaState.BREWING
+                        )
+                    }.map { it.weight },
+                    accumulatedTelemetry.filter {
+                        it.state in setOf(
+                            GaggiaState.PREINFUSION,
+                            GaggiaState.BREWING
+                        )
+                    }.map { it.pressureBars.toFloat() },
+                    accumulatedTelemetry.filter {
+                        it.state in setOf(
+                            GaggiaState.PREINFUSION,
+                            GaggiaState.BREWING
+                        )
+                    }.map { it.flowRateGPS.toFloat() },
+                    accumulatedTelemetry.filter {
+                        it.state in setOf(
+                            GaggiaState.PREINFUSION,
+                            GaggiaState.BREWING
+                        )
+                    }.map { it.brewTempC.toFloat() },
+                    accumulatedTelemetry.filter {
+                        it.state in setOf(
+                            GaggiaState.PREINFUSION,
+                            GaggiaState.BREWING
+                        )
+                    }.map { it.dutyCyclePercent.toFloat() }),
 
                 maxValueList = listOf(50f, 15f, 5f, 150f, 100f),
                 unitList = listOf("grams", "bars", "grams/sec", "tempC", "pumpPower"),

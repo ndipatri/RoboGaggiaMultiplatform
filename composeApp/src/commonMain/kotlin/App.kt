@@ -4,7 +4,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.currentCompositionErrors
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -18,6 +17,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.koin.compose.KoinContext
+import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.annotation.KoinExperimentalAPI
 import screens.BackflushCycle1Screen
@@ -42,12 +42,11 @@ import screens.PreinfusionAndBrewingScreen
 import screens.SleepScreen
 import screens.SteamingScreen
 import screens.TareCupAfterMeasureScreen
+import screens.TelemetryScreen
 import screens.WaitingForStateChangeScreen
 import screens.WelcomeScreen
 import theme.RoboGaggiaTheme
-import vms.CommandType
 import vms.GaggiaState
-import vms.Telemetry
 import vms.TelemetryViewModel
 
 @OptIn(ExperimentalResourceApi::class)
@@ -64,7 +63,7 @@ fun AppContent(bluetoothPermissionAcquired: Boolean) {
     Box(modifier = Modifier.fillMaxSize().background(Color.Black)) {
         RoboGaggiaTheme(darkTheme = true) {
             KoinContext {
-                val viewModel = koinViewModel<TelemetryViewModel>()
+                val viewModel = koinInject<TelemetryViewModel>()
 
                 val telemetry by viewModel.telemetryFlow.collectAsState()
                 val navState = telemetry.currentState ?: GaggiaState.NA
@@ -117,7 +116,6 @@ fun AppContent(bluetoothPermissionAcquired: Boolean) {
                     startDestination = GaggiaState.NA.stateName
                 ) {
                     mainNavigationGraph(
-                        telemetry = telemetry,
                         onFirstButtonClick = _onFirstButtonClick,
                         onSecondButtonClick = _onSecondButtonClick
                     )
@@ -129,7 +127,6 @@ fun AppContent(bluetoothPermissionAcquired: Boolean) {
 
 val WAITING_ROUTE = "waiting"
 fun NavGraphBuilder.mainNavigationGraph(
-    telemetry: Telemetry,
     onFirstButtonClick: () -> Unit,
     onSecondButtonClick: () -> Unit
 ) {
@@ -154,98 +151,114 @@ fun NavGraphBuilder.mainNavigationGraph(
     }
 
     composable(route = GaggiaState.PREHEAT.stateName) {
-        if (telemetry.currentState == GaggiaState.PREHEAT) {
+        TelemetryScreen { telemetry ->
             PreheatScreen(
                 telemetry = telemetry,
                 onFirstButtonClick = onFirstButtonClick,
                 onSecondButtonClick = onSecondButtonClick
             )
+
+            "preheatScreen"
         }
     }
 
     composable(route = GaggiaState.MEASURE_BEANS.stateName) {
-        if (telemetry.currentState == GaggiaState.MEASURE_BEANS) {
+        TelemetryScreen { telemetry ->
             MeasureBeansScreen(
-                telemetry = telemetry,
+                telemetry,
                 onFirstButtonClick = onFirstButtonClick,
                 onSecondButtonClick = onSecondButtonClick
             )
+
+            "measureBeansScreen"
         }
     }
 
     composable(route = GaggiaState.TARE_CUP_AFTER_MEASURE.stateName) {
-        if (telemetry.currentState == GaggiaState.TARE_CUP_AFTER_MEASURE) {
+        TelemetryScreen { telemetry ->
             TareCupAfterMeasureScreen(
                 telemetry = telemetry,
                 onFirstButtonClick = onFirstButtonClick,
                 onSecondButtonClick = onSecondButtonClick
             )
+
+            "tareCupAfterMeasureScreen"
         }
     }
 
     composable(route = GaggiaState.HEATING_TO_BREW.stateName) {
-        if (telemetry.currentState == GaggiaState.HEATING_TO_BREW) {
+        TelemetryScreen { telemetry ->
             HeatingToBrewScreen(
-                telemetry = telemetry,
+                telemetry,
                 onSecondButtonClick = onSecondButtonClick
             )
+
+            "heatingToBrewScreen"
         }
     }
 
     composable(route = GaggiaState.PREINFUSION.stateName) {
-        if (telemetry.currentState == GaggiaState.PREINFUSION) {
+        TelemetryScreen { telemetry ->
             PreinfusionAndBrewingScreen(
-                telemetry = telemetry,
+                telemetry,
                 onReadyClicked = onFirstButtonClick,
                 onExitClicked = onSecondButtonClick
             )
+
+            "preinfusionAndBrewingScreen"
         }
     }
 
     composable(route = GaggiaState.BREWING.stateName) {
-        if (telemetry.currentState == GaggiaState.BREWING) {
+        TelemetryScreen { telemetry ->
             PreinfusionAndBrewingScreen(
                 telemetry = telemetry,
                 onReadyClicked = onFirstButtonClick,
                 onExitClicked = onSecondButtonClick
             )
+
+            "preinfusionAndBrewingScreen"
         }
     }
 
     composable(route = GaggiaState.DONE_BREWING.stateName) {
-        if (telemetry.currentState == GaggiaState.DONE_BREWING) {
+        TelemetryScreen { telemetry ->
             PreinfusionAndBrewingScreen(
                 telemetry = telemetry,
                 onReadyClicked = onFirstButtonClick,
                 onExitClicked = onSecondButtonClick
             )
+
+            "preinfusionAndBrewingScreen"
         }
     }
 
     composable(route = GaggiaState.HEATING_TO_STEAM.stateName) {
-        if (telemetry.currentState == GaggiaState.HEATING_TO_STEAM) {
+        TelemetryScreen { telemetry ->
             HeatingToSteamScreen(
                 telemetry = telemetry,
                 onSecondButtonClick = onSecondButtonClick
             )
+
+            "heatingToSteamScreen"
         }
     }
 
     composable(route = GaggiaState.STEAMING.stateName) {
-        if (telemetry.currentState == GaggiaState.STEAMING) {
+        TelemetryScreen { telemetry ->
             SteamingScreen(
                 telemetry = telemetry,
                 onDoneSteamingClick = onFirstButtonClick
             )
+
+            "steamingScreen"
         }
     }
 
     composable(route = GaggiaState.CLEAN_GROUP_READY.stateName) {
-        if (telemetry.currentState == GaggiaState.CLEAN_GROUP_READY) {
-            CleanGroupReadyScreen(
-                onFirstButtonClick = onFirstButtonClick
-            )
-        }
+        CleanGroupReadyScreen(
+            onFirstButtonClick = onFirstButtonClick
+        )
     }
 
     composable(route = GaggiaState.CLEAN_GROUP_DONE.stateName) {
@@ -269,11 +282,13 @@ fun NavGraphBuilder.mainNavigationGraph(
     }
 
     composable(route = GaggiaState.BACKFLUSH_CYCLE_1.stateName) {
-        if (telemetry.currentState == GaggiaState.BACKFLUSH_CYCLE_1) {
+        TelemetryScreen { telemetry ->
             BackflushCycle1Screen(
                 telemetry = telemetry,
                 onExitClick = onSecondButtonClick
             )
+
+            "backflushCycle1Screen"
         }
     }
 
@@ -285,11 +300,13 @@ fun NavGraphBuilder.mainNavigationGraph(
     }
 
     composable(route = GaggiaState.BACKFLUSH_CYCLE_2.stateName) {
-        if (telemetry.currentState == GaggiaState.BACKFLUSH_CYCLE_2) {
+        TelemetryScreen { telemetry ->
             BackflushCycle2Screen(
                 telemetry = telemetry,
                 onExitClick = onSecondButtonClick
             )
+
+            "backflushCycle2Screen"
         }
     }
 
@@ -314,27 +331,28 @@ fun NavGraphBuilder.mainNavigationGraph(
     }
 
     composable(route = GaggiaState.HEATING_TO_DISPENSE.stateName) {
-        if (telemetry.currentState == GaggiaState.HEATING_TO_DISPENSE) {
+        TelemetryScreen { telemetry ->
             HeatingToDispenseScreen(
                 telemetry = telemetry,
                 onExitClick = onSecondButtonClick
             )
+
+            "heatingToDispenseScreen"
         }
     }
 
     composable(route = GaggiaState.DISPENSE_HOT_WATER.stateName) {
-        if (telemetry.currentState == GaggiaState.DISPENSE_HOT_WATER) {
+        TelemetryScreen { telemetry ->
             DispensingHotWaterScreen(
                 telemetry = telemetry,
                 onDoneClick = onFirstButtonClick
             )
+
+            "dispensingHotWaterScreen"
         }
     }
 
     //GaggiaState.COOL_START -> TODO()
     //GaggiaState.COOLING -> TODO()
     //GaggiaState.COOL_DONE -> TODO()
-
-    //GaggiaState.HEATING_TO_DISPENSE -> TODO()
-    //GaggiaState.DISPENSE_HOT_WATER -> TODO()
 }

@@ -12,7 +12,9 @@ import dev.bluefalcon.BlueFalconDelegate
 import dev.bluefalcon.BluetoothCharacteristic
 import dev.bluefalcon.BluetoothCharacteristicDescriptor
 import dev.bluefalcon.BluetoothPeripheral
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
@@ -22,6 +24,10 @@ import mqtt.packets.Qos
 import mqtt.packets.mqttv5.SubscriptionOptions
 import kotlin.math.abs
 
+/**
+ * This is a ViewModel that is tied to the context of the entire application.
+ * We're only using ViewModel here to use its Coroutine Scope.
+ */
 class TelemetryViewModel(val context: ApplicationContext) : ViewModel() {
 
     lateinit var client: MQTTClient
