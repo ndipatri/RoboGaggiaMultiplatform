@@ -218,8 +218,6 @@ class TelemetryViewModel(val context: ApplicationContext) : ViewModel() {
             totalShots = totalShots,
             boilerState = boilerState
         )
-        println("*** NJD: new telemetry: $newTelemetry")
-
         viewModelScope.launch {
             val newAccumulatedTelemetry = mutableListOf<TelemetryMessage>()
 
@@ -237,8 +235,6 @@ class TelemetryViewModel(val context: ApplicationContext) : ViewModel() {
                 }
             }
             newAccumulatedTelemetry.add(newTelemetry)
-
-            println("*** NJD: total telemetry size: ${newAccumulatedTelemetry.size}")
 
             telemetryFlow.emit(
                 telemetryFlow.value.copy(

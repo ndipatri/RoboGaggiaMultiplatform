@@ -5,23 +5,19 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import org.koin.compose.KoinContext
 import org.koin.compose.koinInject
-import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.annotation.KoinExperimentalAPI
 import vms.Telemetry
 import vms.TelemetryViewModel
-import kotlin.reflect.KFunction
 
 @OptIn(KoinExperimentalAPI::class)
 @Composable
-fun TelemetryScreen(content: @Composable (Telemetry) -> String) {
+fun TelemetryScreen(content: @Composable (Telemetry) -> Unit) {
     KoinContext {
         val viewModel = koinInject<TelemetryViewModel>()
 
         val telemetry by viewModel.telemetryFlow.collectAsState()
 
-        val screenName = content(telemetry)
-
-        println("*** NJD: Composing '$screenName' with telemetry: $telemetry")
+        content(telemetry)
     }
 }
 

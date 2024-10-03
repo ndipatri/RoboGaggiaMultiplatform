@@ -141,10 +141,9 @@ android {
         targetCompatibility = JavaVersion.VERSION_11
     }
 
-//    NJD This makes Preview panel show up, but the build fails
-//    buildFeatures {
-//        compose=true
-//    }
+    buildFeatures {
+        compose = true
+    }
 
     dependencies {
         debugImplementation(compose.uiTooling)

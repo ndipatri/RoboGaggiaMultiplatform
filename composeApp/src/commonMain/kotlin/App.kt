@@ -18,7 +18,6 @@ import androidx.navigation.compose.rememberNavController
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.koin.compose.KoinContext
 import org.koin.compose.koinInject
-import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.annotation.KoinExperimentalAPI
 import screens.BackflushCycle1Screen
 import screens.BackflushCycle2Screen
@@ -66,7 +65,6 @@ fun AppContent(bluetoothPermissionAcquired: Boolean) {
                 val viewModel = koinInject<TelemetryViewModel>()
 
                 val telemetry by viewModel.telemetryFlow.collectAsState()
-                val navState = telemetry.currentState ?: GaggiaState.NA
 
                 var waitingToChangeFromState: GaggiaState by remember { mutableStateOf(GaggiaState.NA) }
 
@@ -74,12 +72,12 @@ fun AppContent(bluetoothPermissionAcquired: Boolean) {
                 val onSecondButtonClick = { viewModel.secondButtonClick() }
 
                 val _onFirstButtonClick = {
-                    waitingToChangeFromState = navState
+                    waitingToChangeFromState = telemetry.currentState ?: GaggiaState.NA
                     onFirstButtonClick()
                 }
 
                 val _onSecondButtonClick = {
-                    waitingToChangeFromState = navState
+                    waitingToChangeFromState = telemetry.currentState ?: GaggiaState.NA
                     onSecondButtonClick()
                 }
 
@@ -89,11 +87,11 @@ fun AppContent(bluetoothPermissionAcquired: Boolean) {
                     viewModel.bluetoothPermissionAcquired = bluetoothPermissionAcquired
                 }
 
-                LaunchedEffect(navState, waitingToChangeFromState) {
-                    var route = navState.stateName
+                LaunchedEffect(telemetry.currentState, waitingToChangeFromState) {
+                    var route = telemetry.currentState?.stateName ?: GaggiaState.NA.stateName
 
                     if (waitingToChangeFromState != GaggiaState.NA) {
-                        if (navState != waitingToChangeFromState) {
+                        if (telemetry.currentState != waitingToChangeFromState) {
                             // We've finally transitioned out of the state we were waiting to change from...
                             waitingToChangeFromState = GaggiaState.NA
                         } else {
@@ -157,8 +155,6 @@ fun NavGraphBuilder.mainNavigationGraph(
                 onFirstButtonClick = onFirstButtonClick,
                 onSecondButtonClick = onSecondButtonClick
             )
-
-            "preheatScreen"
         }
     }
 
@@ -169,8 +165,6 @@ fun NavGraphBuilder.mainNavigationGraph(
                 onFirstButtonClick = onFirstButtonClick,
                 onSecondButtonClick = onSecondButtonClick
             )
-
-            "measureBeansScreen"
         }
     }
 
@@ -181,8 +175,6 @@ fun NavGraphBuilder.mainNavigationGraph(
                 onFirstButtonClick = onFirstButtonClick,
                 onSecondButtonClick = onSecondButtonClick
             )
-
-            "tareCupAfterMeasureScreen"
         }
     }
 
@@ -192,8 +184,6 @@ fun NavGraphBuilder.mainNavigationGraph(
                 telemetry,
                 onSecondButtonClick = onSecondButtonClick
             )
-
-            "heatingToBrewScreen"
         }
     }
 
@@ -204,8 +194,6 @@ fun NavGraphBuilder.mainNavigationGraph(
                 onReadyClicked = onFirstButtonClick,
                 onExitClicked = onSecondButtonClick
             )
-
-            "preinfusionAndBrewingScreen"
         }
     }
 
@@ -216,8 +204,6 @@ fun NavGraphBuilder.mainNavigationGraph(
                 onReadyClicked = onFirstButtonClick,
                 onExitClicked = onSecondButtonClick
             )
-
-            "preinfusionAndBrewingScreen"
         }
     }
 
@@ -228,8 +214,6 @@ fun NavGraphBuilder.mainNavigationGraph(
                 onReadyClicked = onFirstButtonClick,
                 onExitClicked = onSecondButtonClick
             )
-
-            "preinfusionAndBrewingScreen"
         }
     }
 
@@ -239,8 +223,6 @@ fun NavGraphBuilder.mainNavigationGraph(
                 telemetry = telemetry,
                 onSecondButtonClick = onSecondButtonClick
             )
-
-            "heatingToSteamScreen"
         }
     }
 
@@ -250,8 +232,6 @@ fun NavGraphBuilder.mainNavigationGraph(
                 telemetry = telemetry,
                 onDoneSteamingClick = onFirstButtonClick
             )
-
-            "steamingScreen"
         }
     }
 
@@ -287,8 +267,6 @@ fun NavGraphBuilder.mainNavigationGraph(
                 telemetry = telemetry,
                 onExitClick = onSecondButtonClick
             )
-
-            "backflushCycle1Screen"
         }
     }
 
@@ -305,8 +283,6 @@ fun NavGraphBuilder.mainNavigationGraph(
                 telemetry = telemetry,
                 onExitClick = onSecondButtonClick
             )
-
-            "backflushCycle2Screen"
         }
     }
 
@@ -336,8 +312,6 @@ fun NavGraphBuilder.mainNavigationGraph(
                 telemetry = telemetry,
                 onExitClick = onSecondButtonClick
             )
-
-            "heatingToDispenseScreen"
         }
     }
 
@@ -347,8 +321,6 @@ fun NavGraphBuilder.mainNavigationGraph(
                 telemetry = telemetry,
                 onDoneClick = onFirstButtonClick
             )
-
-            "dispensingHotWaterScreen"
         }
     }
 

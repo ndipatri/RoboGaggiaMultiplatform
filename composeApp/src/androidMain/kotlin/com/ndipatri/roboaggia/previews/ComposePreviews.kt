@@ -2,30 +2,27 @@ package com.ndipatri.robogaggia.previews
 
 import App
 import AppContent
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
+import screens.JoiningNetworkScreen
 import utils.renderTelemetry
 import utils.typicalBrewCycleTelemetryString
 import vms.GaggiaState
 import vms.TelemetryMessage
 
-/*
+/**
+ *
+ * NJD - Preview doesn't work for complicated Composables.. simple things like Text work.. My
+ * guess is its the resources.. but not sure...
+
 @Preview()
 //@Preview(device = Devices.AUTOMOTIVE_1024p, widthDp = 720, heightDp = 360)
 @Composable
 fun PreviewJoiningNetworkScreen() {
-    AppContent(
-        uiState = UIState(
-            telemetry = renderTelemetry(
-                "joiningNetwork, PID(0.200000:1.000000:2.000000), 0, -1.000000, 40.400000, 0.000000, 105.750000"
-            )
-        ),
-        onFirstButtonClick = {},
-        onSecondButtonClick = {}
-    )
+    JoiningNetworkScreen(onIgnoreNetworkClick = {})
 }
-
 
 @Preview(device = Devices.AUTOMOTIVE_1024p, widthDp = 720, heightDp = 360)
 @Composable
@@ -253,6 +250,5 @@ fun BackflushDoneScreen() {
     )
 }
 
-*/
 
-
+**/
