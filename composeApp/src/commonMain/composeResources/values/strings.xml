@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <resources>
-    <string name="welcome_primary">Robo Gaggia</string>
+    <string name="welcome_primary">Turn on Robo Gaggia to start brewing!</string>
 
     <string name="joining_network">Joining Network ...</string>
-    <string name="clear_scale">(Make sure scale is clear.)</string>
+    <string name="clear_scale">Make sure scale is clear.</string>
 
     <string name="please_wait">Please wait</string>
 
