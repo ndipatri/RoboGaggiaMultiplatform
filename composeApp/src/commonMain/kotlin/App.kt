@@ -90,6 +90,16 @@ fun AppContent(bluetoothPermissionAcquired: Boolean) {
                 LaunchedEffect(telemetry.currentState, waitingToChangeFromState) {
                     var route = telemetry.currentState?.stateName ?: GaggiaState.NA.stateName
 
+                    // These three states resolve to the same navigation state...
+                    if (route in setOf(
+                            GaggiaState.PREINFUSION.stateName,
+                            GaggiaState.BREWING.stateName,
+                            GaggiaState.DONE_BREWING.stateName
+                        )
+                    ) {
+                        route = GaggiaState.BREWING.stateName
+                    }
+
                     if (waitingToChangeFromState != GaggiaState.NA) {
                         if (telemetry.currentState != waitingToChangeFromState) {
                             // We've finally transitioned out of the state we were waiting to change from...
@@ -104,6 +114,16 @@ fun AppContent(bluetoothPermissionAcquired: Boolean) {
                     // with a state that is different than the one they are intended to handle.
 
                     navController.navigate(route) {
+                        // Even though we aren't providing user with back functionality, we
+                        // do this so the nav system doesn't create a backstack and thus
+                        // our screens are 'popped' and we can save state.
+                        popUpTo(GaggiaState.PREHEAT.stateName) {
+                            saveState = true
+                        }
+                        // we have to explicitly tell compose nav to restore the state of
+                        // composables that use rememberSaveable
+                        restoreState = true
+
                         // only navigate if route has changed.
                         launchSingleTop
                     }
@@ -187,27 +207,7 @@ fun NavGraphBuilder.mainNavigationGraph(
         }
     }
 
-    composable(route = GaggiaState.PREINFUSION.stateName) {
-        TelemetryScreen { telemetry ->
-            PreinfusionAndBrewingScreen(
-                telemetry,
-                onReadyClicked = onFirstButtonClick,
-                onExitClicked = onSecondButtonClick
-            )
-        }
-    }
-
     composable(route = GaggiaState.BREWING.stateName) {
-        TelemetryScreen { telemetry ->
-            PreinfusionAndBrewingScreen(
-                telemetry = telemetry,
-                onReadyClicked = onFirstButtonClick,
-                onExitClicked = onSecondButtonClick
-            )
-        }
-    }
-
-    composable(route = GaggiaState.DONE_BREWING.stateName) {
         TelemetryScreen { telemetry ->
             PreinfusionAndBrewingScreen(
                 telemetry = telemetry,

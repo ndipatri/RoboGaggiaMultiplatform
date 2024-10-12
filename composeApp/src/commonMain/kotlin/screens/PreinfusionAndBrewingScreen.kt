@@ -21,6 +21,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -54,7 +55,7 @@ fun PreinfusionAndBrewingScreen(
     onReadyClicked: () -> Unit,
     onExitClicked: () -> Unit
 ) {
-    if (telemetry.currentState in listOf(GaggiaState.PREINFUSION, GaggiaState.BREWING, GaggiaState.DONE_BREWING)) {
+    if (telemetry.currentState in setOf(GaggiaState.PREINFUSION, GaggiaState.BREWING, GaggiaState.DONE_BREWING)) {
         BrewChart(telemetry = telemetry) {
             if (telemetry.currentState == GaggiaState.DONE_BREWING) {
                 ScreenContent(
@@ -90,9 +91,9 @@ fun BrewChart(telemetry: Telemetry, content: (@Composable () -> Unit)? = null) {
                 telemetry.telemetry
             )
 
-            var preinfusionTimeSeconds by remember { mutableStateOf(0) }
-            var brewTimeSeconds by remember { mutableStateOf(0) }
-            var timeString by remember { mutableStateOf("") }
+            var preinfusionTimeSeconds by rememberSaveable { mutableStateOf(0) }
+            var brewTimeSeconds by rememberSaveable { mutableStateOf(0) }
+            var timeString by rememberSaveable { mutableStateOf("") }
 
             val visibleSeriesMap = remember {
                 mutableStateMapOf(
