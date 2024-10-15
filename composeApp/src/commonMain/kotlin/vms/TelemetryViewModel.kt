@@ -78,14 +78,14 @@ class TelemetryViewModel(val context: ApplicationContext) : ViewModel() {
         checkForStaleTelemetry()
 
         // NJD TODO - following is just a test to demonstrate use of Particle API!
-        viewModelScope.launch {
-            val authenticatedApi = DefaultApi(baseUrl = "https://api.particle.io").apply {
-                setBearerToken(BuildKonfig.PARTICLE_ACCESS_TOKEN)
-            }
-            val response = authenticatedApi.v1DevicesGet()
-            val body = response.body()
-            println("*** NJD: response: $response with body: $body")
-        }
+//        viewModelScope.launch {
+//            val authenticatedApi = DefaultApi(baseUrl = "https://api.particle.io").apply {
+//                setBearerToken(BuildKonfig.PARTICLE_ACCESS_TOKEN)
+//            }
+//            val response = authenticatedApi.v1DevicesGet()
+//            val body = response.body()
+//            println("*** NJD: response: $response with body: $body")
+//        }
     }
 
     fun firstButtonClick() {
