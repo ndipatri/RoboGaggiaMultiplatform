@@ -55,6 +55,8 @@ kotlin {
                 implementation(libs.lifecycle.viewmodel)
                 implementation(libs.navigation.compose)
 
+                implementation(projects.particle.openapi.client)
+
                 // MQTT
                 implementation("io.github.davidepianca98:kmqtt-common:0.4.5")
                 implementation("io.github.davidepianca98:kmqtt-client:0.4.5")
@@ -107,6 +109,12 @@ buildkonfig {
             com.codingfeline.buildkonfig.compiler.FieldSpec.Type.STRING,
             "USE_SIMULATOR",
             gradleLocalProperties(rootDir).getProperty("use.simulator")
+        )
+
+        buildConfigField(
+            com.codingfeline.buildkonfig.compiler.FieldSpec.Type.STRING,
+            "PARTICLE_ACCESS_TOKEN",
+            gradleLocalProperties(rootDir).getProperty("particle.access.token")
         )
     }
 }

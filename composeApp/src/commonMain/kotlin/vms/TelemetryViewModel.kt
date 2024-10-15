@@ -4,6 +4,7 @@ import AdvertisementDataRetrievalKeys
 import MQTTClient
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.ndipatri.kmp.openapi.particle.apis.DefaultApi
 import com.ndipatri.robogaggia.BuildKonfig
 import currentTimeMillis
 import dev.bluefalcon.ApplicationContext
@@ -75,6 +76,16 @@ class TelemetryViewModel(val context: ApplicationContext) : ViewModel() {
         }
 
         checkForStaleTelemetry()
+
+        // NJD TODO - following is just a test to demonstrate use of Particle API!
+        viewModelScope.launch {
+            val authenticatedApi = DefaultApi(baseUrl = "https://api.particle.io").apply {
+                setBearerToken(BuildKonfig.PARTICLE_ACCESS_TOKEN)
+            }
+            val response = authenticatedApi.v1DevicesGet()
+            val body = response.body()
+            println("*** NJD: response: $response with body: $body")
+        }
     }
 
     fun firstButtonClick() {
