@@ -64,6 +64,7 @@ fun AppContent(bluetoothPermissionAcquired: Boolean) {
             KoinContext {
                 val viewModel = koinInject<TelemetryViewModel>()
 
+
                 val telemetry by viewModel.telemetryFlow.collectAsState()
 
                 var waitingToChangeFromState: GaggiaState by remember { mutableStateOf(GaggiaState.NA) }

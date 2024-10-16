@@ -23,13 +23,14 @@ import mqtt.MQTTVersion
 import mqtt.Subscription
 import mqtt.packets.Qos
 import mqtt.packets.mqttv5.SubscriptionOptions
+import services.ParticleService
 import kotlin.math.abs
 
 /**
  * This is a ViewModel that is tied to the context of the entire application.
  * We're only using ViewModel here to use its Coroutine Scope.
  */
-class TelemetryViewModel(val context: ApplicationContext) : ViewModel() {
+class TelemetryViewModel(val context: ApplicationContext, particleService: ParticleService) : ViewModel() {
 
     lateinit var client: MQTTClient
 
@@ -76,46 +77,6 @@ class TelemetryViewModel(val context: ApplicationContext) : ViewModel() {
         }
 
         checkForStaleTelemetry()
-
-
-        viewModelScope.launch {
-            val authenticatedApi = DefaultApi().apply {
-                setBearerToken(BuildKonfig.PARTICLE_ACCESS_TOKEN)
-            }
-            authenticatedApi.getDevices().body().filter {
-                // NJD TODO - Need to get this value dynamically via telemetry from Gaggia
-                it.name.equals("roboGaggia3")
-            }.first().let { device ->
-                val value = authenticatedApi.callFunction(
-                    deviceId = device.id!!,
-                    functionName = "setReferenceCupWeight",
-                    requestBody = mapOf("arg" to "500", "format" to "string"),
-                    productIdOrSlug = "",
-                ).body().returnValue
-                println("*** NJD: function call response! $value")
-            }
-        }
-
-        // NJD TODO - following is just a test to demonstrate use of Particle API!
-        viewModelScope.launch {
-            val authenticatedApi = DefaultApi().apply {
-                setBearerToken(BuildKonfig.PARTICLE_ACCESS_TOKEN)
-            }
-            authenticatedApi.getDevices().body().filter {
-                // NJD TODO - Need to get this value dynamically via telemetry from Gaggia
-                it.name.equals("roboGaggia3")
-            }.first().let { device ->
-                val value = authenticatedApi.getVariableValue(
-                    deviceId = device.id!!,
-                    varName = "referenceCupWeight",
-                    productIdOrSlug = "",
-                ).body().result
-                println("*** NJD: value! $value")
-            }
-
-
-            // NJD TODO - Need to add function call set set value!
-        }
     }
 
     fun firstButtonClick() {
