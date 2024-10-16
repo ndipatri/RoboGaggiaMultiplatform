@@ -1,9 +1,13 @@
 # DefaultApi
 
-All URIs are relative to *http://localhost*
+All URIs are relative to *https://api.particle.io*
 
 | Method | HTTP request | Description |
 | ------------- | ------------- | ------------- |
+| [**callFunction**](DefaultApi.md#callFunction) | **POST** /v1/devices/{deviceId}/{functionName} | Call a function |
+| [**getDevice**](DefaultApi.md#getDevice) | **GET** /v1/devices/{deviceId} | Get device information |
+| [**getDevices**](DefaultApi.md#getDevices) | **GET** /v1/devices | List devices |
+| [**getVariableValue**](DefaultApi.md#getVariableValue) | **GET** /v1/devices/{deviceId}/{varName} | Get a variable value |
 | [**oauthTokenPost**](DefaultApi.md#oauthTokenPost) | **POST** /oauth/token | Generate a customer scoped access token |
 | [**userGet**](DefaultApi.md#userGet) | **GET** /user | Get user |
 | [**userPasswordResetPost**](DefaultApi.md#userPasswordResetPost) | **POST** /user/password-reset | Forgot password |
@@ -21,14 +25,10 @@ All URIs are relative to *http://localhost*
 | [**v1ClientsPost**](DefaultApi.md#v1ClientsPost) | **POST** /v1/clients | Create a client |
 | [**v1DevicesDeviceIdDelete**](DefaultApi.md#v1DevicesDeviceIdDelete) | **DELETE** /v1/devices/{deviceId} | Unclaim device |
 | [**v1DevicesDeviceIdEventsEventPrefixGet**](DefaultApi.md#v1DevicesDeviceIdEventsEventPrefixGet) | **GET** /v1/devices/{deviceId}/events/{eventPrefix} | Get a stream of events for a device |
-| [**v1DevicesDeviceIdFunctionNamePost**](DefaultApi.md#v1DevicesDeviceIdFunctionNamePost) | **POST** /v1/devices/{deviceId}/{functionName} | Call a function |
-| [**v1DevicesDeviceIdGet**](DefaultApi.md#v1DevicesDeviceIdGet) | **GET** /v1/devices/{deviceId} | Get device information |
 | [**v1DevicesDeviceIdPingPut**](DefaultApi.md#v1DevicesDeviceIdPingPut) | **PUT** /v1/devices/{deviceId}/ping | Ping a device |
 | [**v1DevicesDeviceIdPut**](DefaultApi.md#v1DevicesDeviceIdPut) | **PUT** /v1/devices/{deviceId} | Flash a device with a bundle |
-| [**v1DevicesDeviceIdVarNameGet**](DefaultApi.md#v1DevicesDeviceIdVarNameGet) | **GET** /v1/devices/{deviceId}/{varName} | Get a variable value |
 | [**v1DevicesEventsEventPrefixGet**](DefaultApi.md#v1DevicesEventsEventPrefixGet) | **GET** /v1/devices/events/{eventPrefix} | Get a stream of your events |
 | [**v1DevicesEventsPost**](DefaultApi.md#v1DevicesEventsPost) | **POST** /v1/devices/events | Publish an event |
-| [**v1DevicesGet**](DefaultApi.md#v1DevicesGet) | **GET** /v1/devices | List devices |
 | [**v1DevicesPost**](DefaultApi.md#v1DevicesPost) | **POST** /v1/devices | Claim a device |
 | [**v1DiagnosticsDeviceIdGet**](DefaultApi.md#v1DiagnosticsDeviceIdGet) | **GET** /v1/diagnostics/{deviceId} | Get all historical device vitals |
 | [**v1DiagnosticsDeviceIdLastGet**](DefaultApi.md#v1DiagnosticsDeviceIdLastGet) | **GET** /v1/diagnostics/{deviceId}/last | Get last known device vitals |
@@ -128,6 +128,210 @@ All URIs are relative to *http://localhost*
 | [**v1UsersLogicFunctionsPost**](DefaultApi.md#v1UsersLogicFunctionsPost) | **POST** /v1/users/logic/functions | Create a new logic function |
 
 
+<a id="callFunction"></a>
+# **callFunction**
+> DeviceFunctionResponse callFunction(deviceId, functionName, productIdOrSlug, requestBody)
+
+Call a function
+
+Call a function exposed by the device, with arguments passed in the request body. Functions can be called on a device you own, or for any device that is part of a product you are a team member of.
+
+### Example
+```kotlin
+// Import classes:
+//import com.ndipatri.kmp.openapi.particle.infrastructure.*
+//import com.ndipatri.kmp.openapi.particle.models.*
+
+val apiInstance = DefaultApi()
+val deviceId : kotlin.String = string // kotlin.String | 
+val functionName : kotlin.String = string // kotlin.String | 
+val productIdOrSlug : kotlin.String = string // kotlin.String | Product ID or Slug. Product endpoint only.
+val requestBody : kotlin.collections.Map<kotlin.String, kotlin.String> = {
+  "arg": "string",
+  "format": "string"
+} // kotlin.collections.Map<kotlin.String, kotlin.String> | 
+try {
+    val result : DeviceFunctionResponse = apiInstance.callFunction(deviceId, functionName, productIdOrSlug, requestBody)
+    println(result)
+} catch (e: ClientException) {
+    println("4xx response calling DefaultApi#callFunction")
+    e.printStackTrace()
+} catch (e: ServerException) {
+    println("5xx response calling DefaultApi#callFunction")
+    e.printStackTrace()
+}
+```
+
+### Parameters
+| **deviceId** | **kotlin.String**|  | |
+| **functionName** | **kotlin.String**|  | |
+| **productIdOrSlug** | **kotlin.String**| Product ID or Slug. Product endpoint only. | |
+| Name | Type | Description  | Notes |
+| ------------- | ------------- | ------------- | ------------- |
+| **requestBody** | [**kotlin.collections.Map&lt;kotlin.String, kotlin.String&gt;**](kotlin.String.md)|  | |
+
+### Return type
+
+[**DeviceFunctionResponse**](DeviceFunctionResponse.md)
+
+### Authorization
+
+
+Configure bearerAuth:
+    ApiClient.accessToken = ""
+
+### HTTP request headers
+
+ - **Content-Type**: application/json
+ - **Accept**: application/json
+
+<a id="getDevice"></a>
+# **getDevice**
+> kotlin.String getDevice(deviceId)
+
+Get device information
+
+Get basic information about the given device, including the custom variables and functions it has exposed. This can be called for sandbox devices claimed to your account and for product devices you have access to, regardless of claiming.
+
+### Example
+```kotlin
+// Import classes:
+//import com.ndipatri.kmp.openapi.particle.infrastructure.*
+//import com.ndipatri.kmp.openapi.particle.models.*
+
+val apiInstance = DefaultApi()
+val deviceId : Device = string // Device | Device ID
+try {
+    val result : kotlin.String = apiInstance.getDevice(deviceId)
+    println(result)
+} catch (e: ClientException) {
+    println("4xx response calling DefaultApi#getDevice")
+    e.printStackTrace()
+} catch (e: ServerException) {
+    println("5xx response calling DefaultApi#getDevice")
+    e.printStackTrace()
+}
+```
+
+### Parameters
+| Name | Type | Description  | Notes |
+| ------------- | ------------- | ------------- | ------------- |
+| **deviceId** | [**Device**](.md)| Device ID | |
+
+### Return type
+
+**kotlin.String**
+
+### Authorization
+
+
+Configure bearerAuth:
+    ApiClient.accessToken = ""
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+<a id="getDevices"></a>
+# **getDevices**
+> kotlin.collections.List&lt;Device&gt; getDevices()
+
+List devices
+
+List devices the currently authenticated user has access to. By default, devices will be sorted by last_handshake_at in descending order.
+
+### Example
+```kotlin
+// Import classes:
+//import com.ndipatri.kmp.openapi.particle.infrastructure.*
+//import com.ndipatri.kmp.openapi.particle.models.*
+
+val apiInstance = DefaultApi()
+try {
+    val result : kotlin.collections.List<Device> = apiInstance.getDevices()
+    println(result)
+} catch (e: ClientException) {
+    println("4xx response calling DefaultApi#getDevices")
+    e.printStackTrace()
+} catch (e: ServerException) {
+    println("5xx response calling DefaultApi#getDevices")
+    e.printStackTrace()
+}
+```
+
+### Parameters
+This endpoint does not need any parameter.
+
+### Return type
+
+[**kotlin.collections.List&lt;Device&gt;**](Device.md)
+
+### Authorization
+
+
+Configure bearerAuth:
+    ApiClient.accessToken = ""
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
+<a id="getVariableValue"></a>
+# **getVariableValue**
+> DeviceVariableResult getVariableValue(deviceId, varName, productIdOrSlug, format)
+
+Get a variable value
+
+Request the current value of a variable exposed by the device. Variables can be read on a device you own, or for any device that is part of a product you are a team member of.
+
+### Example
+```kotlin
+// Import classes:
+//import com.ndipatri.kmp.openapi.particle.infrastructure.*
+//import com.ndipatri.kmp.openapi.particle.models.*
+
+val apiInstance = DefaultApi()
+val deviceId : kotlin.String = string // kotlin.String | Device ID
+val varName : kotlin.String = string // kotlin.String | Variable name
+val productIdOrSlug : kotlin.String = string // kotlin.String | Product ID or Slug. Product endpoint only.
+val format : kotlin.String = string // kotlin.String | Specify raw if you just the value returned
+try {
+    val result : DeviceVariableResult = apiInstance.getVariableValue(deviceId, varName, productIdOrSlug, format)
+    println(result)
+} catch (e: ClientException) {
+    println("4xx response calling DefaultApi#getVariableValue")
+    e.printStackTrace()
+} catch (e: ServerException) {
+    println("5xx response calling DefaultApi#getVariableValue")
+    e.printStackTrace()
+}
+```
+
+### Parameters
+| **deviceId** | **kotlin.String**| Device ID | |
+| **varName** | **kotlin.String**| Variable name | |
+| **productIdOrSlug** | **kotlin.String**| Product ID or Slug. Product endpoint only. | |
+| Name | Type | Description  | Notes |
+| ------------- | ------------- | ------------- | ------------- |
+| **format** | **kotlin.String**| Specify raw if you just the value returned | [optional] |
+
+### Return type
+
+[**DeviceVariableResult**](DeviceVariableResult.md)
+
+### Authorization
+
+
+Configure bearerAuth:
+    ApiClient.accessToken = ""
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: application/json
+
 <a id="oauthTokenPost"></a>
 # **oauthTokenPost**
 > kotlin.String oauthTokenPost(contentType, authorization, grantType, clientId, clientSecret, expiresIn, expiresAt, scope)
@@ -226,7 +430,9 @@ This endpoint does not need any parameter.
 
 ### Authorization
 
-No authorization required
+
+Configure bearerAuth:
+    ApiClient.accessToken = ""
 
 ### HTTP request headers
 
@@ -274,7 +480,9 @@ try {
 
 ### Authorization
 
-No authorization required
+
+Configure bearerAuth:
+    ApiClient.accessToken = ""
 
 ### HTTP request headers
 
@@ -322,7 +530,9 @@ try {
 
 ### Authorization
 
-No authorization required
+
+Configure bearerAuth:
+    ApiClient.accessToken = ""
 
 ### HTTP request headers
 
@@ -365,7 +575,9 @@ This endpoint does not need any parameter.
 
 ### Authorization
 
-No authorization required
+
+Configure bearerAuth:
+    ApiClient.accessToken = ""
 
 ### HTTP request headers
 
@@ -408,7 +620,9 @@ This endpoint does not need any parameter.
 
 ### Authorization
 
-No authorization required
+
+Configure bearerAuth:
+    ApiClient.accessToken = ""
 
 ### HTTP request headers
 
@@ -451,7 +665,9 @@ This endpoint does not need any parameter.
 
 ### Authorization
 
-No authorization required
+
+Configure bearerAuth:
+    ApiClient.accessToken = ""
 
 ### HTTP request headers
 
@@ -547,7 +763,9 @@ try {
 
 ### Authorization
 
-No authorization required
+
+Configure bearerAuth:
+    ApiClient.accessToken = ""
 
 ### HTTP request headers
 
@@ -598,7 +816,9 @@ try {
 
 ### Authorization
 
-No authorization required
+
+Configure bearerAuth:
+    ApiClient.accessToken = ""
 
 ### HTTP request headers
 
@@ -644,7 +864,9 @@ try {
 
 ### Authorization
 
-No authorization required
+
+Configure bearerAuth:
+    ApiClient.accessToken = ""
 
 ### HTTP request headers
 
@@ -692,7 +914,9 @@ try {
 
 ### Authorization
 
-No authorization required
+
+Configure bearerAuth:
+    ApiClient.accessToken = ""
 
 ### HTTP request headers
 
@@ -745,7 +969,9 @@ try {
 
 ### Authorization
 
-No authorization required
+
+Configure bearerAuth:
+    ApiClient.accessToken = ""
 
 ### HTTP request headers
 
@@ -791,7 +1017,9 @@ try {
 
 ### Authorization
 
-No authorization required
+
+Configure bearerAuth:
+    ApiClient.accessToken = ""
 
 ### HTTP request headers
 
@@ -844,7 +1072,9 @@ try {
 
 ### Authorization
 
-No authorization required
+
+Configure bearerAuth:
+    ApiClient.accessToken = ""
 
 ### HTTP request headers
 
@@ -892,7 +1122,9 @@ try {
 
 ### Authorization
 
-No authorization required
+
+Configure bearerAuth:
+    ApiClient.accessToken = ""
 
 ### HTTP request headers
 
@@ -940,108 +1172,9 @@ try {
 
 ### Authorization
 
-No authorization required
 
-### HTTP request headers
-
- - **Content-Type**: Not defined
- - **Accept**: application/json
-
-<a id="v1DevicesDeviceIdFunctionNamePost"></a>
-# **v1DevicesDeviceIdFunctionNamePost**
-> kotlin.String v1DevicesDeviceIdFunctionNamePost(deviceId, functionName, productIdOrSlug, body)
-
-Call a function
-
-Call a function exposed by the device, with arguments passed in the request body. Functions can be called on a device you own, or for any device that is part of a product you are a team member of.
-
-### Example
-```kotlin
-// Import classes:
-//import com.ndipatri.kmp.openapi.particle.infrastructure.*
-//import com.ndipatri.kmp.openapi.particle.models.*
-
-val apiInstance = DefaultApi()
-val deviceId : kotlin.String = string // kotlin.String | 
-val functionName : kotlin.String = string // kotlin.String | 
-val productIdOrSlug : kotlin.String = string // kotlin.String | Product ID or Slug. Product endpoint only.
-val body : kotlin.String = {
-  "arg": "string",
-  "format": "string"
-} // kotlin.String | 
-try {
-    val result : kotlin.String = apiInstance.v1DevicesDeviceIdFunctionNamePost(deviceId, functionName, productIdOrSlug, body)
-    println(result)
-} catch (e: ClientException) {
-    println("4xx response calling DefaultApi#v1DevicesDeviceIdFunctionNamePost")
-    e.printStackTrace()
-} catch (e: ServerException) {
-    println("5xx response calling DefaultApi#v1DevicesDeviceIdFunctionNamePost")
-    e.printStackTrace()
-}
-```
-
-### Parameters
-| **deviceId** | **kotlin.String**|  | |
-| **functionName** | **kotlin.String**|  | |
-| **productIdOrSlug** | **kotlin.String**| Product ID or Slug. Product endpoint only. | |
-| Name | Type | Description  | Notes |
-| ------------- | ------------- | ------------- | ------------- |
-| **body** | **kotlin.String**|  | [optional] |
-
-### Return type
-
-**kotlin.String**
-
-### Authorization
-
-No authorization required
-
-### HTTP request headers
-
- - **Content-Type**: text/plain
- - **Accept**: application/json
-
-<a id="v1DevicesDeviceIdGet"></a>
-# **v1DevicesDeviceIdGet**
-> kotlin.String v1DevicesDeviceIdGet(deviceId)
-
-Get device information
-
-Get basic information about the given device, including the custom variables and functions it has exposed. This can be called for sandbox devices claimed to your account and for product devices you have access to, regardless of claiming.
-
-### Example
-```kotlin
-// Import classes:
-//import com.ndipatri.kmp.openapi.particle.infrastructure.*
-//import com.ndipatri.kmp.openapi.particle.models.*
-
-val apiInstance = DefaultApi()
-val deviceId : kotlin.String = string // kotlin.String | Device ID
-try {
-    val result : kotlin.String = apiInstance.v1DevicesDeviceIdGet(deviceId)
-    println(result)
-} catch (e: ClientException) {
-    println("4xx response calling DefaultApi#v1DevicesDeviceIdGet")
-    e.printStackTrace()
-} catch (e: ServerException) {
-    println("5xx response calling DefaultApi#v1DevicesDeviceIdGet")
-    e.printStackTrace()
-}
-```
-
-### Parameters
-| Name | Type | Description  | Notes |
-| ------------- | ------------- | ------------- | ------------- |
-| **deviceId** | **kotlin.String**| Device ID | |
-
-### Return type
-
-**kotlin.String**
-
-### Authorization
-
-No authorization required
+Configure bearerAuth:
+    ApiClient.accessToken = ""
 
 ### HTTP request headers
 
@@ -1091,7 +1224,9 @@ try {
 
 ### Authorization
 
-No authorization required
+
+Configure bearerAuth:
+    ApiClient.accessToken = ""
 
 ### HTTP request headers
 
@@ -1141,63 +1276,13 @@ try {
 
 ### Authorization
 
-No authorization required
+
+Configure bearerAuth:
+    ApiClient.accessToken = ""
 
 ### HTTP request headers
 
  - **Content-Type**: text/plain
- - **Accept**: application/json
-
-<a id="v1DevicesDeviceIdVarNameGet"></a>
-# **v1DevicesDeviceIdVarNameGet**
-> kotlin.String v1DevicesDeviceIdVarNameGet(deviceId, varName, productIdOrSlug, format)
-
-Get a variable value
-
-Request the current value of a variable exposed by the device. Variables can be read on a device you own, or for any device that is part of a product you are a team member of.
-
-### Example
-```kotlin
-// Import classes:
-//import com.ndipatri.kmp.openapi.particle.infrastructure.*
-//import com.ndipatri.kmp.openapi.particle.models.*
-
-val apiInstance = DefaultApi()
-val deviceId : kotlin.String = string // kotlin.String | Device ID
-val varName : kotlin.String = string // kotlin.String | Variable name
-val productIdOrSlug : kotlin.String = string // kotlin.String | Product ID or Slug. Product endpoint only.
-val format : kotlin.String = string // kotlin.String | Specify raw if you just the value returned
-try {
-    val result : kotlin.String = apiInstance.v1DevicesDeviceIdVarNameGet(deviceId, varName, productIdOrSlug, format)
-    println(result)
-} catch (e: ClientException) {
-    println("4xx response calling DefaultApi#v1DevicesDeviceIdVarNameGet")
-    e.printStackTrace()
-} catch (e: ServerException) {
-    println("5xx response calling DefaultApi#v1DevicesDeviceIdVarNameGet")
-    e.printStackTrace()
-}
-```
-
-### Parameters
-| **deviceId** | **kotlin.String**| Device ID | |
-| **varName** | **kotlin.String**| Variable name | |
-| **productIdOrSlug** | **kotlin.String**| Product ID or Slug. Product endpoint only. | |
-| Name | Type | Description  | Notes |
-| ------------- | ------------- | ------------- | ------------- |
-| **format** | **kotlin.String**| Specify raw if you just the value returned | [optional] |
-
-### Return type
-
-**kotlin.String**
-
-### Authorization
-
-No authorization required
-
-### HTTP request headers
-
- - **Content-Type**: Not defined
  - **Accept**: application/json
 
 <a id="v1DevicesEventsEventPrefixGet"></a>
@@ -1239,7 +1324,9 @@ try {
 
 ### Authorization
 
-No authorization required
+
+Configure bearerAuth:
+    ApiClient.accessToken = ""
 
 ### HTTP request headers
 
@@ -1289,56 +1376,13 @@ try {
 
 ### Authorization
 
-No authorization required
-
-### HTTP request headers
-
- - **Content-Type**: text/plain
- - **Accept**: application/json
-
-<a id="v1DevicesGet"></a>
-# **v1DevicesGet**
-> kotlin.String v1DevicesGet()
-
-List devices
-
-List devices the currently authenticated user has access to. By default, devices will be sorted by last_handshake_at in descending order.
-
-### Example
-```kotlin
-// Import classes:
-//import com.ndipatri.kmp.openapi.particle.infrastructure.*
-//import com.ndipatri.kmp.openapi.particle.models.*
-
-val apiInstance = DefaultApi()
-try {
-    val result : kotlin.String = apiInstance.v1DevicesGet()
-    println(result)
-} catch (e: ClientException) {
-    println("4xx response calling DefaultApi#v1DevicesGet")
-    e.printStackTrace()
-} catch (e: ServerException) {
-    println("5xx response calling DefaultApi#v1DevicesGet")
-    e.printStackTrace()
-}
-```
-
-### Parameters
-This endpoint does not need any parameter.
-
-### Return type
-
-**kotlin.String**
-
-### Authorization
-
 
 Configure bearerAuth:
     ApiClient.accessToken = ""
 
 ### HTTP request headers
 
- - **Content-Type**: Not defined
+ - **Content-Type**: text/plain
  - **Accept**: application/json
 
 <a id="v1DevicesPost"></a>
@@ -1383,7 +1427,9 @@ try {
 
 ### Authorization
 
-No authorization required
+
+Configure bearerAuth:
+    ApiClient.accessToken = ""
 
 ### HTTP request headers
 
@@ -1437,7 +1483,9 @@ try {
 
 ### Authorization
 
-No authorization required
+
+Configure bearerAuth:
+    ApiClient.accessToken = ""
 
 ### HTTP request headers
 
@@ -1485,7 +1533,9 @@ try {
 
 ### Authorization
 
-No authorization required
+
+Configure bearerAuth:
+    ApiClient.accessToken = ""
 
 ### HTTP request headers
 
@@ -1535,7 +1585,9 @@ try {
 
 ### Authorization
 
-No authorization required
+
+Configure bearerAuth:
+    ApiClient.accessToken = ""
 
 ### HTTP request headers
 
@@ -1581,7 +1633,9 @@ try {
 
 ### Authorization
 
-No authorization required
+
+Configure bearerAuth:
+    ApiClient.accessToken = ""
 
 ### HTTP request headers
 
@@ -1627,7 +1681,9 @@ try {
 
 ### Authorization
 
-No authorization required
+
+Configure bearerAuth:
+    ApiClient.accessToken = ""
 
 ### HTTP request headers
 
@@ -1675,7 +1731,9 @@ try {
 
 ### Authorization
 
-No authorization required
+
+Configure bearerAuth:
+    ApiClient.accessToken = ""
 
 ### HTTP request headers
 
@@ -1723,7 +1781,9 @@ try {
 
 ### Authorization
 
-No authorization required
+
+Configure bearerAuth:
+    ApiClient.accessToken = ""
 
 ### HTTP request headers
 
@@ -1779,7 +1839,9 @@ try {
 
 ### Authorization
 
-No authorization required
+
+Configure bearerAuth:
+    ApiClient.accessToken = ""
 
 ### HTTP request headers
 
@@ -1832,7 +1894,9 @@ try {
 
 ### Authorization
 
-No authorization required
+
+Configure bearerAuth:
+    ApiClient.accessToken = ""
 
 ### HTTP request headers
 
@@ -1887,7 +1951,9 @@ try {
 
 ### Authorization
 
-No authorization required
+
+Configure bearerAuth:
+    ApiClient.accessToken = ""
 
 ### HTTP request headers
 
@@ -1930,7 +1996,9 @@ This endpoint does not need any parameter.
 
 ### Authorization
 
-No authorization required
+
+Configure bearerAuth:
+    ApiClient.accessToken = ""
 
 ### HTTP request headers
 
@@ -1976,7 +2044,9 @@ try {
 
 ### Authorization
 
-No authorization required
+
+Configure bearerAuth:
+    ApiClient.accessToken = ""
 
 ### HTTP request headers
 
@@ -2022,7 +2092,9 @@ try {
 
 ### Authorization
 
-No authorization required
+
+Configure bearerAuth:
+    ApiClient.accessToken = ""
 
 ### HTTP request headers
 
@@ -2068,7 +2140,9 @@ try {
 
 ### Authorization
 
-No authorization required
+
+Configure bearerAuth:
+    ApiClient.accessToken = ""
 
 ### HTTP request headers
 
@@ -2130,7 +2204,9 @@ try {
 
 ### Authorization
 
-No authorization required
+
+Configure bearerAuth:
+    ApiClient.accessToken = ""
 
 ### HTTP request headers
 
@@ -2178,7 +2254,9 @@ try {
 
 ### Authorization
 
-No authorization required
+
+Configure bearerAuth:
+    ApiClient.accessToken = ""
 
 ### HTTP request headers
 
@@ -2226,7 +2304,9 @@ try {
 
 ### Authorization
 
-No authorization required
+
+Configure bearerAuth:
+    ApiClient.accessToken = ""
 
 ### HTTP request headers
 
@@ -2276,7 +2356,9 @@ try {
 
 ### Authorization
 
-No authorization required
+
+Configure bearerAuth:
+    ApiClient.accessToken = ""
 
 ### HTTP request headers
 
@@ -2326,7 +2408,9 @@ try {
 
 ### Authorization
 
-No authorization required
+
+Configure bearerAuth:
+    ApiClient.accessToken = ""
 
 ### HTTP request headers
 
@@ -2376,7 +2460,9 @@ try {
 
 ### Authorization
 
-No authorization required
+
+Configure bearerAuth:
+    ApiClient.accessToken = ""
 
 ### HTTP request headers
 
@@ -2424,7 +2510,9 @@ try {
 
 ### Authorization
 
-No authorization required
+
+Configure bearerAuth:
+    ApiClient.accessToken = ""
 
 ### HTTP request headers
 
@@ -2472,7 +2560,9 @@ try {
 
 ### Authorization
 
-No authorization required
+
+Configure bearerAuth:
+    ApiClient.accessToken = ""
 
 ### HTTP request headers
 
@@ -2520,7 +2610,9 @@ try {
 
 ### Authorization
 
-No authorization required
+
+Configure bearerAuth:
+    ApiClient.accessToken = ""
 
 ### HTTP request headers
 
@@ -2572,7 +2664,9 @@ try {
 
 ### Authorization
 
-No authorization required
+
+Configure bearerAuth:
+    ApiClient.accessToken = ""
 
 ### HTTP request headers
 
@@ -2618,7 +2712,9 @@ try {
 
 ### Authorization
 
-No authorization required
+
+Configure bearerAuth:
+    ApiClient.accessToken = ""
 
 ### HTTP request headers
 
@@ -2723,7 +2819,9 @@ try {
 
 ### Authorization
 
-No authorization required
+
+Configure bearerAuth:
+    ApiClient.accessToken = ""
 
 ### HTTP request headers
 
@@ -2771,7 +2869,9 @@ try {
 
 ### Authorization
 
-No authorization required
+
+Configure bearerAuth:
+    ApiClient.accessToken = ""
 
 ### HTTP request headers
 
@@ -2830,7 +2930,9 @@ try {
 
 ### Authorization
 
-No authorization required
+
+Configure bearerAuth:
+    ApiClient.accessToken = ""
 
 ### HTTP request headers
 
@@ -2894,7 +2996,9 @@ try {
 
 ### Authorization
 
-No authorization required
+
+Configure bearerAuth:
+    ApiClient.accessToken = ""
 
 ### HTTP request headers
 
@@ -2944,7 +3048,9 @@ try {
 
 ### Authorization
 
-No authorization required
+
+Configure bearerAuth:
+    ApiClient.accessToken = ""
 
 ### HTTP request headers
 
@@ -3021,7 +3127,9 @@ try {
 
 ### Authorization
 
-No authorization required
+
+Configure bearerAuth:
+    ApiClient.accessToken = ""
 
 ### HTTP request headers
 
@@ -3069,7 +3177,9 @@ try {
 
 ### Authorization
 
-No authorization required
+
+Configure bearerAuth:
+    ApiClient.accessToken = ""
 
 ### HTTP request headers
 
@@ -3121,7 +3231,9 @@ try {
 
 ### Authorization
 
-No authorization required
+
+Configure bearerAuth:
+    ApiClient.accessToken = ""
 
 ### HTTP request headers
 
@@ -3167,7 +3279,9 @@ try {
 
 ### Authorization
 
-No authorization required
+
+Configure bearerAuth:
+    ApiClient.accessToken = ""
 
 ### HTTP request headers
 
@@ -3221,7 +3335,9 @@ try {
 
 ### Authorization
 
-No authorization required
+
+Configure bearerAuth:
+    ApiClient.accessToken = ""
 
 ### HTTP request headers
 
@@ -3274,7 +3390,9 @@ try {
 
 ### Authorization
 
-No authorization required
+
+Configure bearerAuth:
+    ApiClient.accessToken = ""
 
 ### HTTP request headers
 
@@ -3322,7 +3440,9 @@ try {
 
 ### Authorization
 
-No authorization required
+
+Configure bearerAuth:
+    ApiClient.accessToken = ""
 
 ### HTTP request headers
 
@@ -3370,7 +3490,9 @@ try {
 
 ### Authorization
 
-No authorization required
+
+Configure bearerAuth:
+    ApiClient.accessToken = ""
 
 ### HTTP request headers
 
@@ -3418,7 +3540,9 @@ try {
 
 ### Authorization
 
-No authorization required
+
+Configure bearerAuth:
+    ApiClient.accessToken = ""
 
 ### HTTP request headers
 
@@ -3472,7 +3596,9 @@ try {
 
 ### Authorization
 
-No authorization required
+
+Configure bearerAuth:
+    ApiClient.accessToken = ""
 
 ### HTTP request headers
 
@@ -3524,7 +3650,9 @@ try {
 
 ### Authorization
 
-No authorization required
+
+Configure bearerAuth:
+    ApiClient.accessToken = ""
 
 ### HTTP request headers
 
@@ -3570,7 +3698,9 @@ try {
 
 ### Authorization
 
-No authorization required
+
+Configure bearerAuth:
+    ApiClient.accessToken = ""
 
 ### HTTP request headers
 
@@ -3618,7 +3748,9 @@ try {
 
 ### Authorization
 
-No authorization required
+
+Configure bearerAuth:
+    ApiClient.accessToken = ""
 
 ### HTTP request headers
 
@@ -3666,7 +3798,9 @@ try {
 
 ### Authorization
 
-No authorization required
+
+Configure bearerAuth:
+    ApiClient.accessToken = ""
 
 ### HTTP request headers
 
@@ -3714,7 +3848,9 @@ try {
 
 ### Authorization
 
-No authorization required
+
+Configure bearerAuth:
+    ApiClient.accessToken = ""
 
 ### HTTP request headers
 
@@ -3768,7 +3904,9 @@ try {
 
 ### Authorization
 
-No authorization required
+
+Configure bearerAuth:
+    ApiClient.accessToken = ""
 
 ### HTTP request headers
 
@@ -3820,7 +3958,9 @@ try {
 
 ### Authorization
 
-No authorization required
+
+Configure bearerAuth:
+    ApiClient.accessToken = ""
 
 ### HTTP request headers
 
@@ -3866,7 +4006,9 @@ try {
 
 ### Authorization
 
-No authorization required
+
+Configure bearerAuth:
+    ApiClient.accessToken = ""
 
 ### HTTP request headers
 
@@ -3920,7 +4062,9 @@ try {
 
 ### Authorization
 
-No authorization required
+
+Configure bearerAuth:
+    ApiClient.accessToken = ""
 
 ### HTTP request headers
 
@@ -3982,7 +4126,9 @@ try {
 
 ### Authorization
 
-No authorization required
+
+Configure bearerAuth:
+    ApiClient.accessToken = ""
 
 ### HTTP request headers
 
@@ -4040,7 +4186,9 @@ try {
 
 ### Authorization
 
-No authorization required
+
+Configure bearerAuth:
+    ApiClient.accessToken = ""
 
 ### HTTP request headers
 
@@ -4098,7 +4246,9 @@ try {
 
 ### Authorization
 
-No authorization required
+
+Configure bearerAuth:
+    ApiClient.accessToken = ""
 
 ### HTTP request headers
 
@@ -4156,7 +4306,9 @@ try {
 
 ### Authorization
 
-No authorization required
+
+Configure bearerAuth:
+    ApiClient.accessToken = ""
 
 ### HTTP request headers
 
@@ -4214,7 +4366,9 @@ try {
 
 ### Authorization
 
-No authorization required
+
+Configure bearerAuth:
+    ApiClient.accessToken = ""
 
 ### HTTP request headers
 
@@ -4272,7 +4426,9 @@ try {
 
 ### Authorization
 
-No authorization required
+
+Configure bearerAuth:
+    ApiClient.accessToken = ""
 
 ### HTTP request headers
 
@@ -4318,7 +4474,9 @@ try {
 
 ### Authorization
 
-No authorization required
+
+Configure bearerAuth:
+    ApiClient.accessToken = ""
 
 ### HTTP request headers
 
@@ -4371,7 +4529,9 @@ try {
 
 ### Authorization
 
-No authorization required
+
+Configure bearerAuth:
+    ApiClient.accessToken = ""
 
 ### HTTP request headers
 
@@ -4417,7 +4577,9 @@ try {
 
 ### Authorization
 
-No authorization required
+
+Configure bearerAuth:
+    ApiClient.accessToken = ""
 
 ### HTTP request headers
 
@@ -4471,7 +4633,9 @@ try {
 
 ### Authorization
 
-No authorization required
+
+Configure bearerAuth:
+    ApiClient.accessToken = ""
 
 ### HTTP request headers
 
@@ -4519,7 +4683,9 @@ try {
 
 ### Authorization
 
-No authorization required
+
+Configure bearerAuth:
+    ApiClient.accessToken = ""
 
 ### HTTP request headers
 
@@ -4569,7 +4735,9 @@ try {
 
 ### Authorization
 
-No authorization required
+
+Configure bearerAuth:
+    ApiClient.accessToken = ""
 
 ### HTTP request headers
 
@@ -4619,7 +4787,9 @@ try {
 
 ### Authorization
 
-No authorization required
+
+Configure bearerAuth:
+    ApiClient.accessToken = ""
 
 ### HTTP request headers
 
@@ -4665,7 +4835,9 @@ try {
 
 ### Authorization
 
-No authorization required
+
+Configure bearerAuth:
+    ApiClient.accessToken = ""
 
 ### HTTP request headers
 
@@ -4721,7 +4893,9 @@ try {
 
 ### Authorization
 
-No authorization required
+
+Configure bearerAuth:
+    ApiClient.accessToken = ""
 
 ### HTTP request headers
 
@@ -4769,7 +4943,9 @@ try {
 
 ### Authorization
 
-No authorization required
+
+Configure bearerAuth:
+    ApiClient.accessToken = ""
 
 ### HTTP request headers
 
@@ -4817,7 +4993,9 @@ try {
 
 ### Authorization
 
-No authorization required
+
+Configure bearerAuth:
+    ApiClient.accessToken = ""
 
 ### HTTP request headers
 
@@ -4865,7 +5043,9 @@ try {
 
 ### Authorization
 
-No authorization required
+
+Configure bearerAuth:
+    ApiClient.accessToken = ""
 
 ### HTTP request headers
 
@@ -4917,7 +5097,9 @@ try {
 
 ### Authorization
 
-No authorization required
+
+Configure bearerAuth:
+    ApiClient.accessToken = ""
 
 ### HTTP request headers
 
@@ -4965,7 +5147,9 @@ try {
 
 ### Authorization
 
-No authorization required
+
+Configure bearerAuth:
+    ApiClient.accessToken = ""
 
 ### HTTP request headers
 
@@ -5008,7 +5192,9 @@ This endpoint does not need any parameter.
 
 ### Authorization
 
-No authorization required
+
+Configure bearerAuth:
+    ApiClient.accessToken = ""
 
 ### HTTP request headers
 
@@ -5051,7 +5237,9 @@ This endpoint does not need any parameter.
 
 ### Authorization
 
-No authorization required
+
+Configure bearerAuth:
+    ApiClient.accessToken = ""
 
 ### HTTP request headers
 
@@ -5097,7 +5285,9 @@ try {
 
 ### Authorization
 
-No authorization required
+
+Configure bearerAuth:
+    ApiClient.accessToken = ""
 
 ### HTTP request headers
 
@@ -5157,7 +5347,9 @@ try {
 
 ### Authorization
 
-No authorization required
+
+Configure bearerAuth:
+    ApiClient.accessToken = ""
 
 ### HTTP request headers
 
@@ -5203,7 +5395,9 @@ try {
 
 ### Authorization
 
-No authorization required
+
+Configure bearerAuth:
+    ApiClient.accessToken = ""
 
 ### HTTP request headers
 
@@ -5255,7 +5449,9 @@ try {
 
 ### Authorization
 
-No authorization required
+
+Configure bearerAuth:
+    ApiClient.accessToken = ""
 
 ### HTTP request headers
 
@@ -5303,7 +5499,9 @@ try {
 
 ### Authorization
 
-No authorization required
+
+Configure bearerAuth:
+    ApiClient.accessToken = ""
 
 ### HTTP request headers
 
@@ -5351,7 +5549,9 @@ try {
 
 ### Authorization
 
-No authorization required
+
+Configure bearerAuth:
+    ApiClient.accessToken = ""
 
 ### HTTP request headers
 
@@ -5403,7 +5603,9 @@ try {
 
 ### Authorization
 
-No authorization required
+
+Configure bearerAuth:
+    ApiClient.accessToken = ""
 
 ### HTTP request headers
 
@@ -5453,7 +5655,9 @@ try {
 
 ### Authorization
 
-No authorization required
+
+Configure bearerAuth:
+    ApiClient.accessToken = ""
 
 ### HTTP request headers
 
@@ -5503,7 +5707,9 @@ try {
 
 ### Authorization
 
-No authorization required
+
+Configure bearerAuth:
+    ApiClient.accessToken = ""
 
 ### HTTP request headers
 
@@ -5559,7 +5765,9 @@ try {
 
 ### Authorization
 
-No authorization required
+
+Configure bearerAuth:
+    ApiClient.accessToken = ""
 
 ### HTTP request headers
 
@@ -5613,7 +5821,9 @@ try {
 
 ### Authorization
 
-No authorization required
+
+Configure bearerAuth:
+    ApiClient.accessToken = ""
 
 ### HTTP request headers
 
@@ -5665,7 +5875,9 @@ try {
 
 ### Authorization
 
-No authorization required
+
+Configure bearerAuth:
+    ApiClient.accessToken = ""
 
 ### HTTP request headers
 
@@ -5719,7 +5931,9 @@ try {
 
 ### Authorization
 
-No authorization required
+
+Configure bearerAuth:
+    ApiClient.accessToken = ""
 
 ### HTTP request headers
 
@@ -5771,7 +5985,9 @@ try {
 
 ### Authorization
 
-No authorization required
+
+Configure bearerAuth:
+    ApiClient.accessToken = ""
 
 ### HTTP request headers
 
@@ -5832,7 +6048,9 @@ try {
 
 ### Authorization
 
-No authorization required
+
+Configure bearerAuth:
+    ApiClient.accessToken = ""
 
 ### HTTP request headers
 
@@ -5880,7 +6098,9 @@ try {
 
 ### Authorization
 
-No authorization required
+
+Configure bearerAuth:
+    ApiClient.accessToken = ""
 
 ### HTTP request headers
 
@@ -5928,7 +6148,9 @@ try {
 
 ### Authorization
 
-No authorization required
+
+Configure bearerAuth:
+    ApiClient.accessToken = ""
 
 ### HTTP request headers
 
@@ -5976,7 +6198,9 @@ try {
 
 ### Authorization
 
-No authorization required
+
+Configure bearerAuth:
+    ApiClient.accessToken = ""
 
 ### HTTP request headers
 
@@ -6030,7 +6254,9 @@ try {
 
 ### Authorization
 
-No authorization required
+
+Configure bearerAuth:
+    ApiClient.accessToken = ""
 
 ### HTTP request headers
 
@@ -6078,7 +6304,9 @@ try {
 
 ### Authorization
 
-No authorization required
+
+Configure bearerAuth:
+    ApiClient.accessToken = ""
 
 ### HTTP request headers
 
@@ -6128,7 +6356,9 @@ try {
 
 ### Authorization
 
-No authorization required
+
+Configure bearerAuth:
+    ApiClient.accessToken = ""
 
 ### HTTP request headers
 
@@ -6178,7 +6408,9 @@ try {
 
 ### Authorization
 
-No authorization required
+
+Configure bearerAuth:
+    ApiClient.accessToken = ""
 
 ### HTTP request headers
 
@@ -6226,7 +6458,9 @@ try {
 
 ### Authorization
 
-No authorization required
+
+Configure bearerAuth:
+    ApiClient.accessToken = ""
 
 ### HTTP request headers
 
@@ -6278,7 +6512,9 @@ try {
 
 ### Authorization
 
-No authorization required
+
+Configure bearerAuth:
+    ApiClient.accessToken = ""
 
 ### HTTP request headers
 

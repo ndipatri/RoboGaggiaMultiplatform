@@ -32,10 +32,14 @@ This runs all tests and packages the library.
 <a id="documentation-for-api-endpoints"></a>
 ## Documentation for API Endpoints
 
-All URIs are relative to *http://localhost*
+All URIs are relative to *https://api.particle.io*
 
 | Class | Method | HTTP request | Description |
 | ------------ | ------------- | ------------- | ------------- |
+| *DefaultApi* | [**callFunction**](docs/DefaultApi.md#callfunction) | **POST** /v1/devices/{deviceId}/{functionName} | Call a function |
+| *DefaultApi* | [**getDevice**](docs/DefaultApi.md#getdevice) | **GET** /v1/devices/{deviceId} | Get device information |
+| *DefaultApi* | [**getDevices**](docs/DefaultApi.md#getdevices) | **GET** /v1/devices | List devices |
+| *DefaultApi* | [**getVariableValue**](docs/DefaultApi.md#getvariablevalue) | **GET** /v1/devices/{deviceId}/{varName} | Get a variable value |
 | *DefaultApi* | [**oauthTokenPost**](docs/DefaultApi.md#oauthtokenpost) | **POST** /oauth/token | Generate a customer scoped access token |
 | *DefaultApi* | [**userGet**](docs/DefaultApi.md#userget) | **GET** /user | Get user |
 | *DefaultApi* | [**userPasswordResetPost**](docs/DefaultApi.md#userpasswordresetpost) | **POST** /user/password-reset | Forgot password |
@@ -53,14 +57,10 @@ All URIs are relative to *http://localhost*
 | *DefaultApi* | [**v1ClientsPost**](docs/DefaultApi.md#v1clientspost) | **POST** /v1/clients | Create a client |
 | *DefaultApi* | [**v1DevicesDeviceIdDelete**](docs/DefaultApi.md#v1devicesdeviceiddelete) | **DELETE** /v1/devices/{deviceId} | Unclaim device |
 | *DefaultApi* | [**v1DevicesDeviceIdEventsEventPrefixGet**](docs/DefaultApi.md#v1devicesdeviceideventseventprefixget) | **GET** /v1/devices/{deviceId}/events/{eventPrefix} | Get a stream of events for a device |
-| *DefaultApi* | [**v1DevicesDeviceIdFunctionNamePost**](docs/DefaultApi.md#v1devicesdeviceidfunctionnamepost) | **POST** /v1/devices/{deviceId}/{functionName} | Call a function |
-| *DefaultApi* | [**v1DevicesDeviceIdGet**](docs/DefaultApi.md#v1devicesdeviceidget) | **GET** /v1/devices/{deviceId} | Get device information |
 | *DefaultApi* | [**v1DevicesDeviceIdPingPut**](docs/DefaultApi.md#v1devicesdeviceidpingput) | **PUT** /v1/devices/{deviceId}/ping | Ping a device |
 | *DefaultApi* | [**v1DevicesDeviceIdPut**](docs/DefaultApi.md#v1devicesdeviceidput) | **PUT** /v1/devices/{deviceId} | Flash a device with a bundle |
-| *DefaultApi* | [**v1DevicesDeviceIdVarNameGet**](docs/DefaultApi.md#v1devicesdeviceidvarnameget) | **GET** /v1/devices/{deviceId}/{varName} | Get a variable value |
 | *DefaultApi* | [**v1DevicesEventsEventPrefixGet**](docs/DefaultApi.md#v1deviceseventseventprefixget) | **GET** /v1/devices/events/{eventPrefix} | Get a stream of your events |
 | *DefaultApi* | [**v1DevicesEventsPost**](docs/DefaultApi.md#v1deviceseventspost) | **POST** /v1/devices/events | Publish an event |
-| *DefaultApi* | [**v1DevicesGet**](docs/DefaultApi.md#v1devicesget) | **GET** /v1/devices | List devices |
 | *DefaultApi* | [**v1DevicesPost**](docs/DefaultApi.md#v1devicespost) | **POST** /v1/devices | Claim a device |
 | *DefaultApi* | [**v1DiagnosticsDeviceIdGet**](docs/DefaultApi.md#v1diagnosticsdeviceidget) | **GET** /v1/diagnostics/{deviceId} | Get all historical device vitals |
 | *DefaultApi* | [**v1DiagnosticsDeviceIdLastGet**](docs/DefaultApi.md#v1diagnosticsdeviceidlastget) | **GET** /v1/diagnostics/{deviceId}/last | Get last known device vitals |
@@ -163,6 +163,9 @@ All URIs are relative to *http://localhost*
 <a id="documentation-for-models"></a>
 ## Documentation for Models
 
+ - [com.ndipatri.kmp.openapi.particle.models.Device](docs/Device.md)
+ - [com.ndipatri.kmp.openapi.particle.models.DeviceFunctionResponse](docs/DeviceFunctionResponse.md)
+ - [com.ndipatri.kmp.openapi.particle.models.DeviceVariableResult](docs/DeviceVariableResult.md)
 
 
 <a id="documentation-for-authorization"></a>

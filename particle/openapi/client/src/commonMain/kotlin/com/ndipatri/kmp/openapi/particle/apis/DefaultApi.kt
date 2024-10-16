@@ -15,6 +15,9 @@
 
 package com.ndipatri.kmp.openapi.particle.apis
 
+import com.ndipatri.kmp.openapi.particle.models.Device
+import com.ndipatri.kmp.openapi.particle.models.DeviceFunctionResponse
+import com.ndipatri.kmp.openapi.particle.models.DeviceVariableResult
 
 import com.ndipatri.kmp.openapi.particle.infrastructure.*
 import io.ktor.client.HttpClient
@@ -40,6 +43,161 @@ open class DefaultApi : ApiClient {
         baseUrl: String,
         httpClient: HttpClient
     ): super(baseUrl = baseUrl, httpClient = httpClient)
+
+    /**
+     * Call a function
+     * Call a function exposed by the device, with arguments passed in the request body. Functions can be called on a device you own, or for any device that is part of a product you are a team member of.
+     * @param deviceId 
+     * @param functionName 
+     * @param productIdOrSlug Product ID or Slug. Product endpoint only.
+     * @param requestBody 
+     * @return DeviceFunctionResponse
+     */
+    @Suppress("UNCHECKED_CAST")
+    open suspend fun callFunction(deviceId: kotlin.String, functionName: kotlin.String, productIdOrSlug: kotlin.String, requestBody: kotlin.collections.Map<kotlin.String, kotlin.String>): HttpResponse<DeviceFunctionResponse> {
+
+        val localVariableAuthNames = listOf<String>("bearerAuth")
+
+        val localVariableBody = CallFunctionRequest(requestBody)
+
+        val localVariableQuery = mutableMapOf<String, List<String>>()
+        val localVariableHeaders = mutableMapOf<String, String>()
+
+        val localVariableConfig = RequestConfig<kotlin.Any?>(
+            RequestMethod.POST,
+            "/v1/devices/{deviceId}/{functionName}".replace("{" + "deviceId" + "}", "$deviceId").replace("{" + "functionName" + "}", "$functionName").replace("{" + "productIdOrSlug" + "}", "$productIdOrSlug"),
+            query = localVariableQuery,
+            headers = localVariableHeaders,
+            requiresAuthentication = true,
+        )
+
+        return jsonRequest(
+            localVariableConfig,
+            localVariableBody,
+            localVariableAuthNames
+        ).wrap()
+    }
+
+    @Serializable(CallFunctionRequest.Companion::class)
+    private class CallFunctionRequest(val value: Map<kotlin.String, kotlin.String>) {
+        companion object : KSerializer<CallFunctionRequest> {
+            private val serializer: KSerializer<Map<kotlin.String, kotlin.String>> = serializer<Map<String, kotlin.String>>()
+            override val descriptor = serializer.descriptor
+            override fun serialize(encoder: Encoder, obj: CallFunctionRequest) = serializer.serialize(encoder, obj.value)
+            override fun deserialize(decoder: Decoder) = CallFunctionRequest(serializer.deserialize(decoder))
+        }
+    }
+
+    /**
+     * Get device information
+     * Get basic information about the given device, including the custom variables and functions it has exposed. This can be called for sandbox devices claimed to your account and for product devices you have access to, regardless of claiming.
+     * @param deviceId Device ID
+     * @return kotlin.String
+     */
+    @Suppress("UNCHECKED_CAST")
+    open suspend fun getDevice(deviceId: Device): HttpResponse<kotlin.String> {
+
+        val localVariableAuthNames = listOf<String>("bearerAuth")
+
+        val localVariableBody = 
+            io.ktor.client.utils.EmptyContent
+
+        val localVariableQuery = mutableMapOf<String, List<String>>()
+        val localVariableHeaders = mutableMapOf<String, String>()
+
+        val localVariableConfig = RequestConfig<kotlin.Any?>(
+            RequestMethod.GET,
+            "/v1/devices/{deviceId}".replace("{" + "deviceId" + "}", "$deviceId"),
+            query = localVariableQuery,
+            headers = localVariableHeaders,
+            requiresAuthentication = true,
+        )
+
+        return request(
+            localVariableConfig,
+            localVariableBody,
+            localVariableAuthNames
+        ).wrap()
+    }
+
+
+    /**
+     * List devices
+     * List devices the currently authenticated user has access to. By default, devices will be sorted by last_handshake_at in descending order.
+     * @return kotlin.collections.List<Device>
+     */
+    @Suppress("UNCHECKED_CAST")
+    open suspend fun getDevices(): HttpResponse<kotlin.collections.List<Device>> {
+
+        val localVariableAuthNames = listOf<String>("bearerAuth")
+
+        val localVariableBody = 
+            io.ktor.client.utils.EmptyContent
+
+        val localVariableQuery = mutableMapOf<String, List<String>>()
+        val localVariableHeaders = mutableMapOf<String, String>()
+
+        val localVariableConfig = RequestConfig<kotlin.Any?>(
+            RequestMethod.GET,
+            "/v1/devices",
+            query = localVariableQuery,
+            headers = localVariableHeaders,
+            requiresAuthentication = true,
+        )
+
+        return request(
+            localVariableConfig,
+            localVariableBody,
+            localVariableAuthNames
+        ).wrap<GetDevicesResponse>().map { value }
+    }
+
+    @Serializable(GetDevicesResponse.Companion::class)
+    private class GetDevicesResponse(val value: List<Device>) {
+        companion object : KSerializer<GetDevicesResponse> {
+            private val serializer: KSerializer<List<Device>> = serializer<List<Device>>()
+            override val descriptor = serializer.descriptor
+            override fun serialize(encoder: Encoder, obj: GetDevicesResponse) = serializer.serialize(encoder, obj.value)
+            override fun deserialize(decoder: Decoder) = GetDevicesResponse(serializer.deserialize(decoder))
+        }
+    }
+
+    /**
+     * Get a variable value
+     * Request the current value of a variable exposed by the device. Variables can be read on a device you own, or for any device that is part of a product you are a team member of.
+     * @param deviceId Device ID
+     * @param varName Variable name
+     * @param productIdOrSlug Product ID or Slug. Product endpoint only.
+     * @param format Specify raw if you just the value returned (optional)
+     * @return DeviceVariableResult
+     */
+    @Suppress("UNCHECKED_CAST")
+    open suspend fun getVariableValue(deviceId: kotlin.String, varName: kotlin.String, productIdOrSlug: kotlin.String, format: kotlin.String? = null): HttpResponse<DeviceVariableResult> {
+
+        val localVariableAuthNames = listOf<String>("bearerAuth")
+
+        val localVariableBody = 
+            io.ktor.client.utils.EmptyContent
+
+        val localVariableQuery = mutableMapOf<String, List<String>>()
+        format?.apply { localVariableQuery["format"] = listOf("$format") }
+        val localVariableHeaders = mutableMapOf<String, String>()
+
+        val localVariableConfig = RequestConfig<kotlin.Any?>(
+            RequestMethod.GET,
+            "/v1/devices/{deviceId}/{varName}".replace("{" + "deviceId" + "}", "$deviceId").replace("{" + "varName" + "}", "$varName").replace("{" + "productIdOrSlug" + "}", "$productIdOrSlug"),
+            query = localVariableQuery,
+            headers = localVariableHeaders,
+            requiresAuthentication = true,
+        )
+
+        return request(
+            localVariableConfig,
+            localVariableBody,
+            localVariableAuthNames
+        ).wrap()
+    }
+
 
     /**
      * Generate a customer scoped access token
@@ -98,7 +256,7 @@ open class DefaultApi : ApiClient {
     @Suppress("UNCHECKED_CAST")
     open suspend fun userGet(): HttpResponse<kotlin.String> {
 
-        val localVariableAuthNames = listOf<String>()
+        val localVariableAuthNames = listOf<String>("bearerAuth")
 
         val localVariableBody = 
             io.ktor.client.utils.EmptyContent
@@ -111,7 +269,7 @@ open class DefaultApi : ApiClient {
             "/user",
             query = localVariableQuery,
             headers = localVariableHeaders,
-            requiresAuthentication = false,
+            requiresAuthentication = true,
         )
 
         return request(
@@ -131,7 +289,7 @@ open class DefaultApi : ApiClient {
     @Suppress("UNCHECKED_CAST")
     open suspend fun userPasswordResetPost(body: kotlin.String? = null): HttpResponse<kotlin.String> {
 
-        val localVariableAuthNames = listOf<String>()
+        val localVariableAuthNames = listOf<String>("bearerAuth")
 
         val localVariableBody = body
 
@@ -143,7 +301,7 @@ open class DefaultApi : ApiClient {
             "/user/password-reset",
             query = localVariableQuery,
             headers = localVariableHeaders,
-            requiresAuthentication = false,
+            requiresAuthentication = true,
         )
 
         return jsonRequest(
@@ -164,7 +322,7 @@ open class DefaultApi : ApiClient {
     @Suppress("UNCHECKED_CAST")
     open suspend fun userPut(body: kotlin.String? = null): HttpResponse<kotlin.String> {
 
-        val localVariableAuthNames = listOf<String>()
+        val localVariableAuthNames = listOf<String>("bearerAuth")
 
         val localVariableBody = body
 
@@ -176,7 +334,7 @@ open class DefaultApi : ApiClient {
             "/user",
             query = localVariableQuery,
             headers = localVariableHeaders,
-            requiresAuthentication = false,
+            requiresAuthentication = true,
         )
 
         return jsonRequest(
@@ -196,7 +354,7 @@ open class DefaultApi : ApiClient {
     @Suppress("UNCHECKED_CAST")
     open suspend fun v1AccessTokensCurrentDelete(): HttpResponse<kotlin.String> {
 
-        val localVariableAuthNames = listOf<String>()
+        val localVariableAuthNames = listOf<String>("bearerAuth")
 
         val localVariableBody = 
             io.ktor.client.utils.EmptyContent
@@ -209,7 +367,7 @@ open class DefaultApi : ApiClient {
             "/v1/access_tokens/current",
             query = localVariableQuery,
             headers = localVariableHeaders,
-            requiresAuthentication = false,
+            requiresAuthentication = true,
         )
 
         return request(
@@ -228,7 +386,7 @@ open class DefaultApi : ApiClient {
     @Suppress("UNCHECKED_CAST")
     open suspend fun v1AccessTokensCurrentGet(): HttpResponse<kotlin.String> {
 
-        val localVariableAuthNames = listOf<String>()
+        val localVariableAuthNames = listOf<String>("bearerAuth")
 
         val localVariableBody = 
             io.ktor.client.utils.EmptyContent
@@ -241,7 +399,7 @@ open class DefaultApi : ApiClient {
             "/v1/access_tokens/current",
             query = localVariableQuery,
             headers = localVariableHeaders,
-            requiresAuthentication = false,
+            requiresAuthentication = true,
         )
 
         return request(
@@ -260,7 +418,7 @@ open class DefaultApi : ApiClient {
     @Suppress("UNCHECKED_CAST")
     open suspend fun v1AccessTokensDelete(): HttpResponse<kotlin.String> {
 
-        val localVariableAuthNames = listOf<String>()
+        val localVariableAuthNames = listOf<String>("bearerAuth")
 
         val localVariableBody = 
             io.ktor.client.utils.EmptyContent
@@ -273,7 +431,7 @@ open class DefaultApi : ApiClient {
             "/v1/access_tokens",
             query = localVariableQuery,
             headers = localVariableHeaders,
-            requiresAuthentication = false,
+            requiresAuthentication = true,
         )
 
         return request(
@@ -329,7 +487,7 @@ open class DefaultApi : ApiClient {
     @Suppress("UNCHECKED_CAST")
     open suspend fun v1AccessTokensTokenDelete(token: kotlin.String): HttpResponse<kotlin.String> {
 
-        val localVariableAuthNames = listOf<String>()
+        val localVariableAuthNames = listOf<String>("bearerAuth")
 
         val localVariableBody = 
             io.ktor.client.utils.EmptyContent
@@ -342,7 +500,7 @@ open class DefaultApi : ApiClient {
             "/v1/access_tokens/{token}".replace("{" + "token" + "}", "$token"),
             query = localVariableQuery,
             headers = localVariableHeaders,
-            requiresAuthentication = false,
+            requiresAuthentication = true,
         )
 
         return request(
@@ -362,7 +520,7 @@ open class DefaultApi : ApiClient {
     @Suppress("UNCHECKED_CAST")
     open suspend fun v1BinariesPost(body: kotlin.String? = null): HttpResponse<kotlin.String> {
 
-        val localVariableAuthNames = listOf<String>()
+        val localVariableAuthNames = listOf<String>("bearerAuth")
 
         val localVariableBody = body
 
@@ -374,7 +532,7 @@ open class DefaultApi : ApiClient {
             "/v1/binaries",
             query = localVariableQuery,
             headers = localVariableHeaders,
-            requiresAuthentication = false,
+            requiresAuthentication = true,
         )
 
         return jsonRequest(
@@ -395,7 +553,7 @@ open class DefaultApi : ApiClient {
     @Suppress("UNCHECKED_CAST")
     open suspend fun v1BuildTargetsGet(featured: kotlin.String): HttpResponse<kotlin.String> {
 
-        val localVariableAuthNames = listOf<String>()
+        val localVariableAuthNames = listOf<String>("bearerAuth")
 
         val localVariableBody = 
             io.ktor.client.utils.EmptyContent
@@ -409,7 +567,7 @@ open class DefaultApi : ApiClient {
             "/v1/build_targets",
             query = localVariableQuery,
             headers = localVariableHeaders,
-            requiresAuthentication = false,
+            requiresAuthentication = true,
         )
 
         return request(
@@ -430,7 +588,7 @@ open class DefaultApi : ApiClient {
     @Suppress("UNCHECKED_CAST")
     open suspend fun v1ClientsClientIdDelete(clientId: kotlin.String, productIdOrSlug: kotlin.String): HttpResponse<kotlin.String> {
 
-        val localVariableAuthNames = listOf<String>()
+        val localVariableAuthNames = listOf<String>("bearerAuth")
 
         val localVariableBody = 
             io.ktor.client.utils.EmptyContent
@@ -443,7 +601,7 @@ open class DefaultApi : ApiClient {
             "/v1/clients/{clientId}".replace("{" + "clientId" + "}", "$clientId").replace("{" + "productIdOrSlug" + "}", "$productIdOrSlug"),
             query = localVariableQuery,
             headers = localVariableHeaders,
-            requiresAuthentication = false,
+            requiresAuthentication = true,
         )
 
         return request(
@@ -465,7 +623,7 @@ open class DefaultApi : ApiClient {
     @Suppress("UNCHECKED_CAST")
     open suspend fun v1ClientsClientIdPut(clientId: kotlin.String, productIdOrSlug: kotlin.String, body: kotlin.String? = null): HttpResponse<kotlin.String> {
 
-        val localVariableAuthNames = listOf<String>()
+        val localVariableAuthNames = listOf<String>("bearerAuth")
 
         val localVariableBody = body
 
@@ -477,7 +635,7 @@ open class DefaultApi : ApiClient {
             "/v1/clients/{clientId}".replace("{" + "clientId" + "}", "$clientId").replace("{" + "productIdOrSlug" + "}", "$productIdOrSlug"),
             query = localVariableQuery,
             headers = localVariableHeaders,
-            requiresAuthentication = false,
+            requiresAuthentication = true,
         )
 
         return jsonRequest(
@@ -498,7 +656,7 @@ open class DefaultApi : ApiClient {
     @Suppress("UNCHECKED_CAST")
     open suspend fun v1ClientsGet(productIdOrSlug: kotlin.String): HttpResponse<kotlin.String> {
 
-        val localVariableAuthNames = listOf<String>()
+        val localVariableAuthNames = listOf<String>("bearerAuth")
 
         val localVariableBody = 
             io.ktor.client.utils.EmptyContent
@@ -511,7 +669,7 @@ open class DefaultApi : ApiClient {
             "/v1/clients".replace("{" + "productIdOrSlug" + "}", "$productIdOrSlug"),
             query = localVariableQuery,
             headers = localVariableHeaders,
-            requiresAuthentication = false,
+            requiresAuthentication = true,
         )
 
         return request(
@@ -532,7 +690,7 @@ open class DefaultApi : ApiClient {
     @Suppress("UNCHECKED_CAST")
     open suspend fun v1ClientsPost(productIdOrSlug: kotlin.String, body: kotlin.String? = null): HttpResponse<kotlin.String> {
 
-        val localVariableAuthNames = listOf<String>()
+        val localVariableAuthNames = listOf<String>("bearerAuth")
 
         val localVariableBody = body
 
@@ -544,7 +702,7 @@ open class DefaultApi : ApiClient {
             "/v1/clients".replace("{" + "productIdOrSlug" + "}", "$productIdOrSlug"),
             query = localVariableQuery,
             headers = localVariableHeaders,
-            requiresAuthentication = false,
+            requiresAuthentication = true,
         )
 
         return jsonRequest(
@@ -566,7 +724,7 @@ open class DefaultApi : ApiClient {
     @Suppress("UNCHECKED_CAST")
     open suspend fun v1DevicesDeviceIdDelete(deviceId: kotlin.String, productIdOrSlug: kotlin.String): HttpResponse<kotlin.String> {
 
-        val localVariableAuthNames = listOf<String>()
+        val localVariableAuthNames = listOf<String>("bearerAuth")
 
         val localVariableBody = 
             io.ktor.client.utils.EmptyContent
@@ -579,7 +737,7 @@ open class DefaultApi : ApiClient {
             "/v1/devices/{deviceId}".replace("{" + "deviceId" + "}", "$deviceId").replace("{" + "productIdOrSlug" + "}", "$productIdOrSlug"),
             query = localVariableQuery,
             headers = localVariableHeaders,
-            requiresAuthentication = false,
+            requiresAuthentication = true,
         )
 
         return request(
@@ -600,7 +758,7 @@ open class DefaultApi : ApiClient {
     @Suppress("UNCHECKED_CAST")
     open suspend fun v1DevicesDeviceIdEventsEventPrefixGet(deviceId: kotlin.String, eventPrefix: kotlin.String): HttpResponse<kotlin.String> {
 
-        val localVariableAuthNames = listOf<String>()
+        val localVariableAuthNames = listOf<String>("bearerAuth")
 
         val localVariableBody = 
             io.ktor.client.utils.EmptyContent
@@ -613,76 +771,7 @@ open class DefaultApi : ApiClient {
             "/v1/devices/{deviceId}/events/{eventPrefix}".replace("{" + "deviceId" + "}", "$deviceId").replace("{" + "eventPrefix" + "}", "$eventPrefix"),
             query = localVariableQuery,
             headers = localVariableHeaders,
-            requiresAuthentication = false,
-        )
-
-        return request(
-            localVariableConfig,
-            localVariableBody,
-            localVariableAuthNames
-        ).wrap()
-    }
-
-
-    /**
-     * Call a function
-     * Call a function exposed by the device, with arguments passed in the request body. Functions can be called on a device you own, or for any device that is part of a product you are a team member of.
-     * @param deviceId 
-     * @param functionName 
-     * @param productIdOrSlug Product ID or Slug. Product endpoint only.
-     * @param body  (optional)
-     * @return kotlin.String
-     */
-    @Suppress("UNCHECKED_CAST")
-    open suspend fun v1DevicesDeviceIdFunctionNamePost(deviceId: kotlin.String, functionName: kotlin.String, productIdOrSlug: kotlin.String, body: kotlin.String? = null): HttpResponse<kotlin.String> {
-
-        val localVariableAuthNames = listOf<String>()
-
-        val localVariableBody = body
-
-        val localVariableQuery = mutableMapOf<String, List<String>>()
-        val localVariableHeaders = mutableMapOf<String, String>()
-
-        val localVariableConfig = RequestConfig<kotlin.Any?>(
-            RequestMethod.POST,
-            "/v1/devices/{deviceId}/{functionName}".replace("{" + "deviceId" + "}", "$deviceId").replace("{" + "functionName" + "}", "$functionName").replace("{" + "productIdOrSlug" + "}", "$productIdOrSlug"),
-            query = localVariableQuery,
-            headers = localVariableHeaders,
-            requiresAuthentication = false,
-        )
-
-        return jsonRequest(
-            localVariableConfig,
-            localVariableBody,
-            localVariableAuthNames
-        ).wrap()
-    }
-
-
-
-    /**
-     * Get device information
-     * Get basic information about the given device, including the custom variables and functions it has exposed. This can be called for sandbox devices claimed to your account and for product devices you have access to, regardless of claiming.
-     * @param deviceId Device ID
-     * @return kotlin.String
-     */
-    @Suppress("UNCHECKED_CAST")
-    open suspend fun v1DevicesDeviceIdGet(deviceId: kotlin.String): HttpResponse<kotlin.String> {
-
-        val localVariableAuthNames = listOf<String>()
-
-        val localVariableBody = 
-            io.ktor.client.utils.EmptyContent
-
-        val localVariableQuery = mutableMapOf<String, List<String>>()
-        val localVariableHeaders = mutableMapOf<String, String>()
-
-        val localVariableConfig = RequestConfig<kotlin.Any?>(
-            RequestMethod.GET,
-            "/v1/devices/{deviceId}".replace("{" + "deviceId" + "}", "$deviceId"),
-            query = localVariableQuery,
-            headers = localVariableHeaders,
-            requiresAuthentication = false,
+            requiresAuthentication = true,
         )
 
         return request(
@@ -704,7 +793,7 @@ open class DefaultApi : ApiClient {
     @Suppress("UNCHECKED_CAST")
     open suspend fun v1DevicesDeviceIdPingPut(deviceId: kotlin.String, productIdOrSlug: kotlin.String, contentType: kotlin.String): HttpResponse<kotlin.String> {
 
-        val localVariableAuthNames = listOf<String>()
+        val localVariableAuthNames = listOf<String>("bearerAuth")
 
         val localVariableBody = 
             io.ktor.client.utils.EmptyContent
@@ -718,7 +807,7 @@ open class DefaultApi : ApiClient {
             "/v1/devices/{deviceId}/ping".replace("{" + "deviceId" + "}", "$deviceId").replace("{" + "productIdOrSlug" + "}", "$productIdOrSlug"),
             query = localVariableQuery,
             headers = localVariableHeaders,
-            requiresAuthentication = false,
+            requiresAuthentication = true,
         )
 
         return request(
@@ -739,7 +828,7 @@ open class DefaultApi : ApiClient {
     @Suppress("UNCHECKED_CAST")
     open suspend fun v1DevicesDeviceIdPut(deviceId: kotlin.String, body: kotlin.String? = null): HttpResponse<kotlin.String> {
 
-        val localVariableAuthNames = listOf<String>()
+        val localVariableAuthNames = listOf<String>("bearerAuth")
 
         val localVariableBody = body
 
@@ -751,7 +840,7 @@ open class DefaultApi : ApiClient {
             "/v1/devices/{deviceId}".replace("{" + "deviceId" + "}", "$deviceId"),
             query = localVariableQuery,
             headers = localVariableHeaders,
-            requiresAuthentication = false,
+            requiresAuthentication = true,
         )
 
         return jsonRequest(
@@ -764,43 +853,6 @@ open class DefaultApi : ApiClient {
 
 
     /**
-     * Get a variable value
-     * Request the current value of a variable exposed by the device. Variables can be read on a device you own, or for any device that is part of a product you are a team member of.
-     * @param deviceId Device ID
-     * @param varName Variable name
-     * @param productIdOrSlug Product ID or Slug. Product endpoint only.
-     * @param format Specify raw if you just the value returned (optional)
-     * @return kotlin.String
-     */
-    @Suppress("UNCHECKED_CAST")
-    open suspend fun v1DevicesDeviceIdVarNameGet(deviceId: kotlin.String, varName: kotlin.String, productIdOrSlug: kotlin.String, format: kotlin.String? = null): HttpResponse<kotlin.String> {
-
-        val localVariableAuthNames = listOf<String>()
-
-        val localVariableBody = 
-            io.ktor.client.utils.EmptyContent
-
-        val localVariableQuery = mutableMapOf<String, List<String>>()
-        format?.apply { localVariableQuery["format"] = listOf("$format") }
-        val localVariableHeaders = mutableMapOf<String, String>()
-
-        val localVariableConfig = RequestConfig<kotlin.Any?>(
-            RequestMethod.GET,
-            "/v1/devices/{deviceId}/{varName}".replace("{" + "deviceId" + "}", "$deviceId").replace("{" + "varName" + "}", "$varName").replace("{" + "productIdOrSlug" + "}", "$productIdOrSlug"),
-            query = localVariableQuery,
-            headers = localVariableHeaders,
-            requiresAuthentication = false,
-        )
-
-        return request(
-            localVariableConfig,
-            localVariableBody,
-            localVariableAuthNames
-        ).wrap()
-    }
-
-
-    /**
      * Get a stream of your events
      * Open a stream of Server Sent Events for all events for your devices.
      * @param eventPrefix Filters the stream to only events starting with the specified prefix. Omit to get all events.
@@ -809,7 +861,7 @@ open class DefaultApi : ApiClient {
     @Suppress("UNCHECKED_CAST")
     open suspend fun v1DevicesEventsEventPrefixGet(eventPrefix: kotlin.String): HttpResponse<kotlin.String> {
 
-        val localVariableAuthNames = listOf<String>()
+        val localVariableAuthNames = listOf<String>("bearerAuth")
 
         val localVariableBody = 
             io.ktor.client.utils.EmptyContent
@@ -822,7 +874,7 @@ open class DefaultApi : ApiClient {
             "/v1/devices/events/{eventPrefix}".replace("{" + "eventPrefix" + "}", "$eventPrefix"),
             query = localVariableQuery,
             headers = localVariableHeaders,
-            requiresAuthentication = false,
+            requiresAuthentication = true,
         )
 
         return request(
@@ -842,7 +894,7 @@ open class DefaultApi : ApiClient {
     @Suppress("UNCHECKED_CAST")
     open suspend fun v1DevicesEventsPost(body: kotlin.String? = null): HttpResponse<kotlin.String> {
 
-        val localVariableAuthNames = listOf<String>()
+        val localVariableAuthNames = listOf<String>("bearerAuth")
 
         val localVariableBody = body
 
@@ -854,7 +906,7 @@ open class DefaultApi : ApiClient {
             "/v1/devices/events",
             query = localVariableQuery,
             headers = localVariableHeaders,
-            requiresAuthentication = false,
+            requiresAuthentication = true,
         )
 
         return jsonRequest(
@@ -867,38 +919,6 @@ open class DefaultApi : ApiClient {
 
 
     /**
-     * List devices
-     * List devices the currently authenticated user has access to. By default, devices will be sorted by last_handshake_at in descending order.
-     * @return kotlin.String
-     */
-    @Suppress("UNCHECKED_CAST")
-    open suspend fun v1DevicesGet(): HttpResponse<kotlin.String> {
-
-        val localVariableAuthNames = listOf<String>("bearerAuth")
-
-        val localVariableBody = 
-            io.ktor.client.utils.EmptyContent
-
-        val localVariableQuery = mutableMapOf<String, List<String>>()
-        val localVariableHeaders = mutableMapOf<String, String>()
-
-        val localVariableConfig = RequestConfig<kotlin.Any?>(
-            RequestMethod.GET,
-            "/v1/devices",
-            query = localVariableQuery,
-            headers = localVariableHeaders,
-            requiresAuthentication = true,
-        )
-
-        return request(
-            localVariableConfig,
-            localVariableBody,
-            localVariableAuthNames
-        ).wrap()
-    }
-
-
-    /**
      * Claim a device
      * Claim a new or unclaimed device to your account.
      * @param body  (optional)
@@ -907,7 +927,7 @@ open class DefaultApi : ApiClient {
     @Suppress("UNCHECKED_CAST")
     open suspend fun v1DevicesPost(body: kotlin.String? = null): HttpResponse<kotlin.String> {
 
-        val localVariableAuthNames = listOf<String>()
+        val localVariableAuthNames = listOf<String>("bearerAuth")
 
         val localVariableBody = body
 
@@ -919,7 +939,7 @@ open class DefaultApi : ApiClient {
             "/v1/devices",
             query = localVariableQuery,
             headers = localVariableHeaders,
-            requiresAuthentication = false,
+            requiresAuthentication = true,
         )
 
         return jsonRequest(
@@ -944,7 +964,7 @@ open class DefaultApi : ApiClient {
     @Suppress("UNCHECKED_CAST")
     open suspend fun v1DiagnosticsDeviceIdGet(deviceId: kotlin.String, productIdOrSlug: kotlin.String, accept: kotlin.String, startDate: kotlin.String? = null, endDate: kotlin.String? = null): HttpResponse<kotlin.String> {
 
-        val localVariableAuthNames = listOf<String>()
+        val localVariableAuthNames = listOf<String>("bearerAuth")
 
         val localVariableBody = 
             io.ktor.client.utils.EmptyContent
@@ -960,7 +980,7 @@ open class DefaultApi : ApiClient {
             "/v1/diagnostics/{deviceId}".replace("{" + "deviceId" + "}", "$deviceId").replace("{" + "productIdOrSlug" + "}", "$productIdOrSlug"),
             query = localVariableQuery,
             headers = localVariableHeaders,
-            requiresAuthentication = false,
+            requiresAuthentication = true,
         )
 
         return request(
@@ -981,7 +1001,7 @@ open class DefaultApi : ApiClient {
     @Suppress("UNCHECKED_CAST")
     open suspend fun v1DiagnosticsDeviceIdLastGet(deviceId: kotlin.String, productIdOrSlug: kotlin.String): HttpResponse<kotlin.String> {
 
-        val localVariableAuthNames = listOf<String>()
+        val localVariableAuthNames = listOf<String>("bearerAuth")
 
         val localVariableBody = 
             io.ktor.client.utils.EmptyContent
@@ -994,7 +1014,7 @@ open class DefaultApi : ApiClient {
             "/v1/diagnostics/{deviceId}/last".replace("{" + "deviceId" + "}", "$deviceId").replace("{" + "productIdOrSlug" + "}", "$productIdOrSlug"),
             query = localVariableQuery,
             headers = localVariableHeaders,
-            requiresAuthentication = false,
+            requiresAuthentication = true,
         )
 
         return request(
@@ -1016,7 +1036,7 @@ open class DefaultApi : ApiClient {
     @Suppress("UNCHECKED_CAST")
     open suspend fun v1DiagnosticsDeviceIdUpdatePost(deviceId: kotlin.String, productIdOrSlug: kotlin.String, contentType: kotlin.String): HttpResponse<kotlin.String> {
 
-        val localVariableAuthNames = listOf<String>()
+        val localVariableAuthNames = listOf<String>("bearerAuth")
 
         val localVariableBody = 
             io.ktor.client.utils.EmptyContent
@@ -1030,7 +1050,7 @@ open class DefaultApi : ApiClient {
             "/v1/diagnostics/{deviceId}/update".replace("{" + "deviceId" + "}", "$deviceId").replace("{" + "productIdOrSlug" + "}", "$productIdOrSlug"),
             query = localVariableQuery,
             headers = localVariableHeaders,
-            requiresAuthentication = false,
+            requiresAuthentication = true,
         )
 
         return request(
@@ -1050,7 +1070,7 @@ open class DefaultApi : ApiClient {
     @Suppress("UNCHECKED_CAST")
     open suspend fun v1EventsEventPrefixGet(eventPrefix: kotlin.String): HttpResponse<kotlin.String> {
 
-        val localVariableAuthNames = listOf<String>()
+        val localVariableAuthNames = listOf<String>("bearerAuth")
 
         val localVariableBody = 
             io.ktor.client.utils.EmptyContent
@@ -1063,7 +1083,7 @@ open class DefaultApi : ApiClient {
             "/v1/events/{eventPrefix}".replace("{" + "eventPrefix" + "}", "$eventPrefix"),
             query = localVariableQuery,
             headers = localVariableHeaders,
-            requiresAuthentication = false,
+            requiresAuthentication = true,
         )
 
         return request(
@@ -1083,7 +1103,7 @@ open class DefaultApi : ApiClient {
     @Suppress("UNCHECKED_CAST")
     open suspend fun v1IntegrationsGet(productIdOrSlug: kotlin.String): HttpResponse<kotlin.String> {
 
-        val localVariableAuthNames = listOf<String>()
+        val localVariableAuthNames = listOf<String>("bearerAuth")
 
         val localVariableBody = 
             io.ktor.client.utils.EmptyContent
@@ -1096,7 +1116,7 @@ open class DefaultApi : ApiClient {
             "/v1/integrations".replace("{" + "productIdOrSlug" + "}", "$productIdOrSlug"),
             query = localVariableQuery,
             headers = localVariableHeaders,
-            requiresAuthentication = false,
+            requiresAuthentication = true,
         )
 
         return request(
@@ -1117,7 +1137,7 @@ open class DefaultApi : ApiClient {
     @Suppress("UNCHECKED_CAST")
     open suspend fun v1IntegrationsIntegrationIdDelete(integrationId: kotlin.String, productIdOrSlug: kotlin.String): HttpResponse<kotlin.String> {
 
-        val localVariableAuthNames = listOf<String>()
+        val localVariableAuthNames = listOf<String>("bearerAuth")
 
         val localVariableBody = 
             io.ktor.client.utils.EmptyContent
@@ -1130,7 +1150,7 @@ open class DefaultApi : ApiClient {
             "/v1/integrations/{integrationId}".replace("{" + "integrationId" + "}", "$integrationId").replace("{" + "productIdOrSlug" + "}", "$productIdOrSlug"),
             query = localVariableQuery,
             headers = localVariableHeaders,
-            requiresAuthentication = false,
+            requiresAuthentication = true,
         )
 
         return request(
@@ -1151,7 +1171,7 @@ open class DefaultApi : ApiClient {
     @Suppress("UNCHECKED_CAST")
     open suspend fun v1IntegrationsIntegrationIdGet(integrationId: kotlin.String, productIdOrSlug: kotlin.String): HttpResponse<kotlin.String> {
 
-        val localVariableAuthNames = listOf<String>()
+        val localVariableAuthNames = listOf<String>("bearerAuth")
 
         val localVariableBody = 
             io.ktor.client.utils.EmptyContent
@@ -1164,7 +1184,7 @@ open class DefaultApi : ApiClient {
             "/v1/integrations/{integrationId}".replace("{" + "integrationId" + "}", "$integrationId").replace("{" + "productIdOrSlug" + "}", "$productIdOrSlug"),
             query = localVariableQuery,
             headers = localVariableHeaders,
-            requiresAuthentication = false,
+            requiresAuthentication = true,
         )
 
         return request(
@@ -1186,7 +1206,7 @@ open class DefaultApi : ApiClient {
     @Suppress("UNCHECKED_CAST")
     open suspend fun v1IntegrationsIntegrationIdPut(integrationId: kotlin.String, productIdOrSlug: kotlin.String, body: kotlin.String? = null): HttpResponse<kotlin.String> {
 
-        val localVariableAuthNames = listOf<String>()
+        val localVariableAuthNames = listOf<String>("bearerAuth")
 
         val localVariableBody = body
 
@@ -1198,7 +1218,7 @@ open class DefaultApi : ApiClient {
             "/v1/integrations/{integrationId}".replace("{" + "integrationId" + "}", "$integrationId").replace("{" + "productIdOrSlug" + "}", "$productIdOrSlug"),
             query = localVariableQuery,
             headers = localVariableHeaders,
-            requiresAuthentication = false,
+            requiresAuthentication = true,
         )
 
         return jsonRequest(
@@ -1221,7 +1241,7 @@ open class DefaultApi : ApiClient {
     @Suppress("UNCHECKED_CAST")
     open suspend fun v1IntegrationsIntegrationIdTestPost(integrationId: kotlin.String, productIdOrSlug: kotlin.String, body: kotlin.String? = null): HttpResponse<kotlin.String> {
 
-        val localVariableAuthNames = listOf<String>()
+        val localVariableAuthNames = listOf<String>("bearerAuth")
 
         val localVariableBody = body
 
@@ -1233,7 +1253,7 @@ open class DefaultApi : ApiClient {
             "/v1/integrations/{integrationId}/test".replace("{" + "integrationId" + "}", "$integrationId").replace("{" + "productIdOrSlug" + "}", "$productIdOrSlug"),
             query = localVariableQuery,
             headers = localVariableHeaders,
-            requiresAuthentication = false,
+            requiresAuthentication = true,
         )
 
         return jsonRequest(
@@ -1255,7 +1275,7 @@ open class DefaultApi : ApiClient {
     @Suppress("UNCHECKED_CAST")
     open suspend fun v1IntegrationsPost(productIdOrSlug: kotlin.String, body: kotlin.String? = null): HttpResponse<kotlin.String> {
 
-        val localVariableAuthNames = listOf<String>()
+        val localVariableAuthNames = listOf<String>("bearerAuth")
 
         val localVariableBody = body
 
@@ -1267,7 +1287,7 @@ open class DefaultApi : ApiClient {
             "/v1/integrations".replace("{" + "productIdOrSlug" + "}", "$productIdOrSlug"),
             query = localVariableQuery,
             headers = localVariableHeaders,
-            requiresAuthentication = false,
+            requiresAuthentication = true,
         )
 
         return jsonRequest(
@@ -1287,7 +1307,7 @@ open class DefaultApi : ApiClient {
     @Suppress("UNCHECKED_CAST")
     open suspend fun v1OrgsGet(): HttpResponse<kotlin.String> {
 
-        val localVariableAuthNames = listOf<String>()
+        val localVariableAuthNames = listOf<String>("bearerAuth")
 
         val localVariableBody = 
             io.ktor.client.utils.EmptyContent
@@ -1300,7 +1320,7 @@ open class DefaultApi : ApiClient {
             "/v1/orgs",
             query = localVariableQuery,
             headers = localVariableHeaders,
-            requiresAuthentication = false,
+            requiresAuthentication = true,
         )
 
         return request(
@@ -1320,7 +1340,7 @@ open class DefaultApi : ApiClient {
     @Suppress("UNCHECKED_CAST")
     open suspend fun v1OrgsOrgIdOrSlugGet(orgIdOrSlug: kotlin.String): HttpResponse<kotlin.String> {
 
-        val localVariableAuthNames = listOf<String>()
+        val localVariableAuthNames = listOf<String>("bearerAuth")
 
         val localVariableBody = 
             io.ktor.client.utils.EmptyContent
@@ -1333,7 +1353,7 @@ open class DefaultApi : ApiClient {
             "/v1/orgs/{orgIdOrSlug}".replace("{" + "orgIdOrSlug" + "}", "$orgIdOrSlug"),
             query = localVariableQuery,
             headers = localVariableHeaders,
-            requiresAuthentication = false,
+            requiresAuthentication = true,
         )
 
         return request(
@@ -1353,7 +1373,7 @@ open class DefaultApi : ApiClient {
     @Suppress("UNCHECKED_CAST")
     open suspend fun v1OrgsOrgIdOrSlugProductsGet(orgIdOrSlug: kotlin.String): HttpResponse<kotlin.String> {
 
-        val localVariableAuthNames = listOf<String>()
+        val localVariableAuthNames = listOf<String>("bearerAuth")
 
         val localVariableBody = 
             io.ktor.client.utils.EmptyContent
@@ -1366,7 +1386,7 @@ open class DefaultApi : ApiClient {
             "/v1/orgs/{orgIdOrSlug}/products".replace("{" + "orgIdOrSlug" + "}", "$orgIdOrSlug"),
             query = localVariableQuery,
             headers = localVariableHeaders,
-            requiresAuthentication = false,
+            requiresAuthentication = true,
         )
 
         return request(
@@ -1386,7 +1406,7 @@ open class DefaultApi : ApiClient {
     @Suppress("UNCHECKED_CAST")
     open suspend fun v1OrgsOrgIdOrSlugServiceAgreementsGet(orgIdOrSlug: kotlin.String): HttpResponse<kotlin.String> {
 
-        val localVariableAuthNames = listOf<String>()
+        val localVariableAuthNames = listOf<String>("bearerAuth")
 
         val localVariableBody = 
             io.ktor.client.utils.EmptyContent
@@ -1399,7 +1419,7 @@ open class DefaultApi : ApiClient {
             "/v1/orgs/{orgIdOrSlug}/service_agreements".replace("{" + "orgIdOrSlug" + "}", "$orgIdOrSlug"),
             query = localVariableQuery,
             headers = localVariableHeaders,
-            requiresAuthentication = false,
+            requiresAuthentication = true,
         )
 
         return request(
@@ -1421,7 +1441,7 @@ open class DefaultApi : ApiClient {
     @Suppress("UNCHECKED_CAST")
     open suspend fun v1OrgsOrgSlugOrIdServiceAgreementsServiceAgreementIdUsageReportsPost(orgSlugOrId: kotlin.String, serviceAgreementId: kotlin.String, body: kotlin.String? = null): HttpResponse<kotlin.String> {
 
-        val localVariableAuthNames = listOf<String>()
+        val localVariableAuthNames = listOf<String>("bearerAuth")
 
         val localVariableBody = body
 
@@ -1433,7 +1453,7 @@ open class DefaultApi : ApiClient {
             "/v1/orgs/{orgSlugOrId}/service_agreements/{serviceAgreementId}/usage_reports".replace("{" + "orgSlugOrId" + "}", "$orgSlugOrId").replace("{" + "serviceAgreementId" + "}", "$serviceAgreementId"),
             query = localVariableQuery,
             headers = localVariableHeaders,
-            requiresAuthentication = false,
+            requiresAuthentication = true,
         )
 
         return jsonRequest(
@@ -1455,7 +1475,7 @@ open class DefaultApi : ApiClient {
     @Suppress("UNCHECKED_CAST")
     open suspend fun v1OrgsOrgSlugOrIdUsageReportsUsageReportIdGet(usageReportId: kotlin.String, orgSlugOrId: kotlin.String): HttpResponse<kotlin.String> {
 
-        val localVariableAuthNames = listOf<String>()
+        val localVariableAuthNames = listOf<String>("bearerAuth")
 
         val localVariableBody = 
             io.ktor.client.utils.EmptyContent
@@ -1468,7 +1488,7 @@ open class DefaultApi : ApiClient {
             "/v1/orgs/{orgSlugOrId}/usage_reports/{usageReportId}".replace("{" + "usageReportId" + "}", "$usageReportId").replace("{" + "orgSlugOrId" + "}", "$orgSlugOrId"),
             query = localVariableQuery,
             headers = localVariableHeaders,
-            requiresAuthentication = false,
+            requiresAuthentication = true,
         )
 
         return request(
@@ -1489,7 +1509,7 @@ open class DefaultApi : ApiClient {
     @Suppress("UNCHECKED_CAST")
     open suspend fun v1ProductsProductIdOrSlugConfigDelete(productIdOrSlug: kotlin.String, contentType: kotlin.String): HttpResponse<kotlin.String> {
 
-        val localVariableAuthNames = listOf<String>()
+        val localVariableAuthNames = listOf<String>("bearerAuth")
 
         val localVariableBody = 
             io.ktor.client.utils.EmptyContent
@@ -1503,7 +1523,7 @@ open class DefaultApi : ApiClient {
             "/v1/products/{productIdOrSlug}/config".replace("{" + "productIdOrSlug" + "}", "$productIdOrSlug"),
             query = localVariableQuery,
             headers = localVariableHeaders,
-            requiresAuthentication = false,
+            requiresAuthentication = true,
         )
 
         return request(
@@ -1525,7 +1545,7 @@ open class DefaultApi : ApiClient {
     @Suppress("UNCHECKED_CAST")
     open suspend fun v1ProductsProductIdOrSlugConfigDeviceIdDelete(productIdOrSlug: kotlin.String, deviceId: kotlin.String, contentType: kotlin.String): HttpResponse<kotlin.String> {
 
-        val localVariableAuthNames = listOf<String>()
+        val localVariableAuthNames = listOf<String>("bearerAuth")
 
         val localVariableBody = 
             io.ktor.client.utils.EmptyContent
@@ -1539,7 +1559,7 @@ open class DefaultApi : ApiClient {
             "/v1/products/{productIdOrSlug}/config/{deviceId}".replace("{" + "productIdOrSlug" + "}", "$productIdOrSlug").replace("{" + "deviceId" + "}", "$deviceId"),
             query = localVariableQuery,
             headers = localVariableHeaders,
-            requiresAuthentication = false,
+            requiresAuthentication = true,
         )
 
         return request(
@@ -1561,7 +1581,7 @@ open class DefaultApi : ApiClient {
     @Suppress("UNCHECKED_CAST")
     open suspend fun v1ProductsProductIdOrSlugConfigDeviceIdGet(productIdOrSlug: kotlin.String, deviceId: kotlin.String, accept: kotlin.String): HttpResponse<kotlin.String> {
 
-        val localVariableAuthNames = listOf<String>()
+        val localVariableAuthNames = listOf<String>("bearerAuth")
 
         val localVariableBody = 
             io.ktor.client.utils.EmptyContent
@@ -1575,7 +1595,7 @@ open class DefaultApi : ApiClient {
             "/v1/products/{productIdOrSlug}/config/{deviceId}".replace("{" + "productIdOrSlug" + "}", "$productIdOrSlug").replace("{" + "deviceId" + "}", "$deviceId"),
             query = localVariableQuery,
             headers = localVariableHeaders,
-            requiresAuthentication = false,
+            requiresAuthentication = true,
         )
 
         return request(
@@ -1597,7 +1617,7 @@ open class DefaultApi : ApiClient {
     @Suppress("UNCHECKED_CAST")
     open suspend fun v1ProductsProductIdOrSlugConfigDeviceIdPut(productIdOrSlug: kotlin.String, deviceId: kotlin.String, contentType: kotlin.String): HttpResponse<kotlin.String> {
 
-        val localVariableAuthNames = listOf<String>()
+        val localVariableAuthNames = listOf<String>("bearerAuth")
 
         val localVariableBody = 
             io.ktor.client.utils.EmptyContent
@@ -1611,7 +1631,7 @@ open class DefaultApi : ApiClient {
             "/v1/products/{productIdOrSlug}/config/{deviceId}".replace("{" + "productIdOrSlug" + "}", "$productIdOrSlug").replace("{" + "deviceId" + "}", "$deviceId"),
             query = localVariableQuery,
             headers = localVariableHeaders,
-            requiresAuthentication = false,
+            requiresAuthentication = true,
         )
 
         return request(
@@ -1632,7 +1652,7 @@ open class DefaultApi : ApiClient {
     @Suppress("UNCHECKED_CAST")
     open suspend fun v1ProductsProductIdOrSlugConfigGet(productIdOrSlug: kotlin.String, accept: kotlin.String): HttpResponse<kotlin.String> {
 
-        val localVariableAuthNames = listOf<String>()
+        val localVariableAuthNames = listOf<String>("bearerAuth")
 
         val localVariableBody = 
             io.ktor.client.utils.EmptyContent
@@ -1646,7 +1666,7 @@ open class DefaultApi : ApiClient {
             "/v1/products/{productIdOrSlug}/config".replace("{" + "productIdOrSlug" + "}", "$productIdOrSlug"),
             query = localVariableQuery,
             headers = localVariableHeaders,
-            requiresAuthentication = false,
+            requiresAuthentication = true,
         )
 
         return request(
@@ -1667,7 +1687,7 @@ open class DefaultApi : ApiClient {
     @Suppress("UNCHECKED_CAST")
     open suspend fun v1ProductsProductIdOrSlugConfigPut(productIdOrSlug: kotlin.String, contentType: kotlin.String): HttpResponse<kotlin.String> {
 
-        val localVariableAuthNames = listOf<String>()
+        val localVariableAuthNames = listOf<String>("bearerAuth")
 
         val localVariableBody = 
             io.ktor.client.utils.EmptyContent
@@ -1681,7 +1701,7 @@ open class DefaultApi : ApiClient {
             "/v1/products/{productIdOrSlug}/config".replace("{" + "productIdOrSlug" + "}", "$productIdOrSlug"),
             query = localVariableQuery,
             headers = localVariableHeaders,
-            requiresAuthentication = false,
+            requiresAuthentication = true,
         )
 
         return request(
@@ -1702,7 +1722,7 @@ open class DefaultApi : ApiClient {
     @Suppress("UNCHECKED_CAST")
     open suspend fun v1ProductsProductIdOrSlugCustomersCustomerEmailDelete(productIdOrSlug: kotlin.String, customerEmail: kotlin.String): HttpResponse<kotlin.String> {
 
-        val localVariableAuthNames = listOf<String>()
+        val localVariableAuthNames = listOf<String>("bearerAuth")
 
         val localVariableBody = 
             io.ktor.client.utils.EmptyContent
@@ -1715,7 +1735,7 @@ open class DefaultApi : ApiClient {
             "/v1/products/{productIdOrSlug}/customers/{customerEmail}".replace("{" + "productIdOrSlug" + "}", "$productIdOrSlug").replace("{" + "customerEmail" + "}", "$customerEmail"),
             query = localVariableQuery,
             headers = localVariableHeaders,
-            requiresAuthentication = false,
+            requiresAuthentication = true,
         )
 
         return request(
@@ -1737,7 +1757,7 @@ open class DefaultApi : ApiClient {
     @Suppress("UNCHECKED_CAST")
     open suspend fun v1ProductsProductIdOrSlugCustomersCustomerEmailPut(productIdOrSlug: kotlin.String, customerEmail: kotlin.String, body: kotlin.String? = null): HttpResponse<kotlin.String> {
 
-        val localVariableAuthNames = listOf<String>()
+        val localVariableAuthNames = listOf<String>("bearerAuth")
 
         val localVariableBody = body
 
@@ -1749,7 +1769,7 @@ open class DefaultApi : ApiClient {
             "/v1/products/{productIdOrSlug}/customers/{customerEmail}".replace("{" + "productIdOrSlug" + "}", "$productIdOrSlug").replace("{" + "customerEmail" + "}", "$customerEmail"),
             query = localVariableQuery,
             headers = localVariableHeaders,
-            requiresAuthentication = false,
+            requiresAuthentication = true,
         )
 
         return jsonRequest(
@@ -1770,7 +1790,7 @@ open class DefaultApi : ApiClient {
     @Suppress("UNCHECKED_CAST")
     open suspend fun v1ProductsProductIdOrSlugCustomersGet(productIdOrSlug: kotlin.String): HttpResponse<kotlin.String> {
 
-        val localVariableAuthNames = listOf<String>()
+        val localVariableAuthNames = listOf<String>("bearerAuth")
 
         val localVariableBody = 
             io.ktor.client.utils.EmptyContent
@@ -1783,7 +1803,7 @@ open class DefaultApi : ApiClient {
             "/v1/products/{productIdOrSlug}/customers".replace("{" + "productIdOrSlug" + "}", "$productIdOrSlug"),
             query = localVariableQuery,
             headers = localVariableHeaders,
-            requiresAuthentication = false,
+            requiresAuthentication = true,
         )
 
         return request(
@@ -1840,7 +1860,7 @@ open class DefaultApi : ApiClient {
     @Suppress("UNCHECKED_CAST")
     open suspend fun v1ProductsProductIdOrSlugDevicesDeviceIdDelete(productIdOrSlug: kotlin.String, deviceId: kotlin.String): HttpResponse<kotlin.String> {
 
-        val localVariableAuthNames = listOf<String>()
+        val localVariableAuthNames = listOf<String>("bearerAuth")
 
         val localVariableBody = 
             io.ktor.client.utils.EmptyContent
@@ -1853,7 +1873,7 @@ open class DefaultApi : ApiClient {
             "/v1/products/{productIdOrSlug}/devices/{deviceId}".replace("{" + "productIdOrSlug" + "}", "$productIdOrSlug").replace("{" + "deviceId" + "}", "$deviceId"),
             query = localVariableQuery,
             headers = localVariableHeaders,
-            requiresAuthentication = false,
+            requiresAuthentication = true,
         )
 
         return request(
@@ -1874,7 +1894,7 @@ open class DefaultApi : ApiClient {
     @Suppress("UNCHECKED_CAST")
     open suspend fun v1ProductsProductIdOrSlugDevicesDeviceIdGet(deviceId: kotlin.String, productIdOrSlug: kotlin.String): HttpResponse<kotlin.String> {
 
-        val localVariableAuthNames = listOf<String>()
+        val localVariableAuthNames = listOf<String>("bearerAuth")
 
         val localVariableBody = 
             io.ktor.client.utils.EmptyContent
@@ -1887,7 +1907,7 @@ open class DefaultApi : ApiClient {
             "/v1/products/{productIdOrSlug}/devices/{deviceId}".replace("{" + "deviceId" + "}", "$deviceId").replace("{" + "productIdOrSlug" + "}", "$productIdOrSlug"),
             query = localVariableQuery,
             headers = localVariableHeaders,
-            requiresAuthentication = false,
+            requiresAuthentication = true,
         )
 
         return request(
@@ -1909,7 +1929,7 @@ open class DefaultApi : ApiClient {
     @Suppress("UNCHECKED_CAST")
     open suspend fun v1ProductsProductIdOrSlugDevicesDeviceIdPut(deviceId: kotlin.String, productIdOrSlug: kotlin.String, body: kotlin.String? = null): HttpResponse<kotlin.String> {
 
-        val localVariableAuthNames = listOf<String>()
+        val localVariableAuthNames = listOf<String>("bearerAuth")
 
         val localVariableBody = body
 
@@ -1921,7 +1941,7 @@ open class DefaultApi : ApiClient {
             "/v1/products/{productIdOrSlug}/devices/{deviceId}".replace("{" + "deviceId" + "}", "$deviceId").replace("{" + "productIdOrSlug" + "}", "$productIdOrSlug"),
             query = localVariableQuery,
             headers = localVariableHeaders,
-            requiresAuthentication = false,
+            requiresAuthentication = true,
         )
 
         return jsonRequest(
@@ -1951,7 +1971,7 @@ open class DefaultApi : ApiClient {
     @Suppress("UNCHECKED_CAST")
     open suspend fun v1ProductsProductIdOrSlugDevicesGet(productIdOrSlug: kotlin.String, deviceId: kotlin.String? = null, groups: kotlin.String? = null, deviceName: kotlin.String? = null, serialNumber: kotlin.String? = null, sortAttr: kotlin.String? = null, sortDir: kotlin.String? = null, quarantined: kotlin.String? = null, page: kotlin.String? = null, perPage: kotlin.String? = null): HttpResponse<kotlin.String> {
 
-        val localVariableAuthNames = listOf<String>()
+        val localVariableAuthNames = listOf<String>("bearerAuth")
 
         val localVariableBody = 
             io.ktor.client.utils.EmptyContent
@@ -1973,7 +1993,7 @@ open class DefaultApi : ApiClient {
             "/v1/products/{productIdOrSlug}/devices".replace("{" + "productIdOrSlug" + "}", "$productIdOrSlug"),
             query = localVariableQuery,
             headers = localVariableHeaders,
-            requiresAuthentication = false,
+            requiresAuthentication = true,
         )
 
         return request(
@@ -1994,7 +2014,7 @@ open class DefaultApi : ApiClient {
     @Suppress("UNCHECKED_CAST")
     open suspend fun v1ProductsProductIdOrSlugDevicesPost(productIdOrSlug: kotlin.String, body: kotlin.String? = null): HttpResponse<kotlin.String> {
 
-        val localVariableAuthNames = listOf<String>()
+        val localVariableAuthNames = listOf<String>("bearerAuth")
 
         val localVariableBody = body
 
@@ -2006,7 +2026,7 @@ open class DefaultApi : ApiClient {
             "/v1/products/{productIdOrSlug}/devices".replace("{" + "productIdOrSlug" + "}", "$productIdOrSlug"),
             query = localVariableQuery,
             headers = localVariableHeaders,
-            requiresAuthentication = false,
+            requiresAuthentication = true,
         )
 
         return jsonRequest(
@@ -2028,7 +2048,7 @@ open class DefaultApi : ApiClient {
     @Suppress("UNCHECKED_CAST")
     open suspend fun v1ProductsProductIdOrSlugDevicesPut(productIdOrSlug: kotlin.String, body: kotlin.String? = null): HttpResponse<kotlin.String> {
 
-        val localVariableAuthNames = listOf<String>()
+        val localVariableAuthNames = listOf<String>("bearerAuth")
 
         val localVariableBody = body
 
@@ -2040,7 +2060,7 @@ open class DefaultApi : ApiClient {
             "/v1/products/{productIdOrSlug}/devices".replace("{" + "productIdOrSlug" + "}", "$productIdOrSlug"),
             query = localVariableQuery,
             headers = localVariableHeaders,
-            requiresAuthentication = false,
+            requiresAuthentication = true,
         )
 
         return jsonRequest(
@@ -2062,7 +2082,7 @@ open class DefaultApi : ApiClient {
     @Suppress("UNCHECKED_CAST")
     open suspend fun v1ProductsProductIdOrSlugEventsEventPrefixGet(productIdOrSlug: kotlin.String, eventPrefix: kotlin.String): HttpResponse<kotlin.String> {
 
-        val localVariableAuthNames = listOf<String>()
+        val localVariableAuthNames = listOf<String>("bearerAuth")
 
         val localVariableBody = 
             io.ktor.client.utils.EmptyContent
@@ -2075,7 +2095,7 @@ open class DefaultApi : ApiClient {
             "/v1/products/{productIdOrSlug}/events/{eventPrefix}".replace("{" + "productIdOrSlug" + "}", "$productIdOrSlug").replace("{" + "eventPrefix" + "}", "$eventPrefix"),
             query = localVariableQuery,
             headers = localVariableHeaders,
-            requiresAuthentication = false,
+            requiresAuthentication = true,
         )
 
         return request(
@@ -2096,7 +2116,7 @@ open class DefaultApi : ApiClient {
     @Suppress("UNCHECKED_CAST")
     open suspend fun v1ProductsProductIdOrSlugEventsPost(productIdOrSlug: kotlin.String, body: kotlin.String? = null): HttpResponse<kotlin.String> {
 
-        val localVariableAuthNames = listOf<String>()
+        val localVariableAuthNames = listOf<String>("bearerAuth")
 
         val localVariableBody = body
 
@@ -2108,7 +2128,7 @@ open class DefaultApi : ApiClient {
             "/v1/products/{productIdOrSlug}/events".replace("{" + "productIdOrSlug" + "}", "$productIdOrSlug"),
             query = localVariableQuery,
             headers = localVariableHeaders,
-            requiresAuthentication = false,
+            requiresAuthentication = true,
         )
 
         return jsonRequest(
@@ -2129,7 +2149,7 @@ open class DefaultApi : ApiClient {
     @Suppress("UNCHECKED_CAST")
     open suspend fun v1ProductsProductIdOrSlugFirmwareGet(productIdOrSlug: kotlin.String): HttpResponse<kotlin.String> {
 
-        val localVariableAuthNames = listOf<String>()
+        val localVariableAuthNames = listOf<String>("bearerAuth")
 
         val localVariableBody = 
             io.ktor.client.utils.EmptyContent
@@ -2142,7 +2162,7 @@ open class DefaultApi : ApiClient {
             "/v1/products/{productIdOrSlug}/firmware".replace("{" + "productIdOrSlug" + "}", "$productIdOrSlug"),
             query = localVariableQuery,
             headers = localVariableHeaders,
-            requiresAuthentication = false,
+            requiresAuthentication = true,
         )
 
         return request(
@@ -2163,7 +2183,7 @@ open class DefaultApi : ApiClient {
     @Suppress("UNCHECKED_CAST")
     open suspend fun v1ProductsProductIdOrSlugFirmwarePost(productIdOrSlug: kotlin.String, body: kotlin.String? = null): HttpResponse<kotlin.String> {
 
-        val localVariableAuthNames = listOf<String>()
+        val localVariableAuthNames = listOf<String>("bearerAuth")
 
         val localVariableBody = body
 
@@ -2175,7 +2195,7 @@ open class DefaultApi : ApiClient {
             "/v1/products/{productIdOrSlug}/firmware".replace("{" + "productIdOrSlug" + "}", "$productIdOrSlug"),
             query = localVariableQuery,
             headers = localVariableHeaders,
-            requiresAuthentication = false,
+            requiresAuthentication = true,
         )
 
         return jsonRequest(
@@ -2197,7 +2217,7 @@ open class DefaultApi : ApiClient {
     @Suppress("UNCHECKED_CAST")
     open suspend fun v1ProductsProductIdOrSlugFirmwareReleasePut(productIdOrSlug: kotlin.String, body: kotlin.String? = null): HttpResponse<kotlin.String> {
 
-        val localVariableAuthNames = listOf<String>()
+        val localVariableAuthNames = listOf<String>("bearerAuth")
 
         val localVariableBody = body
 
@@ -2209,7 +2229,7 @@ open class DefaultApi : ApiClient {
             "/v1/products/{productIdOrSlug}/firmware/release".replace("{" + "productIdOrSlug" + "}", "$productIdOrSlug"),
             query = localVariableQuery,
             headers = localVariableHeaders,
-            requiresAuthentication = false,
+            requiresAuthentication = true,
         )
 
         return jsonRequest(
@@ -2231,7 +2251,7 @@ open class DefaultApi : ApiClient {
     @Suppress("UNCHECKED_CAST")
     open suspend fun v1ProductsProductIdOrSlugFirmwareVersionBinaryGet(productIdOrSlug: kotlin.String, version: kotlin.String): HttpResponse<kotlin.String> {
 
-        val localVariableAuthNames = listOf<String>()
+        val localVariableAuthNames = listOf<String>("bearerAuth")
 
         val localVariableBody = 
             io.ktor.client.utils.EmptyContent
@@ -2244,7 +2264,7 @@ open class DefaultApi : ApiClient {
             "/v1/products/{productIdOrSlug}/firmware/{version}/binary".replace("{" + "productIdOrSlug" + "}", "$productIdOrSlug").replace("{" + "version" + "}", "$version"),
             query = localVariableQuery,
             headers = localVariableHeaders,
-            requiresAuthentication = false,
+            requiresAuthentication = true,
         )
 
         return request(
@@ -2265,7 +2285,7 @@ open class DefaultApi : ApiClient {
     @Suppress("UNCHECKED_CAST")
     open suspend fun v1ProductsProductIdOrSlugFirmwareVersionDelete(productIdOrSlug: kotlin.String, version: kotlin.String): HttpResponse<kotlin.String> {
 
-        val localVariableAuthNames = listOf<String>()
+        val localVariableAuthNames = listOf<String>("bearerAuth")
 
         val localVariableBody = 
             io.ktor.client.utils.EmptyContent
@@ -2278,7 +2298,7 @@ open class DefaultApi : ApiClient {
             "/v1/products/{productIdOrSlug}/firmware/{version}".replace("{" + "productIdOrSlug" + "}", "$productIdOrSlug").replace("{" + "version" + "}", "$version"),
             query = localVariableQuery,
             headers = localVariableHeaders,
-            requiresAuthentication = false,
+            requiresAuthentication = true,
         )
 
         return request(
@@ -2299,7 +2319,7 @@ open class DefaultApi : ApiClient {
     @Suppress("UNCHECKED_CAST")
     open suspend fun v1ProductsProductIdOrSlugFirmwareVersionGet(productIdOrSlug: kotlin.String, version: kotlin.String): HttpResponse<kotlin.String> {
 
-        val localVariableAuthNames = listOf<String>()
+        val localVariableAuthNames = listOf<String>("bearerAuth")
 
         val localVariableBody = 
             io.ktor.client.utils.EmptyContent
@@ -2312,7 +2332,7 @@ open class DefaultApi : ApiClient {
             "/v1/products/{productIdOrSlug}/firmware/{version}".replace("{" + "productIdOrSlug" + "}", "$productIdOrSlug").replace("{" + "version" + "}", "$version"),
             query = localVariableQuery,
             headers = localVariableHeaders,
-            requiresAuthentication = false,
+            requiresAuthentication = true,
         )
 
         return request(
@@ -2334,7 +2354,7 @@ open class DefaultApi : ApiClient {
     @Suppress("UNCHECKED_CAST")
     open suspend fun v1ProductsProductIdOrSlugFirmwareVersionPut(productIdOrSlug: kotlin.String, version: kotlin.String, body: kotlin.String? = null): HttpResponse<kotlin.String> {
 
-        val localVariableAuthNames = listOf<String>()
+        val localVariableAuthNames = listOf<String>("bearerAuth")
 
         val localVariableBody = body
 
@@ -2346,7 +2366,7 @@ open class DefaultApi : ApiClient {
             "/v1/products/{productIdOrSlug}/firmware/{version}".replace("{" + "productIdOrSlug" + "}", "$productIdOrSlug").replace("{" + "version" + "}", "$version"),
             query = localVariableQuery,
             headers = localVariableHeaders,
-            requiresAuthentication = false,
+            requiresAuthentication = true,
         )
 
         return jsonRequest(
@@ -2370,7 +2390,7 @@ open class DefaultApi : ApiClient {
     @Suppress("UNCHECKED_CAST")
     open suspend fun v1ProductsProductIdOrSlugFleetLocationsGet(productIdOrSlug: kotlin.String, deviceId: kotlin.String? = null, deviceName: kotlin.String? = null, groups: kotlin.String? = null): HttpResponse<kotlin.String> {
 
-        val localVariableAuthNames = listOf<String>()
+        val localVariableAuthNames = listOf<String>("bearerAuth")
 
         val localVariableBody = 
             io.ktor.client.utils.EmptyContent
@@ -2386,7 +2406,7 @@ open class DefaultApi : ApiClient {
             "/v1/products/{productIdOrSlug}/fleet_locations".replace("{" + "productIdOrSlug" + "}", "$productIdOrSlug"),
             query = localVariableQuery,
             headers = localVariableHeaders,
-            requiresAuthentication = false,
+            requiresAuthentication = true,
         )
 
         return request(
@@ -2406,7 +2426,7 @@ open class DefaultApi : ApiClient {
     @Suppress("UNCHECKED_CAST")
     open suspend fun v1ProductsProductIdOrSlugGet(productIdOrSlug: kotlin.String): HttpResponse<kotlin.String> {
 
-        val localVariableAuthNames = listOf<String>()
+        val localVariableAuthNames = listOf<String>("bearerAuth")
 
         val localVariableBody = 
             io.ktor.client.utils.EmptyContent
@@ -2419,7 +2439,7 @@ open class DefaultApi : ApiClient {
             "/v1/products/{productIdOrSlug}".replace("{" + "productIdOrSlug" + "}", "$productIdOrSlug"),
             query = localVariableQuery,
             headers = localVariableHeaders,
-            requiresAuthentication = false,
+            requiresAuthentication = true,
         )
 
         return request(
@@ -2440,7 +2460,7 @@ open class DefaultApi : ApiClient {
     @Suppress("UNCHECKED_CAST")
     open suspend fun v1ProductsProductIdOrSlugGroupsGet(productIdOrSlug: kotlin.String, name: kotlin.String? = null): HttpResponse<kotlin.String> {
 
-        val localVariableAuthNames = listOf<String>()
+        val localVariableAuthNames = listOf<String>("bearerAuth")
 
         val localVariableBody = 
             io.ktor.client.utils.EmptyContent
@@ -2454,7 +2474,7 @@ open class DefaultApi : ApiClient {
             "/v1/products/{productIdOrSlug}/groups".replace("{" + "productIdOrSlug" + "}", "$productIdOrSlug"),
             query = localVariableQuery,
             headers = localVariableHeaders,
-            requiresAuthentication = false,
+            requiresAuthentication = true,
         )
 
         return request(
@@ -2475,7 +2495,7 @@ open class DefaultApi : ApiClient {
     @Suppress("UNCHECKED_CAST")
     open suspend fun v1ProductsProductIdOrSlugGroupsGroupNameDelete(productIdOrSlug: kotlin.String, groupName: kotlin.String): HttpResponse<kotlin.String> {
 
-        val localVariableAuthNames = listOf<String>()
+        val localVariableAuthNames = listOf<String>("bearerAuth")
 
         val localVariableBody = 
             io.ktor.client.utils.EmptyContent
@@ -2488,7 +2508,7 @@ open class DefaultApi : ApiClient {
             "/v1/products/{productIdOrSlug}/groups/{groupName}".replace("{" + "productIdOrSlug" + "}", "$productIdOrSlug").replace("{" + "groupName" + "}", "$groupName"),
             query = localVariableQuery,
             headers = localVariableHeaders,
-            requiresAuthentication = false,
+            requiresAuthentication = true,
         )
 
         return request(
@@ -2509,7 +2529,7 @@ open class DefaultApi : ApiClient {
     @Suppress("UNCHECKED_CAST")
     open suspend fun v1ProductsProductIdOrSlugGroupsGroupNameGet(productIdOrSlug: kotlin.String, groupName: kotlin.String): HttpResponse<kotlin.String> {
 
-        val localVariableAuthNames = listOf<String>()
+        val localVariableAuthNames = listOf<String>("bearerAuth")
 
         val localVariableBody = 
             io.ktor.client.utils.EmptyContent
@@ -2522,7 +2542,7 @@ open class DefaultApi : ApiClient {
             "/v1/products/{productIdOrSlug}/groups/{groupName}".replace("{" + "productIdOrSlug" + "}", "$productIdOrSlug").replace("{" + "groupName" + "}", "$groupName"),
             query = localVariableQuery,
             headers = localVariableHeaders,
-            requiresAuthentication = false,
+            requiresAuthentication = true,
         )
 
         return request(
@@ -2544,7 +2564,7 @@ open class DefaultApi : ApiClient {
     @Suppress("UNCHECKED_CAST")
     open suspend fun v1ProductsProductIdOrSlugGroupsGroupNamePut(productIdOrSlug: kotlin.String, groupName: kotlin.String, body: kotlin.String? = null): HttpResponse<kotlin.String> {
 
-        val localVariableAuthNames = listOf<String>()
+        val localVariableAuthNames = listOf<String>("bearerAuth")
 
         val localVariableBody = body
 
@@ -2556,7 +2576,7 @@ open class DefaultApi : ApiClient {
             "/v1/products/{productIdOrSlug}/groups/{groupName}".replace("{" + "productIdOrSlug" + "}", "$productIdOrSlug").replace("{" + "groupName" + "}", "$groupName"),
             query = localVariableQuery,
             headers = localVariableHeaders,
-            requiresAuthentication = false,
+            requiresAuthentication = true,
         )
 
         return jsonRequest(
@@ -2578,7 +2598,7 @@ open class DefaultApi : ApiClient {
     @Suppress("UNCHECKED_CAST")
     open suspend fun v1ProductsProductIdOrSlugGroupsPost(productIdOrSlug: kotlin.String, body: kotlin.String? = null): HttpResponse<kotlin.String> {
 
-        val localVariableAuthNames = listOf<String>()
+        val localVariableAuthNames = listOf<String>("bearerAuth")
 
         val localVariableBody = body
 
@@ -2590,7 +2610,7 @@ open class DefaultApi : ApiClient {
             "/v1/products/{productIdOrSlug}/groups".replace("{" + "productIdOrSlug" + "}", "$productIdOrSlug"),
             query = localVariableQuery,
             headers = localVariableHeaders,
-            requiresAuthentication = false,
+            requiresAuthentication = true,
         )
 
         return jsonRequest(
@@ -2611,7 +2631,7 @@ open class DefaultApi : ApiClient {
     @Suppress("UNCHECKED_CAST")
     open suspend fun v1ProductsProductIdOrSlugImpactGet(productIdOrSlug: kotlin.String): HttpResponse<kotlin.String> {
 
-        val localVariableAuthNames = listOf<String>()
+        val localVariableAuthNames = listOf<String>("bearerAuth")
 
         val localVariableBody = 
             io.ktor.client.utils.EmptyContent
@@ -2624,7 +2644,7 @@ open class DefaultApi : ApiClient {
             "/v1/products/{productIdOrSlug}/impact".replace("{" + "productIdOrSlug" + "}", "$productIdOrSlug"),
             query = localVariableQuery,
             headers = localVariableHeaders,
-            requiresAuthentication = false,
+            requiresAuthentication = true,
         )
 
         return request(
@@ -2648,7 +2668,7 @@ open class DefaultApi : ApiClient {
     @Suppress("UNCHECKED_CAST")
     open suspend fun v1ProductsProductIdOrSlugLocationsDeviceIdGet(productIdOrSlug: kotlin.String, deviceId: kotlin.String, dateRange: kotlin.String? = null, rectBl: kotlin.String? = null, rectTr: kotlin.String? = null): HttpResponse<kotlin.String> {
 
-        val localVariableAuthNames = listOf<String>()
+        val localVariableAuthNames = listOf<String>("bearerAuth")
 
         val localVariableBody = 
             io.ktor.client.utils.EmptyContent
@@ -2664,7 +2684,7 @@ open class DefaultApi : ApiClient {
             "/v1/products/{productIdOrSlug}/locations/{deviceId}".replace("{" + "productIdOrSlug" + "}", "$productIdOrSlug").replace("{" + "deviceId" + "}", "$deviceId"),
             query = localVariableQuery,
             headers = localVariableHeaders,
-            requiresAuthentication = false,
+            requiresAuthentication = true,
         )
 
         return request(
@@ -2692,7 +2712,7 @@ open class DefaultApi : ApiClient {
     @Suppress("UNCHECKED_CAST")
     open suspend fun v1ProductsProductIdOrSlugLocationsGet(productIdOrSlug: kotlin.String, dateRange: kotlin.String? = null, rectBl: kotlin.String? = null, rectTr: kotlin.String? = null, deviceId: kotlin.String? = null, deviceName: kotlin.String? = null, groups: kotlin.String? = null, page: kotlin.String? = null, perPage: kotlin.String? = null): HttpResponse<kotlin.String> {
 
-        val localVariableAuthNames = listOf<String>()
+        val localVariableAuthNames = listOf<String>("bearerAuth")
 
         val localVariableBody = 
             io.ktor.client.utils.EmptyContent
@@ -2713,7 +2733,7 @@ open class DefaultApi : ApiClient {
             "/v1/products/{productIdOrSlug}/locations".replace("{" + "productIdOrSlug" + "}", "$productIdOrSlug"),
             query = localVariableQuery,
             headers = localVariableHeaders,
-            requiresAuthentication = false,
+            requiresAuthentication = true,
         )
 
         return request(
@@ -2739,7 +2759,7 @@ open class DefaultApi : ApiClient {
     @Suppress("UNCHECKED_CAST")
     open suspend fun v1ProductsProductIdOrSlugMetricsEventsGet(productIdOrSlug: kotlin.String, startDate: kotlin.String? = null, endDate: kotlin.String? = null, bucketSize: kotlin.String? = null, productFw: kotlin.String? = null, deviceOsVersion: kotlin.String? = null, deviceGroup: kotlin.String? = null): HttpResponse<kotlin.String> {
 
-        val localVariableAuthNames = listOf<String>()
+        val localVariableAuthNames = listOf<String>("bearerAuth")
 
         val localVariableBody = 
             io.ktor.client.utils.EmptyContent
@@ -2758,7 +2778,7 @@ open class DefaultApi : ApiClient {
             "/v1/products/{productIdOrSlug}/metrics/events".replace("{" + "productIdOrSlug" + "}", "$productIdOrSlug"),
             query = localVariableQuery,
             headers = localVariableHeaders,
-            requiresAuthentication = false,
+            requiresAuthentication = true,
         )
 
         return request(
@@ -2784,7 +2804,7 @@ open class DefaultApi : ApiClient {
     @Suppress("UNCHECKED_CAST")
     open suspend fun v1ProductsProductIdOrSlugMetricsFunctionsGet(productIdOrSlug: kotlin.String, startDate: kotlin.String? = null, endDate: kotlin.String? = null, bucketSize: kotlin.String? = null, productFw: kotlin.String? = null, deviceOsVersion: kotlin.String? = null, deviceGroup: kotlin.String? = null): HttpResponse<kotlin.String> {
 
-        val localVariableAuthNames = listOf<String>()
+        val localVariableAuthNames = listOf<String>("bearerAuth")
 
         val localVariableBody = 
             io.ktor.client.utils.EmptyContent
@@ -2803,7 +2823,7 @@ open class DefaultApi : ApiClient {
             "/v1/products/{productIdOrSlug}/metrics/functions".replace("{" + "productIdOrSlug" + "}", "$productIdOrSlug"),
             query = localVariableQuery,
             headers = localVariableHeaders,
-            requiresAuthentication = false,
+            requiresAuthentication = true,
         )
 
         return request(
@@ -2829,7 +2849,7 @@ open class DefaultApi : ApiClient {
     @Suppress("UNCHECKED_CAST")
     open suspend fun v1ProductsProductIdOrSlugMetricsIntegrationGet(productIdOrSlug: kotlin.String, startDate: kotlin.String? = null, endDate: kotlin.String? = null, bucketSize: kotlin.String? = null, productFw: kotlin.String? = null, deviceOsVersion: kotlin.String? = null, deviceGroup: kotlin.String? = null): HttpResponse<kotlin.String> {
 
-        val localVariableAuthNames = listOf<String>()
+        val localVariableAuthNames = listOf<String>("bearerAuth")
 
         val localVariableBody = 
             io.ktor.client.utils.EmptyContent
@@ -2848,7 +2868,7 @@ open class DefaultApi : ApiClient {
             "/v1/products/{productIdOrSlug}/metrics/integration".replace("{" + "productIdOrSlug" + "}", "$productIdOrSlug"),
             query = localVariableQuery,
             headers = localVariableHeaders,
-            requiresAuthentication = false,
+            requiresAuthentication = true,
         )
 
         return request(
@@ -2874,7 +2894,7 @@ open class DefaultApi : ApiClient {
     @Suppress("UNCHECKED_CAST")
     open suspend fun v1ProductsProductIdOrSlugMetricsOnlineGet(productIdOrSlug: kotlin.String, startDate: kotlin.String? = null, endDate: kotlin.String? = null, bucketSize: kotlin.String? = null, productFw: kotlin.String? = null, deviceOsVersion: kotlin.String? = null, deviceGroup: kotlin.String? = null): HttpResponse<kotlin.String> {
 
-        val localVariableAuthNames = listOf<String>()
+        val localVariableAuthNames = listOf<String>("bearerAuth")
 
         val localVariableBody = 
             io.ktor.client.utils.EmptyContent
@@ -2893,7 +2913,7 @@ open class DefaultApi : ApiClient {
             "/v1/products/{productIdOrSlug}/metrics/online".replace("{" + "productIdOrSlug" + "}", "$productIdOrSlug"),
             query = localVariableQuery,
             headers = localVariableHeaders,
-            requiresAuthentication = false,
+            requiresAuthentication = true,
         )
 
         return request(
@@ -2919,7 +2939,7 @@ open class DefaultApi : ApiClient {
     @Suppress("UNCHECKED_CAST")
     open suspend fun v1ProductsProductIdOrSlugMetricsVariablesGet(productIdOrSlug: kotlin.String, startDate: kotlin.String? = null, endDate: kotlin.String? = null, bucketSize: kotlin.String? = null, productFw: kotlin.String? = null, deviceOsVersion: kotlin.String? = null, deviceGroup: kotlin.String? = null): HttpResponse<kotlin.String> {
 
-        val localVariableAuthNames = listOf<String>()
+        val localVariableAuthNames = listOf<String>("bearerAuth")
 
         val localVariableBody = 
             io.ktor.client.utils.EmptyContent
@@ -2938,7 +2958,7 @@ open class DefaultApi : ApiClient {
             "/v1/products/{productIdOrSlug}/metrics/variables".replace("{" + "productIdOrSlug" + "}", "$productIdOrSlug"),
             query = localVariableQuery,
             headers = localVariableHeaders,
-            requiresAuthentication = false,
+            requiresAuthentication = true,
         )
 
         return request(
@@ -2958,7 +2978,7 @@ open class DefaultApi : ApiClient {
     @Suppress("UNCHECKED_CAST")
     open suspend fun v1ProductsProductIdOrSlugSimsDataUsageGet(productIdOrSlug: kotlin.String): HttpResponse<kotlin.String> {
 
-        val localVariableAuthNames = listOf<String>()
+        val localVariableAuthNames = listOf<String>("bearerAuth")
 
         val localVariableBody = 
             io.ktor.client.utils.EmptyContent
@@ -2971,7 +2991,7 @@ open class DefaultApi : ApiClient {
             "/v1/products/{productIdOrSlug}/sims/data_usage".replace("{" + "productIdOrSlug" + "}", "$productIdOrSlug"),
             query = localVariableQuery,
             headers = localVariableHeaders,
-            requiresAuthentication = false,
+            requiresAuthentication = true,
         )
 
         return request(
@@ -2992,7 +3012,7 @@ open class DefaultApi : ApiClient {
     @Suppress("UNCHECKED_CAST")
     open suspend fun v1ProductsProductIdOrSlugSimsPost(productIdOrSlug: kotlin.String, body: kotlin.String? = null): HttpResponse<kotlin.String> {
 
-        val localVariableAuthNames = listOf<String>()
+        val localVariableAuthNames = listOf<String>("bearerAuth")
 
         val localVariableBody = body
 
@@ -3004,7 +3024,7 @@ open class DefaultApi : ApiClient {
             "/v1/products/{productIdOrSlug}/sims".replace("{" + "productIdOrSlug" + "}", "$productIdOrSlug"),
             query = localVariableQuery,
             headers = localVariableHeaders,
-            requiresAuthentication = false,
+            requiresAuthentication = true,
         )
 
         return jsonRequest(
@@ -3025,7 +3045,7 @@ open class DefaultApi : ApiClient {
     @Suppress("UNCHECKED_CAST")
     open suspend fun v1ProductsProductIdOrSlugTeamGet(productIdOrSlug: kotlin.String): HttpResponse<kotlin.String> {
 
-        val localVariableAuthNames = listOf<String>()
+        val localVariableAuthNames = listOf<String>("bearerAuth")
 
         val localVariableBody = 
             io.ktor.client.utils.EmptyContent
@@ -3038,7 +3058,7 @@ open class DefaultApi : ApiClient {
             "/v1/products/{productIdOrSlug}/team".replace("{" + "productIdOrSlug" + "}", "$productIdOrSlug"),
             query = localVariableQuery,
             headers = localVariableHeaders,
-            requiresAuthentication = false,
+            requiresAuthentication = true,
         )
 
         return request(
@@ -3059,7 +3079,7 @@ open class DefaultApi : ApiClient {
     @Suppress("UNCHECKED_CAST")
     open suspend fun v1ProductsProductIdOrSlugTeamPost(productIdOrSlug: kotlin.String, body: kotlin.String? = null): HttpResponse<kotlin.String> {
 
-        val localVariableAuthNames = listOf<String>()
+        val localVariableAuthNames = listOf<String>("bearerAuth")
 
         val localVariableBody = body
 
@@ -3071,7 +3091,7 @@ open class DefaultApi : ApiClient {
             "/v1/products/{productIdOrSlug}/team".replace("{" + "productIdOrSlug" + "}", "$productIdOrSlug"),
             query = localVariableQuery,
             headers = localVariableHeaders,
-            requiresAuthentication = false,
+            requiresAuthentication = true,
         )
 
         return jsonRequest(
@@ -3093,7 +3113,7 @@ open class DefaultApi : ApiClient {
     @Suppress("UNCHECKED_CAST")
     open suspend fun v1ProductsProductIdOrSlugTeamUsernameDelete(productIdOrSlug: kotlin.String, username: kotlin.String): HttpResponse<kotlin.String> {
 
-        val localVariableAuthNames = listOf<String>()
+        val localVariableAuthNames = listOf<String>("bearerAuth")
 
         val localVariableBody = 
             io.ktor.client.utils.EmptyContent
@@ -3106,7 +3126,7 @@ open class DefaultApi : ApiClient {
             "/v1/products/{productIdOrSlug}/team/{username}".replace("{" + "productIdOrSlug" + "}", "$productIdOrSlug").replace("{" + "username" + "}", "$username"),
             query = localVariableQuery,
             headers = localVariableHeaders,
-            requiresAuthentication = false,
+            requiresAuthentication = true,
         )
 
         return request(
@@ -3128,7 +3148,7 @@ open class DefaultApi : ApiClient {
     @Suppress("UNCHECKED_CAST")
     open suspend fun v1ProductsProductIdOrSlugTeamUsernamePost(productIdOrSlug: kotlin.String, username: kotlin.String, contentType: kotlin.String): HttpResponse<kotlin.String> {
 
-        val localVariableAuthNames = listOf<String>()
+        val localVariableAuthNames = listOf<String>("bearerAuth")
 
         val localVariableBody = 
             io.ktor.client.utils.EmptyContent
@@ -3142,7 +3162,7 @@ open class DefaultApi : ApiClient {
             "/v1/products/{productIdOrSlug}/team/{username}".replace("{" + "productIdOrSlug" + "}", "$productIdOrSlug").replace("{" + "username" + "}", "$username"),
             query = localVariableQuery,
             headers = localVariableHeaders,
-            requiresAuthentication = false,
+            requiresAuthentication = true,
         )
 
         return request(
@@ -3164,7 +3184,7 @@ open class DefaultApi : ApiClient {
     @Suppress("UNCHECKED_CAST")
     open suspend fun v1ProductsProductIdOrSlugTeamUsernameTokenPut(productIdOrSlug: kotlin.String, username: kotlin.String, contentType: kotlin.String): HttpResponse<kotlin.String> {
 
-        val localVariableAuthNames = listOf<String>()
+        val localVariableAuthNames = listOf<String>("bearerAuth")
 
         val localVariableBody = 
             io.ktor.client.utils.EmptyContent
@@ -3178,7 +3198,7 @@ open class DefaultApi : ApiClient {
             "/v1/products/{productIdOrSlug}/team/{username}/token".replace("{" + "productIdOrSlug" + "}", "$productIdOrSlug").replace("{" + "username" + "}", "$username"),
             query = localVariableQuery,
             headers = localVariableHeaders,
-            requiresAuthentication = false,
+            requiresAuthentication = true,
         )
 
         return request(
@@ -3198,7 +3218,7 @@ open class DefaultApi : ApiClient {
     @Suppress("UNCHECKED_CAST")
     open suspend fun v1SerialNumbersSerialNumberGet(serialNumber: kotlin.String): HttpResponse<kotlin.String> {
 
-        val localVariableAuthNames = listOf<String>()
+        val localVariableAuthNames = listOf<String>("bearerAuth")
 
         val localVariableBody = 
             io.ktor.client.utils.EmptyContent
@@ -3211,7 +3231,7 @@ open class DefaultApi : ApiClient {
             "/v1/serial_numbers/{serial_number}".replace("{" + "serial_number" + "}", "$serialNumber"),
             query = localVariableQuery,
             headers = localVariableHeaders,
-            requiresAuthentication = false,
+            requiresAuthentication = true,
         )
 
         return request(
@@ -3236,7 +3256,7 @@ open class DefaultApi : ApiClient {
     @Suppress("UNCHECKED_CAST")
     open suspend fun v1SimsGet(productIdOrSlug: kotlin.String, iccid: kotlin.String? = null, deviceId: kotlin.String? = null, deviceName: kotlin.String? = null, page: kotlin.String? = null, perPage: kotlin.String? = null): HttpResponse<kotlin.String> {
 
-        val localVariableAuthNames = listOf<String>()
+        val localVariableAuthNames = listOf<String>("bearerAuth")
 
         val localVariableBody = 
             io.ktor.client.utils.EmptyContent
@@ -3254,7 +3274,7 @@ open class DefaultApi : ApiClient {
             "/v1/sims".replace("{" + "productIdOrSlug" + "}", "$productIdOrSlug"),
             query = localVariableQuery,
             headers = localVariableHeaders,
-            requiresAuthentication = false,
+            requiresAuthentication = true,
         )
 
         return request(
@@ -3275,7 +3295,7 @@ open class DefaultApi : ApiClient {
     @Suppress("UNCHECKED_CAST")
     open suspend fun v1SimsIccidDataUsageGet(iccid: kotlin.String, productIdOrSlug: kotlin.String): HttpResponse<kotlin.String> {
 
-        val localVariableAuthNames = listOf<String>()
+        val localVariableAuthNames = listOf<String>("bearerAuth")
 
         val localVariableBody = 
             io.ktor.client.utils.EmptyContent
@@ -3288,7 +3308,7 @@ open class DefaultApi : ApiClient {
             "/v1/sims/{iccid}/data_usage".replace("{" + "iccid" + "}", "$iccid").replace("{" + "productIdOrSlug" + "}", "$productIdOrSlug"),
             query = localVariableQuery,
             headers = localVariableHeaders,
-            requiresAuthentication = false,
+            requiresAuthentication = true,
         )
 
         return request(
@@ -3309,7 +3329,7 @@ open class DefaultApi : ApiClient {
     @Suppress("UNCHECKED_CAST")
     open suspend fun v1SimsIccidDelete(iccid: kotlin.String, productIdOrSlug: kotlin.String): HttpResponse<kotlin.String> {
 
-        val localVariableAuthNames = listOf<String>()
+        val localVariableAuthNames = listOf<String>("bearerAuth")
 
         val localVariableBody = 
             io.ktor.client.utils.EmptyContent
@@ -3322,7 +3342,7 @@ open class DefaultApi : ApiClient {
             "/v1/sims/{iccid}".replace("{" + "iccid" + "}", "$iccid").replace("{" + "productIdOrSlug" + "}", "$productIdOrSlug"),
             query = localVariableQuery,
             headers = localVariableHeaders,
-            requiresAuthentication = false,
+            requiresAuthentication = true,
         )
 
         return request(
@@ -3343,7 +3363,7 @@ open class DefaultApi : ApiClient {
     @Suppress("UNCHECKED_CAST")
     open suspend fun v1SimsIccidGet(iccid: kotlin.String, productIdOrSlug: kotlin.String): HttpResponse<kotlin.String> {
 
-        val localVariableAuthNames = listOf<String>()
+        val localVariableAuthNames = listOf<String>("bearerAuth")
 
         val localVariableBody = 
             io.ktor.client.utils.EmptyContent
@@ -3356,7 +3376,7 @@ open class DefaultApi : ApiClient {
             "/v1/sims/{iccid}".replace("{" + "iccid" + "}", "$iccid").replace("{" + "productIdOrSlug" + "}", "$productIdOrSlug"),
             query = localVariableQuery,
             headers = localVariableHeaders,
-            requiresAuthentication = false,
+            requiresAuthentication = true,
         )
 
         return request(
@@ -3378,7 +3398,7 @@ open class DefaultApi : ApiClient {
     @Suppress("UNCHECKED_CAST")
     open suspend fun v1SimsIccidPut(iccid: kotlin.String, productIdOrSlug: kotlin.String, body: kotlin.String? = null): HttpResponse<kotlin.String> {
 
-        val localVariableAuthNames = listOf<String>()
+        val localVariableAuthNames = listOf<String>("bearerAuth")
 
         val localVariableBody = body
 
@@ -3390,7 +3410,7 @@ open class DefaultApi : ApiClient {
             "/v1/sims/{iccid}".replace("{" + "iccid" + "}", "$iccid").replace("{" + "productIdOrSlug" + "}", "$productIdOrSlug"),
             query = localVariableQuery,
             headers = localVariableHeaders,
-            requiresAuthentication = false,
+            requiresAuthentication = true,
         )
 
         return jsonRequest(
@@ -3412,7 +3432,7 @@ open class DefaultApi : ApiClient {
     @Suppress("UNCHECKED_CAST")
     open suspend fun v1SimsIccidStatusGet(iccid: kotlin.String, productIdOrSlug: kotlin.String): HttpResponse<kotlin.String> {
 
-        val localVariableAuthNames = listOf<String>()
+        val localVariableAuthNames = listOf<String>("bearerAuth")
 
         val localVariableBody = 
             io.ktor.client.utils.EmptyContent
@@ -3425,7 +3445,7 @@ open class DefaultApi : ApiClient {
             "/v1/sims/{iccid}/status".replace("{" + "iccid" + "}", "$iccid").replace("{" + "productIdOrSlug" + "}", "$productIdOrSlug"),
             query = localVariableQuery,
             headers = localVariableHeaders,
-            requiresAuthentication = false,
+            requiresAuthentication = true,
         )
 
         return request(
@@ -3444,7 +3464,7 @@ open class DefaultApi : ApiClient {
     @Suppress("UNCHECKED_CAST")
     open suspend fun v1UserProductsGet(): HttpResponse<kotlin.String> {
 
-        val localVariableAuthNames = listOf<String>()
+        val localVariableAuthNames = listOf<String>("bearerAuth")
 
         val localVariableBody = 
             io.ktor.client.utils.EmptyContent
@@ -3457,7 +3477,7 @@ open class DefaultApi : ApiClient {
             "/v1/user/products",
             query = localVariableQuery,
             headers = localVariableHeaders,
-            requiresAuthentication = false,
+            requiresAuthentication = true,
         )
 
         return request(
@@ -3476,7 +3496,7 @@ open class DefaultApi : ApiClient {
     @Suppress("UNCHECKED_CAST")
     open suspend fun v1UserServiceAgreementsGet(): HttpResponse<kotlin.String> {
 
-        val localVariableAuthNames = listOf<String>()
+        val localVariableAuthNames = listOf<String>("bearerAuth")
 
         val localVariableBody = 
             io.ktor.client.utils.EmptyContent
@@ -3489,7 +3509,7 @@ open class DefaultApi : ApiClient {
             "/v1/user/service_agreements",
             query = localVariableQuery,
             headers = localVariableHeaders,
-            requiresAuthentication = false,
+            requiresAuthentication = true,
         )
 
         return request(
@@ -3509,7 +3529,7 @@ open class DefaultApi : ApiClient {
     @Suppress("UNCHECKED_CAST")
     open suspend fun v1UserServiceAgreementsServiceAgreementIdNotificationsGet(serviceAgreementId: kotlin.String): HttpResponse<kotlin.String> {
 
-        val localVariableAuthNames = listOf<String>()
+        val localVariableAuthNames = listOf<String>("bearerAuth")
 
         val localVariableBody = 
             io.ktor.client.utils.EmptyContent
@@ -3522,7 +3542,7 @@ open class DefaultApi : ApiClient {
             "/v1/user/service_agreements/{serviceAgreementId}/notifications".replace("{" + "serviceAgreementId" + "}", "$serviceAgreementId"),
             query = localVariableQuery,
             headers = localVariableHeaders,
-            requiresAuthentication = false,
+            requiresAuthentication = true,
         )
 
         return request(
@@ -3543,7 +3563,7 @@ open class DefaultApi : ApiClient {
     @Suppress("UNCHECKED_CAST")
     open suspend fun v1UserServiceAgreementsServiceAgreementIdUsageReportsPost(serviceAgreementId: kotlin.String, body: kotlin.String? = null): HttpResponse<kotlin.String> {
 
-        val localVariableAuthNames = listOf<String>()
+        val localVariableAuthNames = listOf<String>("bearerAuth")
 
         val localVariableBody = body
 
@@ -3555,7 +3575,7 @@ open class DefaultApi : ApiClient {
             "/v1/user/service_agreements/{serviceAgreementId}/usage_reports".replace("{" + "serviceAgreementId" + "}", "$serviceAgreementId"),
             query = localVariableQuery,
             headers = localVariableHeaders,
-            requiresAuthentication = false,
+            requiresAuthentication = true,
         )
 
         return jsonRequest(
@@ -3576,7 +3596,7 @@ open class DefaultApi : ApiClient {
     @Suppress("UNCHECKED_CAST")
     open suspend fun v1UserUsageReportsUsageReportIdGet(usageReportId: kotlin.String): HttpResponse<kotlin.String> {
 
-        val localVariableAuthNames = listOf<String>()
+        val localVariableAuthNames = listOf<String>("bearerAuth")
 
         val localVariableBody = 
             io.ktor.client.utils.EmptyContent
@@ -3589,7 +3609,7 @@ open class DefaultApi : ApiClient {
             "/v1/user/usage_reports/{usageReportId}".replace("{" + "usageReportId" + "}", "$usageReportId"),
             query = localVariableQuery,
             headers = localVariableHeaders,
-            requiresAuthentication = false,
+            requiresAuthentication = true,
         )
 
         return request(
@@ -3612,7 +3632,7 @@ open class DefaultApi : ApiClient {
     @Suppress("UNCHECKED_CAST")
     open suspend fun v1UsersLedgersGet(orgIdOrSlug: kotlin.String, page: kotlin.String? = null, perPage: kotlin.String? = null, archived: kotlin.String? = null): HttpResponse<kotlin.String> {
 
-        val localVariableAuthNames = listOf<String>()
+        val localVariableAuthNames = listOf<String>("bearerAuth")
 
         val localVariableBody = 
             io.ktor.client.utils.EmptyContent
@@ -3628,7 +3648,7 @@ open class DefaultApi : ApiClient {
             "/v1/users/ledgers".replace("{" + "orgIdOrSlug" + "}", "$orgIdOrSlug"),
             query = localVariableQuery,
             headers = localVariableHeaders,
-            requiresAuthentication = false,
+            requiresAuthentication = true,
         )
 
         return request(
@@ -3649,7 +3669,7 @@ open class DefaultApi : ApiClient {
     @Suppress("UNCHECKED_CAST")
     open suspend fun v1UsersLedgersLedgerNameDelete(orgIdOrSlug: kotlin.String, ledgerName: kotlin.String): HttpResponse<kotlin.String> {
 
-        val localVariableAuthNames = listOf<String>()
+        val localVariableAuthNames = listOf<String>("bearerAuth")
 
         val localVariableBody = 
             io.ktor.client.utils.EmptyContent
@@ -3662,7 +3682,7 @@ open class DefaultApi : ApiClient {
             "/v1/users/ledgers/{ledgerName}".replace("{" + "orgIdOrSlug" + "}", "$orgIdOrSlug").replace("{" + "ledgerName" + "}", "$ledgerName"),
             query = localVariableQuery,
             headers = localVariableHeaders,
-            requiresAuthentication = false,
+            requiresAuthentication = true,
         )
 
         return request(
@@ -3683,7 +3703,7 @@ open class DefaultApi : ApiClient {
     @Suppress("UNCHECKED_CAST")
     open suspend fun v1UsersLedgersLedgerNameGet(orgIdOrSlug: kotlin.String, ledgerName: kotlin.String): HttpResponse<kotlin.String> {
 
-        val localVariableAuthNames = listOf<String>()
+        val localVariableAuthNames = listOf<String>("bearerAuth")
 
         val localVariableBody = 
             io.ktor.client.utils.EmptyContent
@@ -3696,7 +3716,7 @@ open class DefaultApi : ApiClient {
             "/v1/users/ledgers/{ledgerName}".replace("{" + "orgIdOrSlug" + "}", "$orgIdOrSlug").replace("{" + "ledgerName" + "}", "$ledgerName"),
             query = localVariableQuery,
             headers = localVariableHeaders,
-            requiresAuthentication = false,
+            requiresAuthentication = true,
         )
 
         return request(
@@ -3719,7 +3739,7 @@ open class DefaultApi : ApiClient {
     @Suppress("UNCHECKED_CAST")
     open suspend fun v1UsersLedgersLedgerNameInstancesGet(orgIdOrSlug: kotlin.String, ledgerName: kotlin.String, page: kotlin.String? = null, perPage: kotlin.String? = null): HttpResponse<kotlin.String> {
 
-        val localVariableAuthNames = listOf<String>()
+        val localVariableAuthNames = listOf<String>("bearerAuth")
 
         val localVariableBody = 
             io.ktor.client.utils.EmptyContent
@@ -3734,7 +3754,7 @@ open class DefaultApi : ApiClient {
             "/v1/users/ledgers/{ledgerName}/instances".replace("{" + "orgIdOrSlug" + "}", "$orgIdOrSlug").replace("{" + "ledgerName" + "}", "$ledgerName"),
             query = localVariableQuery,
             headers = localVariableHeaders,
-            requiresAuthentication = false,
+            requiresAuthentication = true,
         )
 
         return request(
@@ -3756,7 +3776,7 @@ open class DefaultApi : ApiClient {
     @Suppress("UNCHECKED_CAST")
     open suspend fun v1UsersLedgersLedgerNameInstancesScopeValueDelete(orgIdOrSlug: kotlin.String, ledgerName: kotlin.String, scopeValue: kotlin.String): HttpResponse<kotlin.String> {
 
-        val localVariableAuthNames = listOf<String>()
+        val localVariableAuthNames = listOf<String>("bearerAuth")
 
         val localVariableBody = 
             io.ktor.client.utils.EmptyContent
@@ -3769,7 +3789,7 @@ open class DefaultApi : ApiClient {
             "/v1/users/ledgers/{ledgerName}/instances/{scopeValue}".replace("{" + "orgIdOrSlug" + "}", "$orgIdOrSlug").replace("{" + "ledgerName" + "}", "$ledgerName").replace("{" + "scopeValue" + "}", "$scopeValue"),
             query = localVariableQuery,
             headers = localVariableHeaders,
-            requiresAuthentication = false,
+            requiresAuthentication = true,
         )
 
         return request(
@@ -3791,7 +3811,7 @@ open class DefaultApi : ApiClient {
     @Suppress("UNCHECKED_CAST")
     open suspend fun v1UsersLedgersLedgerNameInstancesScopeValueGet(orgIdOrSlug: kotlin.String, ledgerName: kotlin.String, scopeValue: kotlin.String): HttpResponse<kotlin.String> {
 
-        val localVariableAuthNames = listOf<String>()
+        val localVariableAuthNames = listOf<String>("bearerAuth")
 
         val localVariableBody = 
             io.ktor.client.utils.EmptyContent
@@ -3804,7 +3824,7 @@ open class DefaultApi : ApiClient {
             "/v1/users/ledgers/{ledgerName}/instances/{scopeValue}".replace("{" + "orgIdOrSlug" + "}", "$orgIdOrSlug").replace("{" + "ledgerName" + "}", "$ledgerName").replace("{" + "scopeValue" + "}", "$scopeValue"),
             query = localVariableQuery,
             headers = localVariableHeaders,
-            requiresAuthentication = false,
+            requiresAuthentication = true,
         )
 
         return request(
@@ -3827,7 +3847,7 @@ open class DefaultApi : ApiClient {
     @Suppress("UNCHECKED_CAST")
     open suspend fun v1UsersLedgersLedgerNameInstancesScopeValuePut(orgIdOrSlug: kotlin.String, ledgerName: kotlin.String, scopeValue: kotlin.String, body: kotlin.String? = null): HttpResponse<kotlin.String> {
 
-        val localVariableAuthNames = listOf<String>()
+        val localVariableAuthNames = listOf<String>("bearerAuth")
 
         val localVariableBody = body
 
@@ -3839,7 +3859,7 @@ open class DefaultApi : ApiClient {
             "/v1/users/ledgers/{ledgerName}/instances/{scopeValue}".replace("{" + "orgIdOrSlug" + "}", "$orgIdOrSlug").replace("{" + "ledgerName" + "}", "$ledgerName").replace("{" + "scopeValue" + "}", "$scopeValue"),
             query = localVariableQuery,
             headers = localVariableHeaders,
-            requiresAuthentication = false,
+            requiresAuthentication = true,
         )
 
         return jsonRequest(
@@ -3864,7 +3884,7 @@ open class DefaultApi : ApiClient {
     @Suppress("UNCHECKED_CAST")
     open suspend fun v1UsersLedgersLedgerNameInstancesScopeValueVersionsGet(orgIdOrSlug: kotlin.String, ledgerName: kotlin.String, scopeValue: kotlin.String, replacedBefore: kotlin.String? = null, replacedAfter: kotlin.String? = null): HttpResponse<kotlin.String> {
 
-        val localVariableAuthNames = listOf<String>()
+        val localVariableAuthNames = listOf<String>("bearerAuth")
 
         val localVariableBody = 
             io.ktor.client.utils.EmptyContent
@@ -3879,7 +3899,7 @@ open class DefaultApi : ApiClient {
             "/v1/users/ledgers/{ledgerName}/instances/{scopeValue}/versions".replace("{" + "orgIdOrSlug" + "}", "$orgIdOrSlug").replace("{" + "ledgerName" + "}", "$ledgerName").replace("{" + "scopeValue" + "}", "$scopeValue"),
             query = localVariableQuery,
             headers = localVariableHeaders,
-            requiresAuthentication = false,
+            requiresAuthentication = true,
         )
 
         return request(
@@ -3902,7 +3922,7 @@ open class DefaultApi : ApiClient {
     @Suppress("UNCHECKED_CAST")
     open suspend fun v1UsersLedgersLedgerNameInstancesScopeValueVersionsVersionGet(orgIdOrSlug: kotlin.String, ledgerName: kotlin.String, scopeValue: kotlin.String, version: kotlin.String): HttpResponse<kotlin.String> {
 
-        val localVariableAuthNames = listOf<String>()
+        val localVariableAuthNames = listOf<String>("bearerAuth")
 
         val localVariableBody = 
             io.ktor.client.utils.EmptyContent
@@ -3915,7 +3935,7 @@ open class DefaultApi : ApiClient {
             "/v1/users/ledgers/{ledgerName}/instances/{scopeValue}/versions/{version}".replace("{" + "orgIdOrSlug" + "}", "$orgIdOrSlug").replace("{" + "ledgerName" + "}", "$ledgerName").replace("{" + "scopeValue" + "}", "$scopeValue").replace("{" + "version" + "}", "$version"),
             query = localVariableQuery,
             headers = localVariableHeaders,
-            requiresAuthentication = false,
+            requiresAuthentication = true,
         )
 
         return request(
@@ -3937,7 +3957,7 @@ open class DefaultApi : ApiClient {
     @Suppress("UNCHECKED_CAST")
     open suspend fun v1UsersLedgersLedgerNamePut(orgIdOrSlug: kotlin.String, ledgerName: kotlin.String, body: kotlin.String? = null): HttpResponse<kotlin.String> {
 
-        val localVariableAuthNames = listOf<String>()
+        val localVariableAuthNames = listOf<String>("bearerAuth")
 
         val localVariableBody = body
 
@@ -3949,7 +3969,7 @@ open class DefaultApi : ApiClient {
             "/v1/users/ledgers/{ledgerName}".replace("{" + "orgIdOrSlug" + "}", "$orgIdOrSlug").replace("{" + "ledgerName" + "}", "$ledgerName"),
             query = localVariableQuery,
             headers = localVariableHeaders,
-            requiresAuthentication = false,
+            requiresAuthentication = true,
         )
 
         return jsonRequest(
@@ -3971,7 +3991,7 @@ open class DefaultApi : ApiClient {
     @Suppress("UNCHECKED_CAST")
     open suspend fun v1UsersLedgersPost(orgIdOrSlug: kotlin.String, body: kotlin.String? = null): HttpResponse<kotlin.String> {
 
-        val localVariableAuthNames = listOf<String>()
+        val localVariableAuthNames = listOf<String>("bearerAuth")
 
         val localVariableBody = body
 
@@ -3983,7 +4003,7 @@ open class DefaultApi : ApiClient {
             "/v1/users/ledgers".replace("{" + "orgIdOrSlug" + "}", "$orgIdOrSlug"),
             query = localVariableQuery,
             headers = localVariableHeaders,
-            requiresAuthentication = false,
+            requiresAuthentication = true,
         )
 
         return jsonRequest(
@@ -4005,7 +4025,7 @@ open class DefaultApi : ApiClient {
     @Suppress("UNCHECKED_CAST")
     open suspend fun v1UsersLogicExecutePost(orgIdOrSlug: kotlin.String, body: kotlin.String? = null): HttpResponse<kotlin.String> {
 
-        val localVariableAuthNames = listOf<String>()
+        val localVariableAuthNames = listOf<String>("bearerAuth")
 
         val localVariableBody = body
 
@@ -4017,7 +4037,7 @@ open class DefaultApi : ApiClient {
             "/v1/users/logic/execute".replace("{" + "orgIdOrSlug" + "}", "$orgIdOrSlug"),
             query = localVariableQuery,
             headers = localVariableHeaders,
-            requiresAuthentication = false,
+            requiresAuthentication = true,
         )
 
         return jsonRequest(
@@ -4039,7 +4059,7 @@ open class DefaultApi : ApiClient {
     @Suppress("UNCHECKED_CAST")
     open suspend fun v1UsersLogicFunctionsGet(orgIdOrSlug: kotlin.String, todayStats: kotlin.String? = null): HttpResponse<kotlin.String> {
 
-        val localVariableAuthNames = listOf<String>()
+        val localVariableAuthNames = listOf<String>("bearerAuth")
 
         val localVariableBody = 
             io.ktor.client.utils.EmptyContent
@@ -4053,7 +4073,7 @@ open class DefaultApi : ApiClient {
             "/v1/users/logic/functions".replace("{" + "orgIdOrSlug" + "}", "$orgIdOrSlug"),
             query = localVariableQuery,
             headers = localVariableHeaders,
-            requiresAuthentication = false,
+            requiresAuthentication = true,
         )
 
         return request(
@@ -4074,7 +4094,7 @@ open class DefaultApi : ApiClient {
     @Suppress("UNCHECKED_CAST")
     open suspend fun v1UsersLogicFunctionsLogicFunctionIdDelete(orgIdOrSlug: kotlin.String, logicFunctionId: kotlin.String): HttpResponse<kotlin.String> {
 
-        val localVariableAuthNames = listOf<String>()
+        val localVariableAuthNames = listOf<String>("bearerAuth")
 
         val localVariableBody = 
             io.ktor.client.utils.EmptyContent
@@ -4087,7 +4107,7 @@ open class DefaultApi : ApiClient {
             "/v1/users/logic/functions/{logicFunctionId}".replace("{" + "orgIdOrSlug" + "}", "$orgIdOrSlug").replace("{" + "logicFunctionId" + "}", "$logicFunctionId"),
             query = localVariableQuery,
             headers = localVariableHeaders,
-            requiresAuthentication = false,
+            requiresAuthentication = true,
         )
 
         return request(
@@ -4108,7 +4128,7 @@ open class DefaultApi : ApiClient {
     @Suppress("UNCHECKED_CAST")
     open suspend fun v1UsersLogicFunctionsLogicFunctionIdGet(orgIdOrSlug: kotlin.String, logicFunctionId: kotlin.String): HttpResponse<kotlin.String> {
 
-        val localVariableAuthNames = listOf<String>()
+        val localVariableAuthNames = listOf<String>("bearerAuth")
 
         val localVariableBody = 
             io.ktor.client.utils.EmptyContent
@@ -4121,7 +4141,7 @@ open class DefaultApi : ApiClient {
             "/v1/users/logic/functions/{logicFunctionId}".replace("{" + "orgIdOrSlug" + "}", "$orgIdOrSlug").replace("{" + "logicFunctionId" + "}", "$logicFunctionId"),
             query = localVariableQuery,
             headers = localVariableHeaders,
-            requiresAuthentication = false,
+            requiresAuthentication = true,
         )
 
         return request(
@@ -4143,7 +4163,7 @@ open class DefaultApi : ApiClient {
     @Suppress("UNCHECKED_CAST")
     open suspend fun v1UsersLogicFunctionsLogicFunctionIdPut(orgIdOrSlug: kotlin.String, logicFunctionId: kotlin.String, body: kotlin.String? = null): HttpResponse<kotlin.String> {
 
-        val localVariableAuthNames = listOf<String>()
+        val localVariableAuthNames = listOf<String>("bearerAuth")
 
         val localVariableBody = body
 
@@ -4155,7 +4175,7 @@ open class DefaultApi : ApiClient {
             "/v1/users/logic/functions/{logicFunctionId}".replace("{" + "orgIdOrSlug" + "}", "$orgIdOrSlug").replace("{" + "logicFunctionId" + "}", "$logicFunctionId"),
             query = localVariableQuery,
             headers = localVariableHeaders,
-            requiresAuthentication = false,
+            requiresAuthentication = true,
         )
 
         return jsonRequest(
@@ -4177,7 +4197,7 @@ open class DefaultApi : ApiClient {
     @Suppress("UNCHECKED_CAST")
     open suspend fun v1UsersLogicFunctionsLogicFunctionIdRunsGet(orgIdOrSlug: kotlin.String, logicFunctionId: kotlin.String): HttpResponse<kotlin.String> {
 
-        val localVariableAuthNames = listOf<String>()
+        val localVariableAuthNames = listOf<String>("bearerAuth")
 
         val localVariableBody = 
             io.ktor.client.utils.EmptyContent
@@ -4190,7 +4210,7 @@ open class DefaultApi : ApiClient {
             "/v1/users/logic/functions/{logicFunctionId}/runs".replace("{" + "orgIdOrSlug" + "}", "$orgIdOrSlug").replace("{" + "logicFunctionId" + "}", "$logicFunctionId"),
             query = localVariableQuery,
             headers = localVariableHeaders,
-            requiresAuthentication = false,
+            requiresAuthentication = true,
         )
 
         return request(
@@ -4212,7 +4232,7 @@ open class DefaultApi : ApiClient {
     @Suppress("UNCHECKED_CAST")
     open suspend fun v1UsersLogicFunctionsLogicFunctionIdRunsLogicRunIdGet(orgIdOrSlug: kotlin.String, logicFunctionId: kotlin.String, logicRunId: kotlin.String): HttpResponse<kotlin.String> {
 
-        val localVariableAuthNames = listOf<String>()
+        val localVariableAuthNames = listOf<String>("bearerAuth")
 
         val localVariableBody = 
             io.ktor.client.utils.EmptyContent
@@ -4225,7 +4245,7 @@ open class DefaultApi : ApiClient {
             "/v1/users/logic/functions/{logicFunctionId}/runs/{logicRunId}".replace("{" + "orgIdOrSlug" + "}", "$orgIdOrSlug").replace("{" + "logicFunctionId" + "}", "$logicFunctionId").replace("{" + "logicRunId" + "}", "$logicRunId"),
             query = localVariableQuery,
             headers = localVariableHeaders,
-            requiresAuthentication = false,
+            requiresAuthentication = true,
         )
 
         return request(
@@ -4247,7 +4267,7 @@ open class DefaultApi : ApiClient {
     @Suppress("UNCHECKED_CAST")
     open suspend fun v1UsersLogicFunctionsLogicFunctionIdRunsLogicRunIdLogsGet(orgIdOrSlug: kotlin.String, logicFunctionId: kotlin.String, logicRunId: kotlin.String): HttpResponse<kotlin.String> {
 
-        val localVariableAuthNames = listOf<String>()
+        val localVariableAuthNames = listOf<String>("bearerAuth")
 
         val localVariableBody = 
             io.ktor.client.utils.EmptyContent
@@ -4260,7 +4280,7 @@ open class DefaultApi : ApiClient {
             "/v1/users/logic/functions/{logicFunctionId}/runs/{logicRunId}/logs".replace("{" + "orgIdOrSlug" + "}", "$orgIdOrSlug").replace("{" + "logicFunctionId" + "}", "$logicFunctionId").replace("{" + "logicRunId" + "}", "$logicRunId"),
             query = localVariableQuery,
             headers = localVariableHeaders,
-            requiresAuthentication = false,
+            requiresAuthentication = true,
         )
 
         return request(
@@ -4281,7 +4301,7 @@ open class DefaultApi : ApiClient {
     @Suppress("UNCHECKED_CAST")
     open suspend fun v1UsersLogicFunctionsLogicFunctionIdStatsGet(orgIdOrSlug: kotlin.String, logicFunctionId: kotlin.String): HttpResponse<kotlin.String> {
 
-        val localVariableAuthNames = listOf<String>()
+        val localVariableAuthNames = listOf<String>("bearerAuth")
 
         val localVariableBody = 
             io.ktor.client.utils.EmptyContent
@@ -4294,7 +4314,7 @@ open class DefaultApi : ApiClient {
             "/v1/users/logic/functions/{logicFunctionId}/stats".replace("{" + "orgIdOrSlug" + "}", "$orgIdOrSlug").replace("{" + "logicFunctionId" + "}", "$logicFunctionId"),
             query = localVariableQuery,
             headers = localVariableHeaders,
-            requiresAuthentication = false,
+            requiresAuthentication = true,
         )
 
         return request(
@@ -4315,7 +4335,7 @@ open class DefaultApi : ApiClient {
     @Suppress("UNCHECKED_CAST")
     open suspend fun v1UsersLogicFunctionsPost(orgIdOrSlug: kotlin.String, body: kotlin.String? = null): HttpResponse<kotlin.String> {
 
-        val localVariableAuthNames = listOf<String>()
+        val localVariableAuthNames = listOf<String>("bearerAuth")
 
         val localVariableBody = body
 
@@ -4327,7 +4347,7 @@ open class DefaultApi : ApiClient {
             "/v1/users/logic/functions".replace("{" + "orgIdOrSlug" + "}", "$orgIdOrSlug"),
             query = localVariableQuery,
             headers = localVariableHeaders,
-            requiresAuthentication = false,
+            requiresAuthentication = true,
         )
 
         return jsonRequest(

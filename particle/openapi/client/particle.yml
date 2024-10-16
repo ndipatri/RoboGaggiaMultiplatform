@@ -785,6 +785,7 @@ paths:
           headers: {}
   /v1/devices:
     get:
+      operationId: 'getDevices'
       summary: List devices
       deprecated: false
       description: >-
@@ -798,8 +799,9 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties: {}
+                type: array
+                items:
+                  $ref: '#/components/schemas/Device'
               examples:
                 '1':
                   summary: Response
@@ -1087,6 +1089,7 @@ paths:
           headers: {}
   /v1/devices/{deviceId}:
     get:
+      operationId: 'getDevice'
       summary: Get device information
       deprecated: false
       description: >-
@@ -1102,7 +1105,7 @@ paths:
           required: true
           example: string
           schema:
-            type: string
+            $ref: '#/components/schemas/Device'
       responses:
         '200':
           description: ''
@@ -1376,6 +1379,7 @@ paths:
           headers: {}
   /v1/devices/{deviceId}/{varName}:
     get:
+      operationId: 'getVariableValue'
       summary: Get a variable value
       deprecated: false
       description: >-
@@ -1418,8 +1422,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties: {}
+                $ref: '#/components/schemas/DeviceVariableResult'
               examples:
                 '1':
                   summary: Response
@@ -1457,6 +1460,7 @@ paths:
           headers: {}
   /v1/devices/{deviceId}/{functionName}:
     post:
+      operationId: 'callFunction'
       summary: Call a function
       deprecated: false
       description: >-
@@ -1487,10 +1491,11 @@ paths:
           schema:
             type: string
       requestBody:
+        required: true
         content:
-          text/plain:
+          application/json:
             schema:
-              type: string
+              $ref: '#/components/schemas/CallFunctionRequest'
             example: |-
               {
                 "arg": "string",
@@ -1502,8 +1507,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties: {}
+                $ref: '#/components/schemas/DeviceFunctionResponse'
               examples:
                 '1':
                   summary: Response
@@ -6614,11 +6618,95 @@ paths:
                     }
           headers: {}
 components:
-  schemas: {}
+  schemas:
+
+    CallFunctionRequest:
+      type: object
+      additionalProperties:
+        type: string
+
+    DeviceVariableResult:
+      type: object
+      description: A device variable has been retrieved.
+      properties:
+        result:
+          type: string
+
+    DeviceFunctionResponse:
+      type: object
+      description: A device function has been executed.
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        connected:
+          type: boolean
+        return_value:
+          type: integer
+
+    Device:
+      type: object
+      description: A device has been retrieved.
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        owner:
+          type: string
+        last_ip_address:
+          type: string
+        last_heard:
+          type: string
+        last_handshake_at:
+          type: string
+        product_id:
+          type: integer
+        online:
+          type: boolean
+        platform_id:
+          type: integer
+        cellular:
+          type: boolean
+        notes:
+          type: string
+        functions:
+          type: array
+          items:
+            type: string
+        variables:
+          type: object
+          additionalProperties:
+            type: string
+        status:
+          type: string
+        serial_number:
+          type: string
+        iccid:
+          type: string
+        imei:
+          type: string
+        mac_wifi:
+          type: string
+        mobile_secret:
+          type: string
+        system_firmware_version:
+          type: string
+        firmware_updates_enabled:
+          type: boolean
+        firmware_updates_forced:
+          type: boolean
+        device_protection:
+          type: object
+          additionalProperties:
+            type: string
+
   securitySchemes:
     bearerAuth: # arbitrary name for the security scheme
       type: http
       scheme: bearer
 security:
         - bearerAuth: [ ] # use the same name as above
-servers: []
+servers:
+  - url: https://api.particle.io

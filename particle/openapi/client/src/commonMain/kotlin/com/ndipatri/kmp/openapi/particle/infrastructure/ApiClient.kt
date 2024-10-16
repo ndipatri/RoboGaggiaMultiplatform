@@ -55,7 +55,7 @@ open class ApiClient(
     }
 
     companion object {
-        const val BASE_URL = "http://localhost"
+        const val BASE_URL = "https://api.particle.io"
         val JSON_DEFAULT = Json {
           ignoreUnknownKeys = true
           prettyPrint = true
