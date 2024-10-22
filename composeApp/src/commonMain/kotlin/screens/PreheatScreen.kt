@@ -14,6 +14,7 @@ import robogaggiamultiplatform.composeapp.generated.resources.Res
 import robogaggiamultiplatform.composeapp.generated.resources.clean
 import robogaggiamultiplatform.composeapp.generated.resources.hello_welcome_to_robogaggia
 import robogaggiamultiplatform.composeapp.generated.resources.place_your_empty_cup
+import robogaggiamultiplatform.composeapp.generated.resources.settings
 import robogaggiamultiplatform.composeapp.generated.resources.shots_brewed_so_far
 import robogaggiamultiplatform.composeapp.generated.resources.start
 import robogaggiamultiplatform.composeapp.generated.resources.temp_is_120
@@ -26,7 +27,8 @@ import vms.TelemetryViewModel
 fun PreheatScreen(
     telemetry: Telemetry,
     onFirstButtonClick: () -> Unit,
-    onSecondButtonClick: () -> Unit
+    onSecondButtonClick: () -> Unit,
+    onSettingsSelected: () -> Unit
 ) {
     ScreenContent(
         body1Resource = Res.string.hello_welcome_to_robogaggia,
@@ -41,8 +43,10 @@ fun PreheatScreen(
         },
         boilerIsOn = telemetry.currentBoilerIsOn ?: false,
         button2Resource = Res.string.clean,
+        button3Resource = Res.string.settings,
         onFirstButtonClick = onFirstButtonClick,
         onSecondButtonClick = onSecondButtonClick,
+        onThirdButtonClick = onSettingsSelected,
         backgroundColor = androidx.compose.ui.graphics.Color.Transparent
     ) {
         SingleFloatContent(Res.string.temp_is_120, telemetry.currentTemperature ?: 0F)

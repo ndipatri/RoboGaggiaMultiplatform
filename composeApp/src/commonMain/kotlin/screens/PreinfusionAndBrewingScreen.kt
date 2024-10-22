@@ -137,6 +137,14 @@ fun BrewChart(telemetry: Telemetry, content: (@Composable () -> Unit)? = null) {
                             else -> {}
                         }
                     }
+
+                    if (telemetry.currentState == GaggiaState.DONE_BREWING) {
+                        // Now that we've used this data, we have to clear it out as this
+                        // screen is stateful...
+                        preinfusionTimeSeconds = 0
+                        brewTimeSeconds = 0
+                        timeString = ""
+                    }
                 }
             }
 

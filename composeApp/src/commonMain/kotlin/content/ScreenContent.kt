@@ -54,11 +54,13 @@ import theme.Typography
 fun ScreenContent(
     onFirstButtonClick: (() -> Unit)? = null,
     onSecondButtonClick: (() -> Unit)? = null,
+    onThirdButtonClick: (() -> Unit)? = null,
     body1Resource: StringResource? = null,
     body2Resource: StringResource? = null,
     userMessage: String? = null,
     button1Resource: StringResource? = null,
     button2Resource: StringResource? = null,
+    button3Resource: StringResource? = null,
     backgroundImage: DrawableResource? = Res.drawable.dark_circuitboard,
     backgroundColor: Color? = null,
     shouldUIDisappear: Boolean = false,
@@ -114,19 +116,37 @@ fun ScreenContent(
                     .weight(.20F)
                     .padding(horizontal = 10.dp)
             ) {
-                button2Resource?.let {
-                    OutlinedButton(
-                        onClick = { onSecondButtonClick?.invoke() },
-                        modifier = Modifier.requiredSize(150.dp).weight(.5f).padding(20.dp),
-                        shape = CircleShape,
-                        border = BorderStroke(5.dp, Color(0XFF0F9D58)),
-                        contentPadding = PaddingValues(0.dp),
-                        colors = ButtonDefaults.outlinedButtonColors(
-                            contentColor = androidx.compose.ui.graphics.Color.White,
-                            backgroundColor = androidx.compose.ui.graphics.Color.Black
-                        )
-                    ) {
-                        Text(text = stringResource(button2Resource))
+                Row {
+                    button2Resource?.let {
+                        OutlinedButton(
+                            onClick = { onSecondButtonClick?.invoke() },
+                            modifier = Modifier.requiredSize(150.dp).weight(.5f).padding(20.dp),
+                            shape = CircleShape,
+                            border = BorderStroke(5.dp, Color(0XFF0F9D58)),
+                            contentPadding = PaddingValues(0.dp),
+                            colors = ButtonDefaults.outlinedButtonColors(
+                                contentColor = androidx.compose.ui.graphics.Color.White,
+                                backgroundColor = androidx.compose.ui.graphics.Color.Black
+                            )
+                        ) {
+                            Text(text = stringResource(button2Resource))
+                        }
+                    }
+
+                    button3Resource?.let {
+                        OutlinedButton(
+                            onClick = { onThirdButtonClick?.invoke() },
+                            modifier = Modifier.requiredSize(150.dp).weight(.5f).padding(20.dp),
+                            shape = CircleShape,
+                            border = BorderStroke(5.dp, Color(0XFF0F9D58)),
+                            contentPadding = PaddingValues(0.dp),
+                            colors = ButtonDefaults.outlinedButtonColors(
+                                contentColor = androidx.compose.ui.graphics.Color.White,
+                                backgroundColor = androidx.compose.ui.graphics.Color.Black
+                            )
+                        ) {
+                            Text(text = stringResource(button3Resource))
+                        }
                     }
                 }
             }

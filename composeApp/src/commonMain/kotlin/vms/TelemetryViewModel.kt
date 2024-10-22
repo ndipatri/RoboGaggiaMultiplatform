@@ -4,7 +4,6 @@ import AdvertisementDataRetrievalKeys
 import MQTTClient
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ndipatri.kmp.openapi.particle.apis.DefaultApi
 import com.ndipatri.robogaggia.BuildKonfig
 import currentTimeMillis
 import dev.bluefalcon.ApplicationContext
@@ -13,9 +12,7 @@ import dev.bluefalcon.BlueFalconDelegate
 import dev.bluefalcon.BluetoothCharacteristic
 import dev.bluefalcon.BluetoothCharacteristicDescriptor
 import dev.bluefalcon.BluetoothPeripheral
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
@@ -23,14 +20,13 @@ import mqtt.MQTTVersion
 import mqtt.Subscription
 import mqtt.packets.Qos
 import mqtt.packets.mqttv5.SubscriptionOptions
-import services.ParticleService
+import services.SettingsViewModel
 import kotlin.math.abs
 
 /**
  * This is a ViewModel that is tied to the context of the entire application.
- * We're only using ViewModel here to use its Coroutine Scope.
  */
-class TelemetryViewModel(val context: ApplicationContext, particleService: ParticleService) : ViewModel() {
+class TelemetryViewModel(val context: ApplicationContext) : ViewModel() {
 
     lateinit var client: MQTTClient
 
@@ -71,7 +67,6 @@ class TelemetryViewModel(val context: ApplicationContext, particleService: Parti
     val telemetryFlow = MutableStateFlow(Telemetry())
 
     init {
-        println("*** NJD: new view model")
         if (BuildKonfig.USE_SIMULATOR.toBooleanStrict()) {
             startMQTTClientAndSubscribeToTelemetryTopic(500)
         }

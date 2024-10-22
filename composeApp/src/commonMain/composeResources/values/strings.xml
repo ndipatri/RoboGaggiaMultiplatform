@@ -82,4 +82,8 @@
 
     <string name="waiting_for_scale_to_settle">Waiting for scale to settle ...</string>
 
+    <string name="cup_weight">Enter Cup Weight</string>
+    <string name="save">Save</string>
+    <string name="settings">Settings</string>
+
 </resources>

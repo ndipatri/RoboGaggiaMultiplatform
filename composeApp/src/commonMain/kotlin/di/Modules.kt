@@ -3,7 +3,7 @@ package di
 import dev.bluefalcon.ApplicationContext
 import org.koin.core.module.Module
 import org.koin.dsl.module
-import services.ParticleService
+import services.SettingsViewModel
 import vms.TelemetryViewModel
 
 expect val platformModule: Module
@@ -14,7 +14,7 @@ expect val platformModule: Module
 data class ApplicationContextWrapper(val applicationContext: ApplicationContext)
 
 val sharedModule = module {
-    single { ParticleService() }
+    single { SettingsViewModel() }
 
     // It's tempting to use viewModelOf() here, but this
     // view model should not be tied to the lifecycle of
@@ -23,8 +23,7 @@ val sharedModule = module {
     // but we're calling it a viewModel...
     single {
         TelemetryViewModel(
-            context = get<ApplicationContextWrapper>().applicationContext,
-            particleService = get<ParticleService>()
+            context = get<ApplicationContextWrapper>().applicationContext
         )
     }
 }

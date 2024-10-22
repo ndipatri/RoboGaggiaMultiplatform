@@ -38,12 +38,14 @@ import screens.JoiningNetworkScreen
 import screens.MeasureBeansScreen
 import screens.PreheatScreen
 import screens.PreinfusionAndBrewingScreen
+import screens.SettingsScreen
 import screens.SleepScreen
 import screens.SteamingScreen
 import screens.TareCupAfterMeasureScreen
 import screens.TelemetryScreen
 import screens.WaitingForStateChangeScreen
 import screens.WelcomeScreen
+import services.SettingsViewModel
 import theme.RoboGaggiaTheme
 import vms.GaggiaState
 import vms.TelemetryViewModel
@@ -64,7 +66,6 @@ fun AppContent(bluetoothPermissionAcquired: Boolean) {
             KoinContext {
                 val viewModel = koinInject<TelemetryViewModel>()
 
-
                 val telemetry by viewModel.telemetryFlow.collectAsState()
 
                 var waitingToChangeFromState: GaggiaState by remember { mutableStateOf(GaggiaState.NA) }
@@ -82,51 +83,69 @@ fun AppContent(bluetoothPermissionAcquired: Boolean) {
                     onSecondButtonClick()
                 }
 
+                // This is a route driven by user (e.g. Settings), not by telemetry from Gaggia
+                val localRouteSelected = remember { mutableStateOf<String?>(null) }
+
                 // If this is set to true and BLE is enabled via build config,
                 // then bluetooth scanning will begin
                 if (!viewModel.bluetoothPermissionAcquired && bluetoothPermissionAcquired) {
                     viewModel.bluetoothPermissionAcquired = bluetoothPermissionAcquired
                 }
 
-                LaunchedEffect(telemetry.currentState, waitingToChangeFromState) {
-                    var route = telemetry.currentState?.stateName ?: GaggiaState.NA.stateName
+                LaunchedEffect(telemetry.currentState, waitingToChangeFromState, localRouteSelected.value) {
+                    var route: String? = null
 
-                    // These three states resolve to the same navigation state...
-                    if (route in setOf(
-                            GaggiaState.PREINFUSION.stateName,
-                            GaggiaState.BREWING.stateName,
-                            GaggiaState.DONE_BREWING.stateName
-                        )
-                    ) {
-                        route = GaggiaState.BREWING.stateName
-                    }
+                    localRouteSelected.value?.let {
+                        route = it
+                        localRouteSelected.value = null
+                    } ?: let {
+                        // no request to navigate to a new local route...
 
-                    if (waitingToChangeFromState != GaggiaState.NA) {
-                        if (telemetry.currentState != waitingToChangeFromState) {
-                            // We've finally transitioned out of the state we were waiting to change from...
-                            waitingToChangeFromState = GaggiaState.NA
-                        } else {
-                            route = WAITING_ROUTE
+                        // If we're currently on a 'Local Route' we want to ignore any route changes due to
+                        // gaggia state.. until the user navigates way from a 'Local Route'
+                        if (navController.currentDestination?.route !in LOCAL_ROUTES.entries.map { it.route }) {
+                            route = telemetry.currentState?.stateName ?: GaggiaState.NA.stateName
+
+                            // These three states resolve to the same navigation state...
+                            if (route in setOf(
+                                    GaggiaState.PREINFUSION.stateName,
+                                    GaggiaState.BREWING.stateName,
+                                    GaggiaState.DONE_BREWING.stateName
+                                )
+                            ) {
+                                route = GaggiaState.BREWING.stateName
+                            }
+
+                            if (waitingToChangeFromState != GaggiaState.NA) {
+                                if (telemetry.currentState != waitingToChangeFromState) {
+                                    // We've finally transitioned out of the state we were waiting to change from...
+                                    waitingToChangeFromState = GaggiaState.NA
+                                } else {
+                                    route = WAITING_ROUTE
+                                }
+                            }
+
+                            // note that the previous screen will receive the new telemetry that
+                            // has caused this transition.. so screens should ignore telemetry
+                            // with a state that is different than the one they are intended to handle.
                         }
                     }
 
-                    // note that the previous screen will receive the new telemetry that
-                    // has caused this transition.. so screens should ignore telemetry
-                    // with a state that is different than the one they are intended to handle.
+                    route?.let {
+                        navController.navigate(it) {
+                            // Even though we aren't providing user with back functionality, we
+                            // do this so the nav system doesn't create a backstack and thus
+                            // our screens are 'popped' and we can save state.
+                            popUpTo(GaggiaState.PREHEAT.stateName) {
+                                saveState = true
+                            }
+                            // we have to explicitly tell compose nav to restore the state of
+                            // composables that use rememberSaveable
+                            restoreState = true
 
-                    navController.navigate(route) {
-                        // Even though we aren't providing user with back functionality, we
-                        // do this so the nav system doesn't create a backstack and thus
-                        // our screens are 'popped' and we can save state.
-                        popUpTo(GaggiaState.PREHEAT.stateName) {
-                            saveState = true
+                            // only navigate if route has changed.
+                            launchSingleTop
                         }
-                        // we have to explicitly tell compose nav to restore the state of
-                        // composables that use rememberSaveable
-                        restoreState = true
-
-                        // only navigate if route has changed.
-                        launchSingleTop
                     }
                 }
 
@@ -136,7 +155,10 @@ fun AppContent(bluetoothPermissionAcquired: Boolean) {
                 ) {
                     mainNavigationGraph(
                         onFirstButtonClick = _onFirstButtonClick,
-                        onSecondButtonClick = _onSecondButtonClick
+                        onSecondButtonClick = _onSecondButtonClick,
+                        onLocalRouteSelected = { localRoute ->
+                            localRouteSelected.value = localRoute.route
+                        }
                     )
                 }
             }
@@ -147,7 +169,8 @@ fun AppContent(bluetoothPermissionAcquired: Boolean) {
 val WAITING_ROUTE = "waiting"
 fun NavGraphBuilder.mainNavigationGraph(
     onFirstButtonClick: () -> Unit,
-    onSecondButtonClick: () -> Unit
+    onSecondButtonClick: () -> Unit,
+    onLocalRouteSelected: (LOCAL_ROUTES) -> Unit
 ) {
     composable(route = WAITING_ROUTE) {
         WaitingForStateChangeScreen()
@@ -174,9 +197,16 @@ fun NavGraphBuilder.mainNavigationGraph(
             PreheatScreen(
                 telemetry = telemetry,
                 onFirstButtonClick = onFirstButtonClick,
-                onSecondButtonClick = onSecondButtonClick
+                onSecondButtonClick = onSecondButtonClick,
+                onSettingsSelected = { onLocalRouteSelected(LOCAL_ROUTES.SETTINGS) }
             )
         }
+    }
+
+    composable(route = LOCAL_ROUTES.SETTINGS.route) {
+        SettingsScreen(
+            onExitClicked = onFirstButtonClick,
+        )
     }
 
     composable(route = GaggiaState.MEASURE_BEANS.stateName) {
@@ -328,4 +358,8 @@ fun NavGraphBuilder.mainNavigationGraph(
     //GaggiaState.COOL_START -> TODO()
     //GaggiaState.COOLING -> TODO()
     //GaggiaState.COOL_DONE -> TODO()
+}
+
+enum class LOCAL_ROUTES (val route: String) {
+    SETTINGS("settings")
 }
