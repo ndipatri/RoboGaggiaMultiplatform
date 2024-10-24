@@ -1,7 +1,11 @@
 package screens
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Button
@@ -16,31 +20,40 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.paint
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import content.ScreenContent
 import org.jetbrains.compose.resources.ExperimentalResourceApi
+import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.KoinContext
 import org.koin.compose.koinInject
 import robogaggiamultiplatform.composeapp.generated.resources.*
 import services.SettingsViewModel
+import theme.Typography
 
 @Composable
 fun SettingsScreen(
     onExitClicked: () -> Unit
 ) {
-    ScreenContent(
-        button2Resource = Res.string.exit,
-        onSecondButtonClick = onExitClicked
-    ) {
-        KoinContext {
-            val settingsViewModel = koinInject<SettingsViewModel>().also {
-                it.initialize()
-            }
-            val settingsState = settingsViewModel.settingsUIStateFlow.collectAsState()
+    KoinContext {
+        val settingsViewModel = koinInject<SettingsViewModel>().apply {
+            // Presumably this will trigger our settingsState to be in
+            // an Init state until settings are loaded from the network
+            loadSettings()
+        }
+        val settingsState = settingsViewModel.settingsUIStateFlow.collectAsState()
 
-            SettingsContent(settingsState = settingsState,
+        Box(modifier = Modifier
+            .fillMaxSize()
+            .paint(painterResource(Res.drawable.dark_circuitboard),
+                   contentScale = ContentScale.FillBounds)
+        ) {
+            SettingsContent(
+                settings = settingsState.value,
                 onSettingsSave = {
                     settingsViewModel.saveSettings(it)
                 }
@@ -51,26 +64,41 @@ fun SettingsScreen(
 
 @Composable
 private fun SettingsContent(
-    settingsState: State<SettingsViewModel.SettingsState>,
+    settings: SettingsViewModel.SettingsState,
     onSettingsSave: (SettingsViewModel.SettingsState) -> Unit
 ) {
     // intrinsic state here is the new settings state that is being updated
-    // by SettingsControls...
-    val newSettingsState = remember(settingsState) { mutableStateOf(settingsState.value) }
-    Column {
-        SettingsControls(newSettingsState.value,
+    // by SettingsControls... so this state is both intrinsic and hoisted
+    var newSettingsState by remember(settings) {
+        mutableStateOf(settings)
+    }
+    var settingsChanged by remember { mutableStateOf(false) }
+
+    Column(
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment =  Alignment.CenterHorizontally,
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        SettingsControls(
+            settingsState = newSettingsState,
             onSettingsStateChange = {
-                newSettingsState.value = it
+                newSettingsState = it
+                settingsChanged = true
             }
         )
 
+        val okToSave = newSettingsState.formState == SettingsViewModel.FormState.Success &&
+                settingsChanged
         Button(
-            enabled = newSettingsState.value.formState == SettingsViewModel.FormState.Success,
+            enabled = okToSave,
             onClick = {
-                onSettingsSave(newSettingsState.value)
+                onSettingsSave(newSettingsState)
             }
         ) {
-            Text(stringResource(Res.string.save))
+            Text(
+                text = stringResource(Res.string.save),
+                style = Typography.body1
+            )
         }
     }
 }
@@ -80,12 +108,16 @@ private fun SettingsControls(
     settingsState: SettingsViewModel.SettingsState,
     onSettingsStateChange: (SettingsViewModel.SettingsState) -> Unit
 ) {
-    Column(modifier = Modifier.fillMaxWidth()) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
+    Column {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center,
+            modifier = Modifier.fillMaxWidth()
+        ) {
             Text(
-                modifier = Modifier.padding(top = 50.dp),
                 textAlign = TextAlign.Left,
-                text = stringResource(Res.string.cup_weight)
+                text = stringResource(Res.string.cup_weight),
+                modifier = Modifier.padding(100.dp)
             )
 
             // intrinsic state is just the values for each settings controller
@@ -107,7 +139,9 @@ private fun SettingsControls(
                 onValueChangeFinished = {
                     // for now, assume weight is 0 to 100 grams
                     onSettingsStateChange(settingsState.copy(referenceCupWeight = cupWeightSliderValue.fromSliderValue()))
-                }
+                },
+
+                modifier = Modifier.padding(100.dp)
             )
         }
     }

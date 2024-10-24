@@ -1,6 +1,7 @@
 package di
 
 import dev.bluefalcon.ApplicationContext
+import org.koin.compose.viewmodel.dsl.viewModel
 import org.koin.core.module.Module
 import org.koin.dsl.module
 import services.SettingsViewModel
@@ -14,7 +15,7 @@ expect val platformModule: Module
 data class ApplicationContextWrapper(val applicationContext: ApplicationContext)
 
 val sharedModule = module {
-    single { SettingsViewModel() }
+    viewModel { SettingsViewModel() }
 
     // It's tempting to use viewModelOf() here, but this
     // view model should not be tied to the lifecycle of

@@ -21,9 +21,17 @@ class SettingsViewModel: ViewModel() {
         )
     )
 
-    fun initialize() {
+    fun loadSettings() {
         viewModelScope.launch {
-           loadSettings()
+            val referenceCupWeight = getReferenceCupWeight()
+
+            // for now, it's just cup weight
+            settingsUIStateFlow.update { oldState ->
+                oldState.copy(
+                    referenceCupWeight = referenceCupWeight,
+                    formState = FormState.Success
+                )
+            }
         }
     }
 
@@ -45,15 +53,6 @@ class SettingsViewModel: ViewModel() {
                     it.copy(formState = FormState.Error)
                 }
             }
-        }
-    }
-
-    private suspend fun loadSettings() {
-        val referenceCupWeight = getReferenceCupWeight()
-
-        // for now, it's just cup weight
-        settingsUIStateFlow.update { oldState ->
-            oldState.copy(referenceCupWeight = referenceCupWeight, formState = FormState.Success)
         }
     }
 
@@ -89,7 +88,7 @@ class SettingsViewModel: ViewModel() {
 
     data class SettingsState(
         val referenceCupWeight: Int,
-        val formState: FormState
+        val formState: FormState = FormState.Init
     )
 
     sealed interface FormState {
