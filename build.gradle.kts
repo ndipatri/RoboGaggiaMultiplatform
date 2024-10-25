@@ -6,7 +6,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath("com.codingfeline.buildkonfig:buildkonfig-gradle-plugin:0.7.0")
+        classpath("com.codingfeline.buildkonfig:buildkonfig-gradle-plugin:0.15.2")
     }
 }
 

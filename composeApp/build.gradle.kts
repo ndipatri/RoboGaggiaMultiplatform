@@ -96,25 +96,25 @@ buildkonfig {
         buildConfigField(
             Type.STRING,
             "MQTT_SERVER_ADDRESS",
-            gradleLocalProperties(rootDir).getProperty("mqtt.server.address")
+            gradleLocalProperties(rootDir, providers).getProperty("mqtt.server.address")
         )
 
         buildConfigField(
             Type.STRING,
             "MQTT_SERVER_TELEMETRY_INTERVAL_MILLIS",
-            gradleLocalProperties(rootDir).getProperty("mqtt.server.telemetry.interval.millis")
+            gradleLocalProperties(rootDir, providers).getProperty("mqtt.server.telemetry.interval.millis")
         )
 
         buildConfigField(
             com.codingfeline.buildkonfig.compiler.FieldSpec.Type.STRING,
             "USE_SIMULATOR",
-            gradleLocalProperties(rootDir).getProperty("use.simulator")
+            gradleLocalProperties(rootDir, providers).getProperty("use.simulator")
         )
 
         buildConfigField(
             com.codingfeline.buildkonfig.compiler.FieldSpec.Type.STRING,
             "PARTICLE_ACCESS_TOKEN",
-            gradleLocalProperties(rootDir).getProperty("particle.access.token")
+            gradleLocalProperties(rootDir, providers).getProperty("particle.access.token")
         )
     }
 }

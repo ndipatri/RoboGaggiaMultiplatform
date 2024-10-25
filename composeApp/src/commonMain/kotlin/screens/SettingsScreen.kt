@@ -29,6 +29,7 @@ import content.ScreenContent
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
+import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.KoinContext
 import org.koin.compose.koinInject
 import robogaggiamultiplatform.composeapp.generated.resources.*
@@ -103,6 +104,7 @@ private fun SettingsContent(
     }
 }
 
+@Preview
 @Composable
 private fun SettingsControls(
     settingsState: SettingsViewModel.SettingsState,
