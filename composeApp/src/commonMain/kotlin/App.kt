@@ -45,7 +45,6 @@ import screens.TareCupAfterMeasureScreen
 import screens.TelemetryScreen
 import screens.WaitingForStateChangeScreen
 import screens.WelcomeScreen
-import services.SettingsViewModel
 import theme.RoboGaggiaTheme
 import vms.GaggiaState
 import vms.TelemetryViewModel
@@ -280,15 +279,15 @@ fun NavGraphBuilder.mainNavigationGraph(
 
     composable(route = GaggiaState.BACKFLUSH_INSTRUCTION_1.stateName) {
         BackflushInsructions1Screen(
-            onReadyClick = onFirstButtonClick,
-            onExitClick = onSecondButtonClick
+            onReadyClicked = onFirstButtonClick,
+            onExitClicked = onSecondButtonClick
         )
     }
 
     composable(route = GaggiaState.BACKFLUSH_INSTRUCTION_2.stateName) {
         BackflushInsructions2Screen(
-            onReadyClick = onFirstButtonClick,
-            onExitClick = onSecondButtonClick
+            onReadyClicked = onFirstButtonClick,
+            onExitClicked = onSecondButtonClick
         )
     }
 
@@ -296,15 +295,15 @@ fun NavGraphBuilder.mainNavigationGraph(
         TelemetryScreen { telemetry ->
             BackflushCycle1Screen(
                 telemetry = telemetry,
-                onExitClick = onSecondButtonClick
+                onExitClicked = onSecondButtonClick
             )
         }
     }
 
     composable(route = GaggiaState.BACKFLUSH_INSTRUCTION_3.stateName) {
         BackflushInsructions3Screen(
-            onReadyClick = onFirstButtonClick,
-            onExitClick = onSecondButtonClick
+            onReadyClicked = onFirstButtonClick,
+            onExitClicked = onSecondButtonClick
         )
     }
 
@@ -312,14 +311,14 @@ fun NavGraphBuilder.mainNavigationGraph(
         TelemetryScreen { telemetry ->
             BackflushCycle2Screen(
                 telemetry = telemetry,
-                onExitClick = onSecondButtonClick
+                onExitClicked = onSecondButtonClick
             )
         }
     }
 
     composable(route = GaggiaState.BACKFLUSH_CYCLE_DONE.stateName) {
         BackflushDoneScreen(
-            onDoneClick = onFirstButtonClick
+            onDoneClicked = onFirstButtonClick
         )
     }
 

@@ -7,6 +7,7 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
@@ -111,42 +112,47 @@ fun ScreenContent(
                 .graphicsLayer(alpha = alpha)
                 .clickable { if (shouldUIDisappear) shouldBeVisible = !shouldBeVisible }) {
             Column(
+                verticalArrangement = Arrangement.Center,
                 modifier = Modifier
                     .fillMaxHeight()
                     .weight(.20F)
                     .padding(horizontal = 10.dp)
             ) {
-                Row {
-                    button2Resource?.let {
-                        OutlinedButton(
-                            onClick = { onSecondButtonClick?.invoke() },
-                            modifier = Modifier.requiredSize(150.dp).weight(.5f).padding(20.dp),
-                            shape = CircleShape,
-                            border = BorderStroke(5.dp, Color(0XFF0F9D58)),
-                            contentPadding = PaddingValues(0.dp),
-                            colors = ButtonDefaults.outlinedButtonColors(
-                                contentColor = androidx.compose.ui.graphics.Color.White,
-                                backgroundColor = androidx.compose.ui.graphics.Color.Black
-                            )
-                        ) {
-                            Text(text = stringResource(button2Resource))
-                        }
+                button2Resource?.let {
+                    OutlinedButton(
+                        onClick = { onSecondButtonClick?.invoke() },
+                        modifier = Modifier.requiredSize(150.dp).weight(.5f).padding(20.dp),
+                        shape = CircleShape,
+                        border = BorderStroke(5.dp, Color(0XFF0F9D58)),
+                        contentPadding = PaddingValues(0.dp),
+                        colors = ButtonDefaults.outlinedButtonColors(
+                            contentColor = androidx.compose.ui.graphics.Color.White,
+                            backgroundColor = androidx.compose.ui.graphics.Color.Black
+                        )
+                    ) {
+                        Text(
+                            text = stringResource(button2Resource),
+                            textAlign = TextAlign.Center
+                        )
                     }
+                }
 
-                    button3Resource?.let {
-                        OutlinedButton(
-                            onClick = { onThirdButtonClick?.invoke() },
-                            modifier = Modifier.requiredSize(150.dp).weight(.5f).padding(20.dp),
-                            shape = CircleShape,
-                            border = BorderStroke(5.dp, Color(0XFF0F9D58)),
-                            contentPadding = PaddingValues(0.dp),
-                            colors = ButtonDefaults.outlinedButtonColors(
-                                contentColor = androidx.compose.ui.graphics.Color.White,
-                                backgroundColor = androidx.compose.ui.graphics.Color.Black
-                            )
-                        ) {
-                            Text(text = stringResource(button3Resource))
-                        }
+                button3Resource?.let {
+                    OutlinedButton(
+                        onClick = { onThirdButtonClick?.invoke() },
+                        modifier = Modifier.requiredSize(150.dp).weight(.5f).padding(20.dp),
+                        shape = CircleShape,
+                        border = BorderStroke(5.dp, Color(0XFF0F9D58)),
+                        contentPadding = PaddingValues(0.dp),
+                        colors = ButtonDefaults.outlinedButtonColors(
+                            contentColor = androidx.compose.ui.graphics.Color.White,
+                            backgroundColor = androidx.compose.ui.graphics.Color.Black
+                        )
+                    ) {
+                        Text(
+                            text = stringResource(button3Resource),
+                            textAlign = TextAlign.Center
+                        )
                     }
                 }
             }
@@ -189,7 +195,10 @@ fun ScreenContent(
                             backgroundColor = androidx.compose.ui.graphics.Color.Black
                         )
                     ) {
-                        Text(text = stringResource(button1Resource))
+                        Text(
+                            text = stringResource(button1Resource),
+                            textAlign = TextAlign.Center
+                        )
                     }
                 }
             }
@@ -210,26 +219,29 @@ fun RowScope.RotatingMessageTextBox(
 
     val alpha: Float by animateFloatAsState(
         targetValue = if (fadeOut) 0f else 1f,
-        animationSpec = tween(durationMillis = (lingerTimeMillis/2).toInt(), easing = FastOutSlowInEasing)
+        animationSpec = tween(
+            durationMillis = (lingerTimeMillis / 2).toInt(),
+            easing = FastOutSlowInEasing
+        )
     )
 
     LaunchedEffect(message2 != null) {
-        while(message2 != null) {
+        while (message2 != null) {
             // message is currently being shown
-            delay(lingerTimeMillis/2)
+            delay(lingerTimeMillis / 2)
 
             // start the animation to fade out message
             fadeOut = true
 
             // wait for animation to finish
-            delay(lingerTimeMillis/2)
+            delay(lingerTimeMillis / 2)
 
             // switch to other message and fade it back in
             showMessage1 = !showMessage1
             fadeOut = false
 
             // wait for animation to finish
-            delay(lingerTimeMillis/2)
+            delay(lingerTimeMillis / 2)
 
             // now next message is being shown
         }

@@ -7,13 +7,13 @@ import robogaggiamultiplatform.composeapp.generated.resources.*
 
 @OptIn(ExperimentalResourceApi::class)
 @Composable
-fun BackflushInsructions1Screen(onReadyClick: () -> Unit, onExitClick: () -> Unit) {
+fun BackflushInsructions1Screen(onReadyClicked: () -> Unit, onExitClicked: () -> Unit) {
     ScreenContent(
         body1Resource = Res.string.prepare_to_backflush_cleaner,
         body2Resource = Res.string.install_backflush_basket,
         button1Resource = Res.string.ready,
         button2Resource = Res.string.exit,
-        onFirstButtonClick = onReadyClick,
-        onSecondButtonClick = onExitClick
+        onFirstButtonClick = onReadyClicked,
+        onSecondButtonClick = onExitClicked
     )
 }

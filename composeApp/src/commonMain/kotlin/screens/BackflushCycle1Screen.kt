@@ -14,12 +14,12 @@ import vms.Telemetry
 @OptIn(ExperimentalResourceApi::class)
 @Composable
 fun BackflushCycle1Screen(telemetry: Telemetry,
-                          onExitClick: () -> Unit) {
+                          onExitClicked: () -> Unit) {
     ScreenContent(
         body1Resource = Res.string.backflushing_with_cleaner,
         body2Resource = Res.string.please_wait,
         button2Resource = Res.string.exit,
-        onSecondButtonClick = onExitClick
+        onSecondButtonClick = onExitClicked
     ) {
         // When in this state, the telemetry weight is the currentPass and the
         // telemetry pressure is the target number of passes.

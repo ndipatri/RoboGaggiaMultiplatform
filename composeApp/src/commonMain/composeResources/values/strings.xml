@@ -8,7 +8,7 @@
     <string name="please_wait">Please wait</string>
 
     <string name="ignoring_network">Ignoring Network ...</string>
-    <string name="ignore_network">Ignore network</string>
+    <string name="ignore_network">Ignore Network</string>
 
     <string name="i_am_sleeping">Hi (yawn), I am sleeping</string>
     <string name="wake">Wake</string>
@@ -82,7 +82,7 @@
 
     <string name="waiting_for_scale_to_settle">Waiting for scale to settle ...</string>
 
-    <string name="cup_weight">Enter Cup Weight</string>
+    <string name="cup_weight">Brew Cup Weight</string>
     <string name="save">Save</string>
     <string name="settings">Settings</string>
 

@@ -1,254 +1,272 @@
 package com.ndipatri.robogaggia.previews
 
-import App
-import AppContent
-import androidx.compose.material.Text
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.tooling.preview.Devices
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.paint
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.tooling.preview.Preview
+import org.jetbrains.compose.resources.painterResource
+import robogaggiamultiplatform.composeapp.generated.resources.Res
+import robogaggiamultiplatform.composeapp.generated.resources.dark_circuitboard
+import screens.BackflushCycle1Screen
+import screens.BackflushCycle2Screen
+import screens.BackflushDoneScreen
+import screens.BackflushInsructions1Screen
+import screens.BackflushInsructions2Screen
+import screens.BackflushInsructions3Screen
+import screens.HeatingToBrewScreen
+import screens.HeatingToSteamScreen
+import screens.IgnoringNetworkScreen
 import screens.JoiningNetworkScreen
-import utils.renderTelemetry
-import utils.typicalBrewCycleTelemetryString
+import screens.MeasureBeansScreen
+import screens.PreheatScreen
+import screens.PreinfusionAndBrewingScreen
+import screens.SettingsContent
+import screens.SettingsScreen
+import screens.SleepScreen
+import screens.SteamingScreen
+import screens.TareCupAfterMeasureScreen
+import services.SettingsViewModel
+import theme.RoboGaggiaTheme
 import vms.GaggiaState
+import vms.Telemetry
 import vms.TelemetryMessage
+import vms.Weight
 
-/**
- *
- * NJD - Preview doesn't work for complicated Composables.. simple things like Text work.. My
- * guess is its the resources.. but not sure...
+const val GAGGIA_DEVICE = "spec:shape=Normal,width=1792,height=828,unit=px,dpi=326"
 
-@Preview()
-//@Preview(device = Devices.AUTOMOTIVE_1024p, widthDp = 720, heightDp = 360)
+// stateName, weight, pressure, pumpDutyCycle, flowRate, brewTemp, shotsUntilBackflush, totalShots, boilerState
+val BASE_TELEMETRY_STRING =
+"""
+preheat, 0.0:0.0, 3.0, 55.0, 0.000000, 40.400000, 2, 2000, 1
+"""
+
+fun String.toTelemetry() =
+    Telemetry(
+        this.split("\n").filter { it.isNotEmpty() }.map { line ->
+            line.split(",").let {
+                TelemetryMessage(
+                    state = GaggiaState.byName(it[0]),
+                    weight = Weight(it[1]),
+                    pressureBars = it[2],
+                    dutyCyclePercent = it[3],
+                    flowRateGPS = it[4],
+                    brewTempC = it[5],
+                    shotsUntilBackflush = it[6],
+                    totalShots = it[7],
+                    boilerState = it[8],
+                )
+            }
+        }
+    )
+
+
+@Preview(device = GAGGIA_DEVICE)
 @Composable
 fun PreviewJoiningNetworkScreen() {
     JoiningNetworkScreen(onIgnoreNetworkClick = {})
 }
 
-@Preview(device = Devices.AUTOMOTIVE_1024p, widthDp = 720, heightDp = 360)
+@Preview(device = GAGGIA_DEVICE)
 @Composable
 fun PreviewIgnoringNetworkScreen() {
-    AppContent(
-        uiState = UIState(
-            telemetry = renderTelemetry(
-                "ignoringNetwork, PID(0.200000:1.000000:2.000000), 0, -1.000000, 40.400000, 0.000000, 105.750000"
-            )
-        ),
-        onFirstButtonClick = {},
-        onSecondButtonClick = {}
-    )
+    IgnoringNetworkScreen()
 }
 
-@Preview(device = Devices.AUTOMOTIVE_1024p, widthDp = 720, heightDp = 360)
+@Preview(device = GAGGIA_DEVICE)
 @Composable
 fun PreviewSleepScreen() {
-    AppContent(
-        uiState = UIState(
-            telemetry = renderTelemetry(
-                "sleep, PID(0.200000:1.000000:2.000000), 0, -1.000000, 40.400000, 0.000000, 105.750000"
-            )
-        ),
-        onFirstButtonClick = {},
-        onSecondButtonClick = {}
+    SleepScreen(
+        onWakeClicked = {}
     )
 }
 
-@Preview(device = Devices.AUTOMOTIVE_1024p, widthDp = 720, heightDp = 360)
+@Preview(device = GAGGIA_DEVICE)
 @Composable
 fun PreviewPreheatScreen() {
-    AppContent(
-        uiState = UIState(
-            telemetry = renderTelemetry(
-                "preheat,, 55.0, -1.000000, 40.400000, 0.000000, 105.750000/n" +
-                "preheat,, 55.0, -1.000000, 40.400000, 0.000000, 105.750000/n" +
-                "preheat,, 55.0, -1.000000, 40.400000, 0.000000, 105.750000"),
-            previousIsScaleWeighted = true
-        ),
+    PreheatScreen(
+        telemetry = BASE_TELEMETRY_STRING.toTelemetry(),
         onFirstButtonClick = {},
-        onSecondButtonClick = {}
+        onSecondButtonClick = {},
+        onSettingsSelected = {}
     )
 }
 
-@Preview(device = Devices.AUTOMOTIVE_1024p, widthDp = 720, heightDp = 360)
+
+@Preview(device = GAGGIA_DEVICE)
 @Composable
 fun PreviewMeasureBeansScreen() {
-    AppContent(
-        uiState = UIState(
-            telemetry = renderTelemetry(
-                "measureBeans, 19.0, -1.000000, 40.400000, 0.000000, 105.750000/n" +
-                        "measureBeans, 19.0, -1.000000, 40.400000, 0.000000, 105.750000/n" +
-                        "measureBeans, 19.0, -1.000000, 40.400000, 0.000000, 105.750000"),
-            previousIsScaleWeighted = true
-        ),
+    MeasureBeansScreen(
+        telemetry = BASE_TELEMETRY_STRING.toTelemetry(),
         onFirstButtonClick = {},
         onSecondButtonClick = {}
     )
 }
 
 
-@Preview(device = Devices.AUTOMOTIVE_1024p, widthDp = 720, heightDp = 360)
+@Preview(device = GAGGIA_DEVICE)
 @Composable
 fun PreviewTareCupAfterMeasureScreen() {
-    AppContent(
-        uiState = UIState(
-            telemetry = renderTelemetry(
-                "tareCupAfterMeasure, PID(0.200000:1.000000:2.000000), 0, -1.000000, 40.400000, 0.000000, 105.750000"
-            )
-        ),
+    TareCupAfterMeasureScreen (
+        telemetry = BASE_TELEMETRY_STRING.toTelemetry(),
         onFirstButtonClick = {},
         onSecondButtonClick = {}
     )
 }
 
-@Preview(device = Devices.AUTOMOTIVE_1024p, widthDp = 720, heightDp = 360)
+
+@Preview(device = GAGGIA_DEVICE)
 @Composable
 fun PreviewHeatingToBrewScreen() {
-    AppContent(
-        uiState = UIState(
-            telemetry = renderTelemetry(
-                "heating, PID(0.200000:1.000000:2.000000), 0, -1.000000, 40.400000, 0.000000, 105.750000"
-            )
-        ),
-        onFirstButtonClick = {},
+    HeatingToBrewScreen (
+        telemetry = BASE_TELEMETRY_STRING.toTelemetry(),
         onSecondButtonClick = {}
     )
 }
 
-@Preview(device = Devices.AUTOMOTIVE_1024p, widthDp = 720, heightDp = 360)
+@Preview(device = GAGGIA_DEVICE)
 @Composable
 fun PreviewHeatingToSteamScreen() {
-    AppContent(
-        uiState = UIState(
-            telemetry = renderTelemetry(
-                "heatingToSteam, PID(0.200000:1.000000:2.000000), 0, -1.000000, 40.400000, 0.000000, 105.750000"
-            )
-        ),
-        onFirstButtonClick = {},
+    HeatingToSteamScreen (
+        telemetry = BASE_TELEMETRY_STRING.toTelemetry(),
         onSecondButtonClick = {}
     )
 }
 
-@Preview(device = Devices.AUTOMOTIVE_1024p, widthDp = 720, heightDp = 360)
+
+@Preview(device = GAGGIA_DEVICE)
 @Composable
 fun PreviewSteamingScreen() {
-    AppContent(
-        uiState = UIState(
-            telemetry = renderTelemetry(
-                "steaming, PID(0.200000:1.000000:2.000000), 0, -1.000000, 40.400000, 0.000000, 105.750000"
-            )
-        ),
-        onFirstButtonClick = {},
-        onSecondButtonClick = {}
+    SteamingScreen (
+        telemetry = BASE_TELEMETRY_STRING.toTelemetry(),
+        onDoneSteamingClick = {}
     )
 }
 
-
-@Preview(device = Devices.AUTOMOTIVE_1024p, widthDp = 720, heightDp = 360)
+@Preview(device = GAGGIA_DEVICE)
 @Composable
 fun PreviewDoneBrewingScreen() {
-    AppContent(
-        uiState = UIState(
-            telemetry = renderTelemetry(typicalBrewCycleTelemetryString)
-        ),
-        onFirstButtonClick = {},
-        onSecondButtonClick = {}
+    PreinfusionAndBrewingScreen (
+        telemetry = BASE_TELEMETRY_STRING.toTelemetry(),
+        onReadyClicked = {},
+        onExitClicked = {}
     )
 }
 
-@Preview(device = Devices.AUTOMOTIVE_1024p, widthDp = 720, heightDp = 360)
+@Preview(device = GAGGIA_DEVICE)
 @Composable
+// NOTE: Run in Interactive mode to see 'Shot Clock'
 fun PreviewBrewingScreen() {
-    AppContent(
-        uiState = UIState(
-            telemetry = renderTelemetry(typicalBrewCycleTelemetryString)
-        ),
-        onFirstButtonClick = {},
-        onSecondButtonClick = {}
+    PreinfusionAndBrewingScreen(
+        telemetry =
+"""
+preInfusion, 0:34, 0.000000, 40.400000, 0.000000, 105.000000, 2, 2235, 0
+preInfusion, 0:34, 0.000000, 40.400000, 0.000000, 104.750000, 2, 2235, 0
+preInfusion, 0:34, 0.000000, 40.400000, 0.000000, 104.250000, 2, 2235, 0
+preInfusion, 0:34, 0.000000, 40.400000, 0.000000, 104.250000, 2, 2235, 0
+preInfusion, 0:34, 0.000000, 40.400000, 0.000000, 103.250000, 2, 2235, 0
+preInfusion, 0:34, 0.000000, 40.400000, 0.000000, 103.000000, 2, 2235, 0
+preInfusion, 0:34, 0.000000, 40.400000, 0.000000, 101.500000, 2, 2235, 0
+preInfusion, 0:34, 0.000000, 40.400000, 0.000000, 100.750000, 2, 2235, 0
+preInfusion, 0:34, 0.000000, 40.400000, 0.000000, 100.000000, 2, 2235, 0
+preInfusion, 0:34, 0.000000, 40.400000, 0.000000, 100.500000, 2, 2235, 0
+preInfusion, 0:34, 1.000000, 40.400000, 0.000000, 101.500000, 2, 2235, 0
+preInfusion, 0:34, 1.000000, 40.400000, 0.000000, 104.000000, 2, 2235, 0
+preInfusion, 0:34, 1.000000, 40.400000, 0.000000, 106.250000, 2, 2235, 0
+preInfusion, 1:34, 2.000000, 40.400000, 0.833333, 109.250000, 2, 2235, 0
+brewing, 2:34, 2.000000, 41.266667, 0.833333, 110.250000, 2, 2235, 0
+brewing, 4:34, 2.000000, 43.000000, 1.666667, 111.750000, 2, 2235, 0
+brewing, 5:34, 2.000000, 43.900000, 0.833333, 111.750000, 2, 2235, 0
+brewing, 7:34, 4.000000, 45.800000, 1.666667, 111.000000, 2, 2235, 0
+brewing, 9:34, 4.000000, 46.700000, 1.666667, 110.250000, 2, 2235, 0
+brewing, 11:34, 4.000000, 47.766667, 1.666667, 109.000000, 2, 2235, 0
+brewing, 14:34, 5.000000, 48.833333, 2.500000, 107.500000, 2, 2235, 0
+brewing, 16:34, 5.000000, 49.066667, 1.666667, 106.000000, 2, 2235, 0
+""".toTelemetry(),
+        onReadyClicked = {},
+        onExitClicked = {}
     )
 }
 
-@Preview(device = Devices.AUTOMOTIVE_1024p, widthDp = 720, heightDp = 360)
+@Preview(device = GAGGIA_DEVICE)
 @Composable
-fun BackflushInsructions1Screen() {
-    AppContent(
-        uiState = UIState(
-            telemetry = renderTelemetry(
-                "cleanInst1, 0, -1.000000, 40.400000, 0.000000, 105.750000"
-            )
-        ),
-        onFirstButtonClick = {},
-        onSecondButtonClick = {}
+fun PreviewBackflushInsructions1Screen() {
+    BackflushInsructions1Screen(
+        onReadyClicked = {},
+        onExitClicked = {}
     )
 }
 
-@Preview(device = Devices.AUTOMOTIVE_1024p, widthDp = 720, heightDp = 360)
+@Preview(device = GAGGIA_DEVICE)
 @Composable
-fun BackflushInsructions2Screen() {
-    AppContent(
-        uiState = UIState(
-            telemetry = renderTelemetry(
-                "cleanInst2, 0, -1.000000, 40.400000, 0.000000, 105.750000"
-            )
-        ),
-        onFirstButtonClick = {},
-        onSecondButtonClick = {}
+fun PreviewBackflushInsructions2Screen() {
+    BackflushInsructions2Screen(
+        onReadyClicked = {},
+        onExitClicked = {}
     )
 }
 
-@Preview(device = Devices.AUTOMOTIVE_1024p, widthDp = 720, heightDp = 360)
+@Preview(device = GAGGIA_DEVICE)
 @Composable
-fun BackflushCycle1Screen() {
-    AppContent(
-        uiState = UIState(
-            telemetry = renderTelemetry(
-                "cleanSoap, 0, -1.000000, 40.400000, 0.000000, 105.750000"
-            )
-        ),
-        onFirstButtonClick = {},
-        onSecondButtonClick = {}
+fun PreviewBackflushInsructions3Screen() {
+    BackflushInsructions3Screen(
+        onReadyClicked = {},
+        onExitClicked = {}
     )
 }
 
-@Preview(device = Devices.AUTOMOTIVE_1024p, widthDp = 720, heightDp = 360)
+@Preview(device = GAGGIA_DEVICE)
 @Composable
-fun BackflushInsructions3Screen() {
-    AppContent(
-        uiState = UIState(
-            telemetry = renderTelemetry(
-                "cleanInst3, 0, -1.000000, 40.400000, 0.000000, 105.750000"
-            )
-        ),
-        onFirstButtonClick = {},
-        onSecondButtonClick = {}
+fun PreviewBackflushCycle1Screen() {
+    BackflushCycle1Screen (
+// notice weight is pass and pressure is total number of passes
+        telemetry =
+"""
+cleanSoap, 2, 10, 49.066667, 1.666667, 106.000000, 2, 2235, 0
+""".toTelemetry(),
+        onExitClicked = {}
     )
 }
 
-@Preview(device = Devices.AUTOMOTIVE_1024p, widthDp = 720, heightDp = 360)
+@Preview(device = GAGGIA_DEVICE)
 @Composable
-fun BackflushCycle2Screen() {
-    AppContent(
-        uiState = UIState(
-            telemetry = renderTelemetry(
-                "cleanRinse, 0, -1.000000, 40.400000, 0.000000, 105.750000"
-            )
-        ),
-        onFirstButtonClick = {},
-        onSecondButtonClick = {}
+fun PreviewBackflushCycle2Screen() {
+    BackflushCycle2Screen(
+// notice weight is pass and pressure is total number of passes
+        telemetry =
+"""
+cleanSoap, 2, 10, 49.066667, 1.666667, 106.000000, 2, 2235, 0
+""".toTelemetry(),
+        onExitClicked = {}
     )
 }
 
-@Preview(device = Devices.AUTOMOTIVE_1024p, widthDp = 720, heightDp = 360)
+@Preview(device = GAGGIA_DEVICE)
 @Composable
-fun BackflushDoneScreen() {
-    AppContent(
-        uiState = UIState(
-            telemetry = renderTelemetry(
-                "cleanDone, 0, -1.000000, 40.400000, 0.000000, 105.750000"
-            )
-        ),
-        onFirstButtonClick = {},
-        onSecondButtonClick = {}
+fun PreviewBackflushDoneScreen() {
+    BackflushDoneScreen(
+        onDoneClicked = {}
     )
 }
 
-
-**/
+@Preview(device = GAGGIA_DEVICE)
+@Composable
+fun PreviewSettingsScreen() {
+    RoboGaggiaTheme(darkTheme = true) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .paint(
+                    painterResource(Res.drawable.dark_circuitboard),
+                    contentScale = ContentScale.FillBounds
+                )
+        ) {
+            SettingsContent(
+                settings = SettingsViewModel.SettingsState(10, SettingsViewModel.FormState.Success),
+                onSettingsSave = {}
+            )
+        }
+    }
+}
