@@ -157,7 +157,8 @@ fun AppContent(bluetoothPermissionAcquired: Boolean) {
                         onSecondButtonClick = _onSecondButtonClick,
                         onLocalRouteSelected = { localRoute ->
                             localRouteSelected.value = localRoute.route
-                        }
+                        },
+                        onBackButtonClick = { navController.popBackStack() }
                     )
                 }
             }
@@ -169,6 +170,7 @@ val WAITING_ROUTE = "waiting"
 fun NavGraphBuilder.mainNavigationGraph(
     onFirstButtonClick: () -> Unit,
     onSecondButtonClick: () -> Unit,
+    onBackButtonClick: () -> Unit,
     onLocalRouteSelected: (LOCAL_ROUTES) -> Unit
 ) {
     composable(route = WAITING_ROUTE) {
@@ -204,7 +206,7 @@ fun NavGraphBuilder.mainNavigationGraph(
 
     composable(route = LOCAL_ROUTES.SETTINGS.route) {
         SettingsScreen(
-            onExitClicked = onFirstButtonClick,
+            onExitClicked = onBackButtonClick
         )
     }
 

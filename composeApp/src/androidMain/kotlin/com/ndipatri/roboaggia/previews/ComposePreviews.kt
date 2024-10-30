@@ -2,11 +2,13 @@ package com.ndipatri.robogaggia.previews
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.paint
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import org.jetbrains.compose.resources.painterResource
 import robogaggiamultiplatform.composeapp.generated.resources.Res
 import robogaggiamultiplatform.composeapp.generated.resources.dark_circuitboard
@@ -265,6 +267,7 @@ fun PreviewSettingsScreen() {
         ) {
             SettingsContent(
                 settings = SettingsViewModel.SettingsState(10, SettingsViewModel.FormState.Success),
+                onExitClicked = {},
                 onSettingsSave = {}
             )
         }

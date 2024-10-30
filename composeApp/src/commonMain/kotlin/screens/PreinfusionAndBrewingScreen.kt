@@ -16,6 +16,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
@@ -32,8 +33,12 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.LifecycleOwner
 import content.ScreenContent
 import kotlinx.coroutines.delay
 import robogaggiamultiplatform.composeapp.generated.resources.Res
@@ -137,7 +142,12 @@ fun BrewChart(telemetry: Telemetry, content: (@Composable () -> Unit)? = null) {
                             else -> {}
                         }
                     }
+                }
+            }
 
+            val lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current
+            DisposableEffect(lifecycleOwner) {
+                onDispose {
                     if (telemetry.currentState == GaggiaState.DONE_BREWING) {
                         // Now that we've used this data, we have to clear it out as this
                         // screen is stateful...
