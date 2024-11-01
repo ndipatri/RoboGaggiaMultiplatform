@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-class SettingsViewModel: ViewModel() {
+class SettingsViewModel : ViewModel() {
 
     val authenticatedApi = DefaultApi().apply {
         setBearerToken(BuildKonfig.PARTICLE_ACCESS_TOKEN)
@@ -23,14 +23,22 @@ class SettingsViewModel: ViewModel() {
 
     fun loadSettings() {
         viewModelScope.launch {
-            val referenceCupWeight = getReferenceCupWeight()
+            try {
+                val referenceCupWeight = getReferenceCupWeight()
 
-            // for now, it's just cup weight
-            settingsUIStateFlow.update { oldState ->
-                oldState.copy(
-                    referenceCupWeight = referenceCupWeight,
-                    formState = FormState.Success
-                )
+                // for now, it's just cup weight
+                settingsUIStateFlow.update { oldState ->
+                    oldState.copy(
+                        referenceCupWeight = referenceCupWeight,
+                        formState = FormState.Success
+                    )
+                }
+            } catch (ex: Exception) {
+                settingsUIStateFlow.update { oldState ->
+                    oldState.copy(
+                        formState = FormState.Error
+                    )
+                }
             }
         }
     }
@@ -43,38 +51,45 @@ class SettingsViewModel: ViewModel() {
 
         viewModelScope.launch {
             // for now, it's just cup weight
-            if (setReferenceCupWeight(newSettingsState.referenceCupWeight)) {
+            try {
+                setReferenceCupWeight(newSettingsState.referenceCupWeight)
+
                 settingsUIStateFlow.update {
-                    it.copy(referenceCupWeight = newSettingsState.referenceCupWeight,
-                            formState = FormState.Success)
+                    it.copy(
+                        referenceCupWeight = newSettingsState.referenceCupWeight,
+                        formState = FormState.Success
+                    )
                 }
-            } else {
-                settingsUIStateFlow.update {
-                    it.copy(formState = FormState.Error)
+            } catch (ex: Exception) {
+                settingsUIStateFlow.update { oldState ->
+                    oldState.copy(
+                        formState = FormState.Error
+                    )
                 }
             }
         }
     }
 
-    private suspend fun setReferenceCupWeight(cupWeight: Int): Boolean {
+    private suspend fun setReferenceCupWeight(cupWeight: Int) {
         authenticatedApi.getDevices().body().filter {
             // NJD TODO - Need to get this value dynamically via telemetry from Gaggia
             it.name.equals("roboGaggia3")
         }.first().let { device ->
-            val result = authenticatedApi.callFunction(
+            val response = authenticatedApi.callFunction(
                 deviceId = device.id!!,
                 functionName = "setReferenceCupWeight",
                 requestBody = mapOf("arg" to cupWeight.toString(), "format" to "string"),
                 productIdOrSlug = "",
             )
 
-            return result.success &&
-                   result.body().returnValue == 1
+            if (!response.success || response.body().returnValue != 1) {
+                throw Exception("Failed to set reference cup weight")
+            }
         }
     }
 
     private suspend fun getReferenceCupWeight(): Int {
-        return authenticatedApi.getDevices().body().first {
+        val response = authenticatedApi.getDevices().body().first {
             // NJD TODO - Need to get this value dynamically via telemetry from Gaggia
             it.name.equals("roboGaggia3")
         }.let { device ->
@@ -82,7 +97,13 @@ class SettingsViewModel: ViewModel() {
                 deviceId = device.id!!,
                 varName = "referenceCupWeight",
                 productIdOrSlug = "",
-            ).body().result?.toInt() ?: -1
+            )
+        }
+
+        if (response.success) {
+            return response.body().result?.toInt() ?: -1
+        } else {
+            throw Exception("Failed to get reference cup weight")
         }
     }
 

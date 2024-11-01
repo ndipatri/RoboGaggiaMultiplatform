@@ -39,6 +39,8 @@ import robogaggiamultiplatform.composeapp.generated.resources.Res
 import robogaggiamultiplatform.composeapp.generated.resources.cup_weight
 import robogaggiamultiplatform.composeapp.generated.resources.dark_circuitboard
 import robogaggiamultiplatform.composeapp.generated.resources.exit
+import robogaggiamultiplatform.composeapp.generated.resources.please_wait
+import robogaggiamultiplatform.composeapp.generated.resources.problems_loading_settings
 import robogaggiamultiplatform.composeapp.generated.resources.save
 import services.SettingsViewModel
 import theme.Purple40
@@ -119,8 +121,9 @@ fun SettingsContent(
         }
 
         Column(
+            verticalArrangement = Arrangement.Center,
             modifier = Modifier
-                .fillMaxSize()
+                //.fillMaxWidth()
                 .padding(top = 30.dp)
                 .weight(.60F)
         ) {
@@ -172,60 +175,84 @@ private fun SettingsControls(
 ) {
     Column(modifier = modifier) {
         Column(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalAlignment = Alignment.CenterHorizontally
+            modifier = Modifier.fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
         ) {
-            Text(
-                textAlign = TextAlign.Center,
-                text = stringResource(Res.string.cup_weight),
-                style = Typography.body1
-            )
+            when (settingsState.formState) {
 
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-
-                // intrinsic state is just the values for each settings controller
-                var cupWeightSliderValue by remember(settingsState) {
-                    mutableStateOf(
-                        settingsState.referenceCupWeight.toSliderValue()
+                SettingsViewModel.FormState.Loading, SettingsViewModel.FormState.Init -> {
+                    Text(
+                        textAlign = TextAlign.Center,
+                        text = stringResource(Res.string.please_wait),
+                        style = Typography.body1
                     )
                 }
 
-                Text(
-                    textAlign = TextAlign.Left,
-                    text = "${cupWeightSliderValue.fromSliderValue()} g",
-                    style = Typography.body2,
-                    modifier = Modifier.padding(20.dp)
-                )
+                SettingsViewModel.FormState.Error -> {
+                    Text(
+                        textAlign = TextAlign.Center,
+                        text = stringResource(Res.string.problems_loading_settings),
+                        style = Typography.body1
+                    )
+                }
 
-                Slider(
-                    enabled = settingsState.formState == SettingsViewModel.FormState.Success,
-                    value = cupWeightSliderValue,
+                SettingsViewModel.FormState.Success -> {
 
-                    steps = 200,
+                    Text(
+                        textAlign = TextAlign.Center,
+                        text = stringResource(Res.string.cup_weight),
+                        style = Typography.body1
+                    )
 
-                    // begin slide action.. we only update intrinsic state
-                    onValueChange = {
-                        cupWeightSliderValue = it
-                    },
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
 
-                    // now we hoist our state
-                    onValueChangeFinished = {
-                        // for now, assume weight is 0 to 100 grams
-                        onSettingsStateChange(settingsState.copy(referenceCupWeight = cupWeightSliderValue.fromSliderValue()))
-                    },
+                        // intrinsic state is just the values for each settings controller
+                        var cupWeightSliderValue by remember(settingsState) {
+                            mutableStateOf(
+                                settingsState.referenceCupWeight.toSliderValue()
+                            )
+                        }
 
-                    colors = SliderDefaults.colors(
-                        thumbColor = Purple40,
-                        activeTrackColor = Color.White,
-                        inactiveTrackColor = Color.White
-                    ),
+                        Text(
+                            textAlign = TextAlign.Left,
+                            text = "${cupWeightSliderValue.fromSliderValue()} g",
+                            style = Typography.body2,
+                            modifier = Modifier.padding(20.dp)
+                        )
 
-                    modifier = Modifier.padding(20.dp)
-                )
+                        println("*** NJD: recomposing slider")
+                        Slider(
+                            enabled = settingsState.formState == SettingsViewModel.FormState.Success,
+                            value = cupWeightSliderValue,
+
+                            steps = 200,
+
+                            // begin slide action.. we only update intrinsic state
+                            onValueChange = {
+                                cupWeightSliderValue = it
+                            },
+
+                            // now we hoist our state
+                            onValueChangeFinished = {
+                                // for now, assume weight is 0 to 100 grams
+                                onSettingsStateChange(settingsState.copy(referenceCupWeight = cupWeightSliderValue.fromSliderValue()))
+                            },
+
+                            colors = SliderDefaults.colors(
+                                thumbColor = Purple40,
+                                activeTrackColor = Color.White,
+                                inactiveTrackColor = Color.White
+                            ),
+
+                            modifier = Modifier.padding(20.dp)
+                        )
+                    }
+                }
             }
         }
     }

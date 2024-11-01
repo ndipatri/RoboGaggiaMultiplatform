@@ -7,6 +7,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.paint
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import org.jetbrains.compose.resources.painterResource
@@ -37,7 +38,7 @@ import vms.Telemetry
 import vms.TelemetryMessage
 import vms.Weight
 
-const val GAGGIA_DEVICE = "spec:shape=Normal,width=1792,height=828,unit=px,dpi=326"
+const val GAGGIA_DEVICE = "spec:width=1434dp,height=662dp,orientation=landscape"
 
 // stateName, weight, pressure, pumpDutyCycle, flowRate, brewTemp, shotsUntilBackflush, totalShots, boilerState
 val BASE_TELEMETRY_STRING =
@@ -255,7 +256,7 @@ fun PreviewBackflushDoneScreen() {
 
 @Preview(device = GAGGIA_DEVICE)
 @Composable
-fun PreviewSettingsScreen() {
+fun PreviewSettingsScreen_Success() {
     RoboGaggiaTheme(darkTheme = true) {
         Box(
             modifier = Modifier
@@ -267,6 +268,48 @@ fun PreviewSettingsScreen() {
         ) {
             SettingsContent(
                 settings = SettingsViewModel.SettingsState(10, SettingsViewModel.FormState.Success),
+                onExitClicked = {},
+                onSettingsSave = {}
+            )
+        }
+    }
+}
+
+@Preview(device = GAGGIA_DEVICE)
+@Composable
+fun PreviewSettingsScreen_Loading() {
+    RoboGaggiaTheme(darkTheme = true) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .paint(
+                    painterResource(Res.drawable.dark_circuitboard),
+                    contentScale = ContentScale.FillBounds
+                )
+        ) {
+            SettingsContent(
+                settings = SettingsViewModel.SettingsState(10, SettingsViewModel.FormState.Loading),
+                onExitClicked = {},
+                onSettingsSave = {}
+            )
+        }
+    }
+}
+
+@Preview(device = GAGGIA_DEVICE)
+@Composable
+fun PreviewSettingsScreen_Error() {
+    RoboGaggiaTheme(darkTheme = true) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .paint(
+                    painterResource(Res.drawable.dark_circuitboard),
+                    contentScale = ContentScale.FillBounds
+                )
+        ) {
+            SettingsContent(
+                settings = SettingsViewModel.SettingsState(10, SettingsViewModel.FormState.Error),
                 onExitClicked = {},
                 onSettingsSave = {}
             )
