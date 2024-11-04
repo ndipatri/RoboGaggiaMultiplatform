@@ -29,7 +29,7 @@ fun TareCupAfterMeasureScreen(
         },
         button1Resource = if (telemetry.isCupOnlyOnScale) Res.string.done else null,
         button2Resource = Res.string.exit,
-        boilerIsOn = telemetry.currentBoilerIsOn ?: false,
+        telemetry = telemetry,
         onFirstButtonClick = onFirstButtonClick,
         onSecondButtonClick = onSecondButtonClick
     )

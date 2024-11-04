@@ -30,7 +30,7 @@ fun MeasureBeansScreen(
             Res.string.click_done_to_grind_beans,
         button1Resource = if (telemetry.isScaleWeighted) Res.string.done else null,
         button2Resource = Res.string.exit,
-        boilerIsOn = telemetry.currentBoilerIsOn ?: false,
+        telemetry = telemetry,
         onFirstButtonClick = onFirstButtonClick,
         onSecondButtonClick = onSecondButtonClick
     ) {

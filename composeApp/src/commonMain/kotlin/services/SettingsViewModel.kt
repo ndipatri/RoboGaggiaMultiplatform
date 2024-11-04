@@ -17,7 +17,7 @@ class SettingsViewModel : ViewModel() {
     val settingsUIStateFlow = MutableStateFlow(
         SettingsState(
             referenceCupWeight = -1, // value is irrelevant in Init state
-            formState = FormState.Init
+            submissionState = SubmissionState.Init
         )
     )
 
@@ -30,13 +30,13 @@ class SettingsViewModel : ViewModel() {
                 settingsUIStateFlow.update { oldState ->
                     oldState.copy(
                         referenceCupWeight = referenceCupWeight,
-                        formState = FormState.Success
+                        submissionState = SubmissionState.Success
                     )
                 }
             } catch (ex: Exception) {
                 settingsUIStateFlow.update { oldState ->
                     oldState.copy(
-                        formState = FormState.Error
+                        submissionState = SubmissionState.Error
                     )
                 }
             }
@@ -46,7 +46,7 @@ class SettingsViewModel : ViewModel() {
     fun saveSettings(newSettingsState: SettingsState) {
 
         settingsUIStateFlow.update {
-            it.copy(formState = FormState.Loading)
+            it.copy(submissionState = SubmissionState.Loading)
         }
 
         viewModelScope.launch {
@@ -57,13 +57,13 @@ class SettingsViewModel : ViewModel() {
                 settingsUIStateFlow.update {
                     it.copy(
                         referenceCupWeight = newSettingsState.referenceCupWeight,
-                        formState = FormState.Success
+                        submissionState = SubmissionState.Success
                     )
                 }
             } catch (ex: Exception) {
                 settingsUIStateFlow.update { oldState ->
                     oldState.copy(
-                        formState = FormState.Error
+                        submissionState = SubmissionState.Error
                     )
                 }
             }
@@ -109,13 +109,13 @@ class SettingsViewModel : ViewModel() {
 
     data class SettingsState(
         val referenceCupWeight: Int,
-        val formState: FormState = FormState.Init
+        val submissionState: SubmissionState = SubmissionState.Init,
     )
 
-    sealed interface FormState {
-        data object Init : FormState
-        data object Loading : FormState
-        data object Success : FormState
-        data object Error : FormState
+    sealed interface SubmissionState {
+        data object Init : SubmissionState
+        data object Loading : SubmissionState
+        data object Success : SubmissionState
+        data object Error : SubmissionState
     }
 }

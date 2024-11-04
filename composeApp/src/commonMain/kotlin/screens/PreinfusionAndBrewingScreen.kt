@@ -67,7 +67,7 @@ fun PreinfusionAndBrewingScreen(
                     body1Resource = Res.string.done_brewing,
                     button1Resource = Res.string.ready,
                     button2Resource = Res.string.exit,
-                    boilerIsOn = telemetry.currentBoilerIsOn ?: false,
+                    telemetry = telemetry,
                     onFirstButtonClick = onReadyClicked,
                     onSecondButtonClick = onExitClicked,
                     backgroundImage = null,
@@ -535,7 +535,7 @@ data class SeriesData constructor(
                             GaggiaState.PREINFUSION,
                             GaggiaState.BREWING
                         )
-                    }.map { it.brewTempC.toFloat() },
+                    }.map { it.brewTempC.currentTemp },
                     accumulatedTelemetry.filter {
                         it.state in setOf(
                             GaggiaState.PREINFUSION,

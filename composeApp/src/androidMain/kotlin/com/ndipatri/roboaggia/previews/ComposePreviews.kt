@@ -2,14 +2,11 @@ package com.ndipatri.robogaggia.previews
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.paint
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import org.jetbrains.compose.resources.painterResource
 import robogaggiamultiplatform.composeapp.generated.resources.Res
 import robogaggiamultiplatform.composeapp.generated.resources.dark_circuitboard
@@ -27,7 +24,6 @@ import screens.MeasureBeansScreen
 import screens.PreheatScreen
 import screens.PreinfusionAndBrewingScreen
 import screens.SettingsContent
-import screens.SettingsScreen
 import screens.SleepScreen
 import screens.SteamingScreen
 import screens.TareCupAfterMeasureScreen
@@ -36,6 +32,7 @@ import theme.RoboGaggiaTheme
 import vms.GaggiaState
 import vms.Telemetry
 import vms.TelemetryMessage
+import vms.Temp
 import vms.Weight
 
 const val GAGGIA_DEVICE = "spec:width=1434dp,height=662dp,orientation=landscape"
@@ -56,7 +53,7 @@ fun String.toTelemetry() =
                     pressureBars = it[2],
                     dutyCyclePercent = it[3],
                     flowRateGPS = it[4],
-                    brewTempC = it[5],
+                    brewTempC = Temp(it[5]),
                     shotsUntilBackflush = it[6],
                     totalShots = it[7],
                     boilerState = it[8],
@@ -267,7 +264,7 @@ fun PreviewSettingsScreen_Success() {
                 )
         ) {
             SettingsContent(
-                settings = SettingsViewModel.SettingsState(10, SettingsViewModel.FormState.Success),
+                settings = SettingsViewModel.SettingsState(10, SettingsViewModel.SubmissionState.Success),
                 onExitClicked = {},
                 onSettingsSave = {}
             )
@@ -288,7 +285,7 @@ fun PreviewSettingsScreen_Loading() {
                 )
         ) {
             SettingsContent(
-                settings = SettingsViewModel.SettingsState(10, SettingsViewModel.FormState.Loading),
+                settings = SettingsViewModel.SettingsState(10, SettingsViewModel.SubmissionState.Loading),
                 onExitClicked = {},
                 onSettingsSave = {}
             )
@@ -309,7 +306,7 @@ fun PreviewSettingsScreen_Error() {
                 )
         ) {
             SettingsContent(
-                settings = SettingsViewModel.SettingsState(10, SettingsViewModel.FormState.Error),
+                settings = SettingsViewModel.SettingsState(10, SettingsViewModel.SubmissionState.Error),
                 onExitClicked = {},
                 onSettingsSave = {}
             )

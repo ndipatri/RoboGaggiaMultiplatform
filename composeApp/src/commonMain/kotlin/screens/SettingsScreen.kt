@@ -11,12 +11,16 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.ButtonDefaults
+import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.OutlinedButton
-import androidx.compose.material.Slider
-import androidx.compose.material.SliderDefaults
+import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Text
+import androidx.compose.material.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -28,6 +32,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.paint
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import org.jetbrains.compose.resources.painterResource
@@ -89,6 +95,7 @@ fun SettingsContent(
         mutableStateOf(settings)
     }
     var settingsChanged by remember { mutableStateOf(false) }
+    var isValid by remember { mutableStateOf(false) }
 
     Row(
         verticalAlignment = Alignment.CenterVertically,
@@ -123,8 +130,6 @@ fun SettingsContent(
         Column(
             verticalArrangement = Arrangement.Center,
             modifier = Modifier
-                //.fillMaxWidth()
-                .padding(top = 30.dp)
                 .weight(.60F)
         ) {
             SettingsControls(
@@ -133,6 +138,9 @@ fun SettingsContent(
                     newSettingsState = it
                     settingsChanged = true
                 },
+                onValidationChange = {
+                    isValid = it
+                },
                 modifier = Modifier.weight(1f)
             )
         }
@@ -140,8 +148,9 @@ fun SettingsContent(
         Column(
             modifier = Modifier.fillMaxHeight().weight(.20F)
         ) {
-            val okToSave = newSettingsState.formState == SettingsViewModel.FormState.Success &&
-                    settingsChanged
+            val okToSave = newSettingsState.submissionState == SettingsViewModel.SubmissionState.Success &&
+                           isValid &&
+                           settingsChanged
 
             if (okToSave) {
                 OutlinedButton(
@@ -171,6 +180,7 @@ fun SettingsContent(
 private fun SettingsControls(
     settingsState: SettingsViewModel.SettingsState,
     onSettingsStateChange: (SettingsViewModel.SettingsState) -> Unit,
+    onValidationChange: (Boolean) -> Unit,
     modifier: Modifier
 ) {
     Column(modifier = modifier) {
@@ -179,17 +189,17 @@ private fun SettingsControls(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            when (settingsState.formState) {
+            when (settingsState.submissionState) {
 
-                SettingsViewModel.FormState.Loading, SettingsViewModel.FormState.Init -> {
-                    Text(
-                        textAlign = TextAlign.Center,
-                        text = stringResource(Res.string.please_wait),
-                        style = Typography.body1
+                SettingsViewModel.SubmissionState.Loading, SettingsViewModel.SubmissionState.Init -> {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(200.dp),
+                        color = Color.White,
+                        strokeWidth = 10.dp,
                     )
                 }
 
-                SettingsViewModel.FormState.Error -> {
+                SettingsViewModel.SubmissionState.Error -> {
                     Text(
                         textAlign = TextAlign.Center,
                         text = stringResource(Res.string.problems_loading_settings),
@@ -197,58 +207,58 @@ private fun SettingsControls(
                     )
                 }
 
-                SettingsViewModel.FormState.Success -> {
-
-                    Text(
-                        textAlign = TextAlign.Center,
-                        text = stringResource(Res.string.cup_weight),
-                        style = Typography.body1
-                    )
-
+                SettingsViewModel.SubmissionState.Success -> {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.Center,
                         modifier = Modifier.fillMaxWidth()
                     ) {
+                        val keyboardController = LocalSoftwareKeyboardController.current
 
                         // intrinsic state is just the values for each settings controller
-                        var cupWeightSliderValue by remember(settingsState) {
+                        var cupWeightValue by remember(settingsState) {
                             mutableStateOf(
-                                settingsState.referenceCupWeight.toSliderValue()
+                                settingsState.referenceCupWeight.toString()
                             )
                         }
 
-                        Text(
-                            textAlign = TextAlign.Left,
-                            text = "${cupWeightSliderValue.fromSliderValue()} g",
-                            style = Typography.body2,
-                            modifier = Modifier.padding(20.dp)
-                        )
-
-                        println("*** NJD: recomposing slider")
-                        Slider(
-                            enabled = settingsState.formState == SettingsViewModel.FormState.Success,
-                            value = cupWeightSliderValue,
-
-                            steps = 200,
-
-                            // begin slide action.. we only update intrinsic state
+                        OutlinedTextField(
+                            value = cupWeightValue,
+                            label = {
+                                Text(text = stringResource(Res.string.cup_weight),
+                                     style = Typography.body2,
+                                     modifier = Modifier.padding(20.dp)
+                                )
+                            },
+                            textStyle = Typography.body2,
+                            enabled = settingsState.submissionState == SettingsViewModel.SubmissionState.Success,
+                            isError = !cupWeightValue.isValidCupWeight(),
+                            placeholder = {
+                                if (!cupWeightValue.isValidCupWeight()) Text("Must be at least 10g and less than 200g")
+                            },
                             onValueChange = {
-                                cupWeightSliderValue = it
+                                cupWeightValue = it
+                                onValidationChange.invoke(cupWeightValue.isValidCupWeight())
+                                if (cupWeightValue.isValidCupWeight()) {
+                                    onSettingsStateChange(
+                                        settingsState.copy(
+                                            referenceCupWeight = cupWeightValue.toInt(),
+                                        )
+                                    )
+                                }
                             },
-
-                            // now we hoist our state
-                            onValueChangeFinished = {
-                                // for now, assume weight is 0 to 100 grams
-                                onSettingsStateChange(settingsState.copy(referenceCupWeight = cupWeightSliderValue.fromSliderValue()))
-                            },
-
-                            colors = SliderDefaults.colors(
-                                thumbColor = Purple40,
-                                activeTrackColor = Color.White,
-                                inactiveTrackColor = Color.White
+                            colors = TextFieldDefaults.textFieldColors(
+                                textColor = Purple40,
+                                backgroundColor = Color.Black,
+                                placeholderColor = Color.White
                             ),
-
+                            singleLine = true,
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                            keyboardActions = KeyboardActions(
+                                onDone = {
+                                    keyboardController?.hide()
+                                }
+                            ),
                             modifier = Modifier.padding(20.dp)
                         )
                     }
@@ -258,7 +268,4 @@ private fun SettingsControls(
     }
 }
 
-// For now, assume Slider range of 0 to 1F corresponds to 0 to 200 grams.
-fun Int.toSliderValue() = this / 200.0f
-fun Float.fromSliderValue() = (this * 200.0f).toInt()
-
+fun String.isValidCupWeight() = this.toIntOrNull() in 10..200

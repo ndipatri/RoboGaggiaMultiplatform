@@ -210,7 +210,7 @@ class TelemetryViewModel(val context: ApplicationContext) : ViewModel() {
             pressureBars = measuredPressureBars,
             dutyCyclePercent = pumpDutyCycle,
             flowRateGPS = flowRateGPS,
-            brewTempC = brewTempC,
+            brewTempC = Temp(brewTempC),
             shotsUntilBackflush = shotsUntilBackflush,
             totalShots = totalShots,
             boilerState = boilerState
@@ -395,7 +395,9 @@ data class TelemetryMessage(
     val pressureBars: String,
     val dutyCyclePercent: String,
     val flowRateGPS: String,
-    val brewTempC: String,
+
+    // of form: <currentTemp>:<targetTemp>
+    val brewTempC: Temp,
     val shotsUntilBackflush: String,
     val totalShots: String,
     val boilerState: String
@@ -407,6 +409,15 @@ data class Weight(val currentWeight: Float, val targetWeight: Float?) {
         if (weight.trim().split(":").size == 2) weight.trim().split(":")[1].toFloat() else null
     )
 }
+
+data class Temp(val currentTemp: Float, val targetTemp: Float?) {
+    constructor(temp: String) : this(
+        temp.trim().split(":")[0].toFloat(),
+        if (temp.trim().split(":").size == 2) temp.trim().split(":")[1].toFloat() else null
+    )
+}
+
+
 
 enum class GaggiaState(val stateName: String) {
     IGNORING_NETWORK("ignoringNetwork"),
@@ -550,7 +561,16 @@ data class Telemetry(
     val currentTemperature: Float?
         get() {
             return if (telemetry.isNotEmpty()) {
-                telemetry.last().brewTempC.trim().toFloat()
+                telemetry.last().brewTempC.currentTemp
+            } else {
+                null
+            }
+        }
+
+    val targetTemperature: Float?
+        get() {
+            return if (telemetry.isNotEmpty()) {
+                telemetry.last().brewTempC.targetTemp
             } else {
                 null
             }

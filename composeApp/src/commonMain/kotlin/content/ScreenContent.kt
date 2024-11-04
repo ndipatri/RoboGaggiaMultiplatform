@@ -4,7 +4,6 @@ import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -20,7 +19,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.OutlinedButton
@@ -47,10 +45,11 @@ import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import robogaggiamultiplatform.composeapp.generated.resources.Res
 import robogaggiamultiplatform.composeapp.generated.resources.dark_circuitboard
-import robogaggiamultiplatform.composeapp.generated.resources.flames
+import robogaggiamultiplatform.composeapp.generated.resources.temp_is
 import theme.Typography
+import utils.toStringWithTenths
+import vms.Telemetry
 
-@OptIn(ExperimentalResourceApi::class)
 @Composable
 fun ScreenContent(
     onFirstButtonClick: (() -> Unit)? = null,
@@ -65,7 +64,7 @@ fun ScreenContent(
     backgroundImage: DrawableResource? = Res.drawable.dark_circuitboard,
     backgroundColor: Color? = null,
     shouldUIDisappear: Boolean = false,
-    boilerIsOn: Boolean = false,
+    telemetry: Telemetry? = null,
     content: (@Composable ColumnScope.() -> Unit)? = null
 ) {
     Box(
@@ -98,13 +97,26 @@ fun ScreenContent(
             }
         }
 
-        FireContent(
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .fillMaxWidth()
-                .height(180.dp),
-            igniteFire = boilerIsOn
-        )
+        telemetry?.let {
+            FireContent(
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .fillMaxWidth()
+                    .height(180.dp),
+                igniteFire = it.currentBoilerIsOn ?: false
+            )
+
+            val tempString = stringResource(Res.string.temp_is,
+                (telemetry.currentTemperature ?: 0F).toStringWithTenths(),
+                (telemetry.targetTemperature ?: 0F).toStringWithTenths())
+
+            Text(
+                style = Typography.subtitle1,
+                textAlign = TextAlign.Center,
+                text = tempString,
+                modifier = Modifier.align(Alignment.BottomEnd).padding(20.dp)
+            )
+        }
 
         Row(
             modifier = Modifier
