@@ -17,6 +17,7 @@ class SettingsViewModel : ViewModel() {
     val settingsUIStateFlow = MutableStateFlow(
         SettingsState(
             referenceCupWeight = -1, // value is irrelevant in Init state
+            weightToBeanRatio = -1, // value is irrelevant in Init state
             submissionState = SubmissionState.Init
         )
     )
@@ -25,11 +26,13 @@ class SettingsViewModel : ViewModel() {
         viewModelScope.launch {
             try {
                 val referenceCupWeight = getReferenceCupWeight()
+                val weightToBeanRatio = getWeightToBeanRatio()
 
                 // for now, it's just cup weight
                 settingsUIStateFlow.update { oldState ->
                     oldState.copy(
                         referenceCupWeight = referenceCupWeight,
+                        weightToBeanRatio = weightToBeanRatio,
                         submissionState = SubmissionState.Success
                     )
                 }
@@ -50,13 +53,14 @@ class SettingsViewModel : ViewModel() {
         }
 
         viewModelScope.launch {
-            // for now, it's just cup weight
             try {
                 setReferenceCupWeight(newSettingsState.referenceCupWeight)
+                setWeightToBeanRatio(newSettingsState.weightToBeanRatio)
 
                 settingsUIStateFlow.update {
                     it.copy(
                         referenceCupWeight = newSettingsState.referenceCupWeight,
+                        weightToBeanRatio = newSettingsState.weightToBeanRatio,
                         submissionState = SubmissionState.Success
                     )
                 }
@@ -70,15 +74,27 @@ class SettingsViewModel : ViewModel() {
         }
     }
 
-    private suspend fun setReferenceCupWeight(cupWeight: Int) {
+    private suspend fun setReferenceCupWeight(cupWeight: Int) =
+        setParticleVariable("setReferenceCupWeight", cupWeight.toString())
+
+    private suspend fun setWeightToBeanRatio(weightToBeanRatio: Int) =
+        setParticleVariable("setWeightToBeanRatio", weightToBeanRatio.toString())
+
+    private suspend fun getReferenceCupWeight() =
+        getParticleVariable("referenceCupWeight")
+
+    private suspend fun getWeightToBeanRatio() =
+        getParticleVariable("weightToBeanRatio")
+
+    private suspend fun setParticleVariable(varName: String, varValue: String) {
         authenticatedApi.getDevices().body().filter {
             // NJD TODO - Need to get this value dynamically via telemetry from Gaggia
             it.name.equals("roboGaggia3")
         }.first().let { device ->
             val response = authenticatedApi.callFunction(
                 deviceId = device.id!!,
-                functionName = "setReferenceCupWeight",
-                requestBody = mapOf("arg" to cupWeight.toString(), "format" to "string"),
+                functionName = varName,
+                requestBody = mapOf("arg" to varValue, "format" to "string"),
                 productIdOrSlug = "",
             )
 
@@ -88,14 +104,14 @@ class SettingsViewModel : ViewModel() {
         }
     }
 
-    private suspend fun getReferenceCupWeight(): Int {
+    private suspend fun getParticleVariable(varName: String): Int {
         val response = authenticatedApi.getDevices().body().first {
             // NJD TODO - Need to get this value dynamically via telemetry from Gaggia
             it.name.equals("roboGaggia3")
         }.let { device ->
             authenticatedApi.getVariableValue(
                 deviceId = device.id!!,
-                varName = "referenceCupWeight",
+                varName = varName,
                 productIdOrSlug = "",
             )
         }
@@ -103,12 +119,13 @@ class SettingsViewModel : ViewModel() {
         if (response.success) {
             return response.body().result?.toInt() ?: -1
         } else {
-            throw Exception("Failed to get reference cup weight")
+            throw Exception("Failed to get '$varName'")
         }
     }
 
     data class SettingsState(
         val referenceCupWeight: Int,
+        val weightToBeanRatio: Int,
         val submissionState: SubmissionState = SubmissionState.Init,
     )
 

@@ -4,6 +4,7 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -33,9 +34,11 @@ import androidx.compose.ui.draw.paint
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
@@ -45,9 +48,9 @@ import robogaggiamultiplatform.composeapp.generated.resources.Res
 import robogaggiamultiplatform.composeapp.generated.resources.cup_weight
 import robogaggiamultiplatform.composeapp.generated.resources.dark_circuitboard
 import robogaggiamultiplatform.composeapp.generated.resources.exit
-import robogaggiamultiplatform.composeapp.generated.resources.please_wait
 import robogaggiamultiplatform.composeapp.generated.resources.problems_loading_settings
 import robogaggiamultiplatform.composeapp.generated.resources.save
+import robogaggiamultiplatform.composeapp.generated.resources.weight_to_bean_ratio
 import services.SettingsViewModel
 import theme.Purple40
 import theme.Typography
@@ -148,9 +151,10 @@ fun SettingsContent(
         Column(
             modifier = Modifier.fillMaxHeight().weight(.20F)
         ) {
-            val okToSave = newSettingsState.submissionState == SettingsViewModel.SubmissionState.Success &&
-                           isValid &&
-                           settingsChanged
+            val okToSave =
+                newSettingsState.submissionState == SettingsViewModel.SubmissionState.Success &&
+                        isValid &&
+                        settingsChanged
 
             if (okToSave) {
                 OutlinedButton(
@@ -183,89 +187,130 @@ private fun SettingsControls(
     onValidationChange: (Boolean) -> Unit,
     modifier: Modifier
 ) {
-    Column(modifier = modifier) {
-        Column(
-            modifier = Modifier.fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            when (settingsState.submissionState) {
+    Column(
+        modifier = modifier.fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        when (settingsState.submissionState) {
 
-                SettingsViewModel.SubmissionState.Loading, SettingsViewModel.SubmissionState.Init -> {
-                    CircularProgressIndicator(
-                        modifier = Modifier.size(200.dp),
-                        color = Color.White,
-                        strokeWidth = 10.dp,
-                    )
-                }
+            SettingsViewModel.SubmissionState.Loading, SettingsViewModel.SubmissionState.Init -> {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(200.dp),
+                    color = Color.White,
+                    strokeWidth = 10.dp,
+                )
+            }
 
-                SettingsViewModel.SubmissionState.Error -> {
-                    Text(
-                        textAlign = TextAlign.Center,
-                        text = stringResource(Res.string.problems_loading_settings),
-                        style = Typography.body1
-                    )
-                }
+            SettingsViewModel.SubmissionState.Error -> {
+                Text(
+                    textAlign = TextAlign.Center,
+                    text = stringResource(Res.string.problems_loading_settings),
+                    style = Typography.body1
+                )
+            }
 
-                SettingsViewModel.SubmissionState.Success -> {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.Center,
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        val keyboardController = LocalSoftwareKeyboardController.current
-
-                        // intrinsic state is just the values for each settings controller
-                        var cupWeightValue by remember(settingsState) {
-                            mutableStateOf(
-                                settingsState.referenceCupWeight.toString()
-                            )
-                        }
-
-                        OutlinedTextField(
-                            value = cupWeightValue,
-                            label = {
-                                Text(text = stringResource(Res.string.cup_weight),
-                                     style = Typography.body2,
-                                     modifier = Modifier.padding(20.dp)
-                                )
-                            },
-                            textStyle = Typography.body2,
-                            enabled = settingsState.submissionState == SettingsViewModel.SubmissionState.Success,
-                            isError = !cupWeightValue.isValidCupWeight(),
-                            placeholder = {
-                                if (!cupWeightValue.isValidCupWeight()) Text("Must be at least 10g and less than 200g")
-                            },
-                            onValueChange = {
-                                cupWeightValue = it
-                                onValidationChange.invoke(cupWeightValue.isValidCupWeight())
-                                if (cupWeightValue.isValidCupWeight()) {
-                                    onSettingsStateChange(
-                                        settingsState.copy(
-                                            referenceCupWeight = cupWeightValue.toInt(),
-                                        )
-                                    )
-                                }
-                            },
-                            colors = TextFieldDefaults.textFieldColors(
-                                textColor = Purple40,
-                                backgroundColor = Color.Black,
-                                placeholderColor = Color.White
-                            ),
-                            singleLine = true,
-                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                            keyboardActions = KeyboardActions(
-                                onDone = {
-                                    keyboardController?.hide()
-                                }
-                            ),
-                            modifier = Modifier.padding(20.dp)
+            SettingsViewModel.SubmissionState.Success -> {
+                    var referenceCupWeightValue by remember(settingsState) {
+                        mutableStateOf(
+                            settingsState.referenceCupWeight.toString()
                         )
                     }
-                }
+                    SettingsRow(
+                        value = referenceCupWeightValue,
+                        labelResource = Res.string.cup_weight,
+                        isError = !referenceCupWeightValue.isValidCupWeight(),
+                        errorMessage = "Must be at least 10g and less than 200g",
+                        onValueChange = {
+                            referenceCupWeightValue = it
+                            onValidationChange.invoke(it.isValidCupWeight())
+                            if (it.isValidCupWeight()) {
+                                onSettingsStateChange(
+                                    settingsState.copy(
+                                        referenceCupWeight = it.toInt(),
+                                    )
+                                )
+                            }
+                        }
+                    )
+
+
+                    var weightToBeanRatioValue by remember(settingsState) {
+                        mutableStateOf(
+                            settingsState.weightToBeanRatio.toString()
+                        )
+                    }
+                    SettingsRow(
+                        value = weightToBeanRatioValue,
+                        labelResource = Res.string.weight_to_bean_ratio,
+                        isError = !weightToBeanRatioValue.isValidWeightToBeanRatio(),
+                        errorMessage = "Must be between 1 and 4",
+                        onValueChange = {
+                            weightToBeanRatioValue = it
+                            onValidationChange.invoke(it.isValidWeightToBeanRatio())
+                            if (it.isValidWeightToBeanRatio()) {
+                                onSettingsStateChange(
+                                    settingsState.copy(
+                                        weightToBeanRatio = it.toInt(),
+                                    )
+                                )
+                            }
+                        }
+                    )
             }
         }
     }
 }
 
+@Composable
+private fun ColumnScope.SettingsRow(
+    value: String,
+    labelResource: StringResource,
+    isError: Boolean,
+    errorMessage: String,
+    onValueChange: (String) -> Unit,
+) {
+    val keyboardController = LocalSoftwareKeyboardController.current
+
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.Center,
+        modifier = Modifier.fillMaxWidth()
+    ) {
+
+        OutlinedTextField(
+            value = value,
+            label = {
+                Text(
+                    text = stringResource(labelResource),
+                    style = Typography.body2,
+                    modifier = Modifier.padding(20.dp)
+                )
+            },
+            textStyle = Typography.body2,
+            isError = isError,
+            placeholder = {
+                if (isError) Text(errorMessage)
+            },
+            onValueChange = {
+                onValueChange(it)
+            },
+            colors = TextFieldDefaults.textFieldColors(
+                textColor = Purple40,
+                backgroundColor = Color.Black,
+                placeholderColor = Color.White
+            ),
+            singleLine = true,
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+            keyboardActions = KeyboardActions(
+                onDone = {
+                    keyboardController?.hide()
+                }
+            ),
+            modifier = Modifier.padding(20.dp)
+        )
+    }
+}
+
 fun String.isValidCupWeight() = this.toIntOrNull() in 10..200
+fun String.isValidWeightToBeanRatio() = this.toIntOrNull() in 1..4

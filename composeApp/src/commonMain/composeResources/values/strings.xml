@@ -81,6 +81,7 @@
     <string name="waiting_for_scale_to_settle">Waiting for scale to settle ...</string>
 
     <string name="cup_weight">Brew Cup Weight</string>
+    <string name="weight_to_bean_ratio">Weight To Bean Ratio</string>
     <string name="problems_loading_settings">Sorry. Unable to load Settings</string>
     <string name="save">Save</string>
     <string name="settings">Settings</string>

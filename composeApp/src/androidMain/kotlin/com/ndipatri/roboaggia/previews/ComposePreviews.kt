@@ -264,7 +264,7 @@ fun PreviewSettingsScreen_Success() {
                 )
         ) {
             SettingsContent(
-                settings = SettingsViewModel.SettingsState(10, SettingsViewModel.SubmissionState.Success),
+                settings = SettingsViewModel.SettingsState(10, 3, SettingsViewModel.SubmissionState.Success),
                 onExitClicked = {},
                 onSettingsSave = {}
             )
@@ -285,7 +285,7 @@ fun PreviewSettingsScreen_Loading() {
                 )
         ) {
             SettingsContent(
-                settings = SettingsViewModel.SettingsState(10, SettingsViewModel.SubmissionState.Loading),
+                settings = SettingsViewModel.SettingsState(10, 3, SettingsViewModel.SubmissionState.Loading),
                 onExitClicked = {},
                 onSettingsSave = {}
             )
@@ -306,7 +306,7 @@ fun PreviewSettingsScreen_Error() {
                 )
         ) {
             SettingsContent(
-                settings = SettingsViewModel.SettingsState(10, SettingsViewModel.SubmissionState.Error),
+                settings = SettingsViewModel.SettingsState(10, 3, SettingsViewModel.SubmissionState.Error),
                 onExitClicked = {},
                 onSettingsSave = {}
             )
