@@ -15,6 +15,18 @@ The mobile device hangs on the front of Robo Gaggia and covers the original mech
 
 Please see the [Robo Gaggia](https://github.com/ndipatri/RoboGaggia) project for details on how to hang the mobile device on the front of Robo Gaggia.
 
+# Addition UI Functionality
+
+## Tune RoboGaggia Settings
+
+This mobile application provides additional user features beyond what the RoboGaggia platform provides. For example, the ability to tune certain RoboGaggia settings such as the 'reference weight' of the cup that is used for brewing your shot.  This value is built into RoboGaggia, but you can only change the value from this mobile app.
+
+## Last Brew
+
+This feature stores previous Telemetry from RoboGaggia so that AFTER you are finished brewing a shot and steaming your milk, you can review the shot later to see if your grinder needs any adjustments.
+
+
+
 
 ## Compose Multiplatform UI Framework
 
