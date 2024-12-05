@@ -55,15 +55,19 @@ fun ScreenContent(
     onFirstButtonClick: (() -> Unit)? = null,
     onSecondButtonClick: (() -> Unit)? = null,
     onThirdButtonClick: (() -> Unit)? = null,
+    onFourthButtonClick: (() -> Unit)? = null,
     body1Resource: StringResource? = null,
     body2Resource: StringResource? = null,
     userMessage: String? = null,
     button1Resource: StringResource? = null,
     button2Resource: StringResource? = null,
     button3Resource: StringResource? = null,
+    button4Resource: StringResource? = null,
     backgroundImage: DrawableResource? = Res.drawable.dark_circuitboard,
     backgroundColor: Color? = null,
     shouldUIDisappear: Boolean = false,
+    shouldAutoAdvance: Boolean = false,
+    showFireContent: Boolean = true,
     telemetry: Telemetry? = null,
     content: (@Composable ColumnScope.() -> Unit)? = null
 ) {
@@ -97,25 +101,48 @@ fun ScreenContent(
             }
         }
 
-        telemetry?.let {
-            FireContent(
-                modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .fillMaxWidth()
-                    .height(180.dp),
-                igniteFire = it.currentBoilerIsOn ?: false
-            )
-
-            val tempString = stringResource(Res.string.temp_is,
-                (telemetry.currentTemperature ?: 0F).toStringWithTenths(),
-                (telemetry.targetTemperature ?: 0F).toStringWithTenths())
-
+        var countdownValue by remember { mutableStateOf(5) }
+        if (shouldAutoAdvance) {
             Text(
-                style = Typography.subtitle1,
-                textAlign = TextAlign.Center,
-                text = tempString,
-                modifier = Modifier.align(Alignment.BottomEnd).padding(20.dp)
+                modifier = Modifier.align(Alignment.BottomCenter),
+                text = countdownValue.toString(),
+                style = Typography.h1,
+                textAlign = TextAlign.Center
             )
+            LaunchedEffect(countdownValue) {
+                delay(1000)
+
+                if (countdownValue > 1) {
+                    countdownValue -= 1
+                } else {
+                    onFirstButtonClick?.invoke()
+                }
+            }
+        }
+
+        if (showFireContent) {
+            telemetry?.let {
+                FireContent(
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .fillMaxWidth()
+                        .height(180.dp),
+                    igniteFire = it.currentBoilerIsOn ?: false
+                )
+
+                val tempString = stringResource(
+                    Res.string.temp_is,
+                    (telemetry.currentTemperature ?: 0F).toStringWithTenths(),
+                    (telemetry.targetTemperature ?: 0F).toStringWithTenths()
+                )
+
+                Text(
+                    style = Typography.subtitle1,
+                    textAlign = TextAlign.Center,
+                    text = tempString,
+                    modifier = Modifier.align(Alignment.BottomEnd).padding(20.dp)
+                )
+            }
         }
 
         Row(
@@ -193,7 +220,11 @@ fun ScreenContent(
             }
 
             Column(
-                modifier = Modifier.fillMaxHeight().weight(.20F)
+                verticalArrangement = Arrangement.Center,
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .weight(.20F)
+                    .padding(horizontal = 10.dp)
             ) {
                 button1Resource?.let {
                     OutlinedButton(
@@ -209,6 +240,25 @@ fun ScreenContent(
                     ) {
                         Text(
                             text = stringResource(button1Resource),
+                            textAlign = TextAlign.Center
+                        )
+                    }
+                }
+
+                button4Resource?.let {
+                    OutlinedButton(
+                        onClick = { onFourthButtonClick?.invoke() },
+                        modifier = Modifier.requiredSize(150.dp).weight(.5f).padding(20.dp),
+                        shape = CircleShape,
+                        border = BorderStroke(5.dp, Color(0XFF0F9D58)),
+                        contentPadding = PaddingValues(0.dp),
+                        colors = ButtonDefaults.outlinedButtonColors(
+                            contentColor = androidx.compose.ui.graphics.Color.White,
+                            backgroundColor = androidx.compose.ui.graphics.Color.Black
+                        )
+                    ) {
+                        Text(
+                            text = stringResource(button4Resource),
                             textAlign = TextAlign.Center
                         )
                     }

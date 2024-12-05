@@ -1,0 +1,64 @@
+// preference_data.proto file
+
+syntax = "proto3";
+
+package robo.ndipatri.robogaggia.proto_datastore_kmm;
+
+message TelemetryProtoData {
+  int32 counter = 1;
+  repeated TelemetryMessage telemetry = 2;
+}
+
+message TelemetryMessage {
+  GaggiaState state = 1;
+  Weight weight = 2;
+  string pressureBars = 3;
+  string dutyCyclePercent = 4;
+  string flowRateGPS = 5;
+  Temp brewTempC = 6;
+  string shotsUntilBackflush = 7;
+  string totalShots = 8;
+  string boilerState = 9;
+}
+
+message Weight {
+  float currentWeight = 1;
+  float targetWeight = 2;
+}
+
+message Temp {
+  float currentTemp = 1;
+  float targetTemp = 2;
+}
+
+enum GaggiaState {
+  IGNORING_NETWORK = 0;
+  JOINING_NETWORK = 1;
+  SLEEP = 2;
+  PREHEAT = 3;
+  MEASURE_BEANS = 4;
+  TARE_CUP_AFTER_MEASURE = 5;
+  HEATING_TO_BREW = 6;
+  PREINFUSION = 7;
+  BREWING = 8;
+  DONE_BREWING = 9;
+  HEATING_TO_STEAM = 10;
+  STEAMING = 11;
+  CLEAN_GROUP_READY = 12;
+  CLEAN_GROUP_DONE = 13;
+  CLEAN_OPTIONS = 14;
+  DESCALE = 15;
+  COOL_START = 16;
+  COOLING = 17;
+  COOL_DONE = 18;
+  BACKFLUSH_INSTRUCTION_1 = 19;
+  BACKFLUSH_INSTRUCTION_2 = 20;
+  BACKFLUSH_CYCLE_1 = 21;
+  BACKFLUSH_INSTRUCTION_3 = 22;
+  BACKFLUSH_CYCLE_2 = 23;
+  BACKFLUSH_CYCLE_DONE = 24;
+  HEATING_TO_DISPENSE = 25;
+  DISPENSE_HOT_WATER = 26;
+  NA = 27;
+}
+

@@ -90,7 +90,8 @@ fun PreviewPreheatScreen() {
         telemetry = BASE_TELEMETRY_STRING.toTelemetry(),
         onFirstButtonClick = {},
         onSecondButtonClick = {},
-        onSettingsSelected = {}
+        onSettingsSelected = {},
+        onLastBrewSelected = {}
     )
 }
 

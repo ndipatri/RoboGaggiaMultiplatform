@@ -8,6 +8,7 @@ import org.koin.core.annotation.KoinExperimentalAPI
 import robogaggiamultiplatform.composeapp.generated.resources.Res
 import robogaggiamultiplatform.composeapp.generated.resources.clean
 import robogaggiamultiplatform.composeapp.generated.resources.hello_welcome_to_robogaggia
+import robogaggiamultiplatform.composeapp.generated.resources.last_brew
 import robogaggiamultiplatform.composeapp.generated.resources.place_your_empty_cup
 import robogaggiamultiplatform.composeapp.generated.resources.settings
 import robogaggiamultiplatform.composeapp.generated.resources.shots_brewed_so_far
@@ -20,7 +21,8 @@ fun PreheatScreen(
     telemetry: Telemetry,
     onFirstButtonClick: () -> Unit,
     onSecondButtonClick: () -> Unit,
-    onSettingsSelected: () -> Unit
+    onSettingsSelected: () -> Unit,
+    onLastBrewSelected: () -> Unit
 ) {
     ScreenContent(
         body1Resource = Res.string.hello_welcome_to_robogaggia,
@@ -36,9 +38,11 @@ fun PreheatScreen(
         telemetry = telemetry,
         button2Resource = Res.string.clean,
         button3Resource = Res.string.settings,
+        button4Resource = Res.string.last_brew,
         onFirstButtonClick = onFirstButtonClick,
         onSecondButtonClick = onSecondButtonClick,
         onThirdButtonClick = onSettingsSelected,
+        onFourthButtonClick = onLastBrewSelected,
         backgroundColor = androidx.compose.ui.graphics.Color.Transparent
     )
 }

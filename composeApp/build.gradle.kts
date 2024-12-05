@@ -8,6 +8,7 @@ plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsCompose)
     alias(libs.plugins.compose.compiler)
+    id("com.squareup.wire") version "5.0.0-alpha03"
     id("com.codingfeline.buildkonfig")
 }
 
@@ -28,6 +29,13 @@ kotlin {
         iosTarget.binaries.framework {
             baseName = "ComposeApp"
             isStatic = true
+        }
+    }
+
+    wire {
+        kotlin {}
+        sourcePath {
+            srcDir("src/commonMain/kotlin/persistence/proto")
         }
     }
     
@@ -63,6 +71,9 @@ kotlin {
 
                 // BLE
                 implementation("dev.bluefalcon:blue-falcon:1.0.0")
+
+                // Storage
+                api(libs.datastore.core)
             }
         }
 

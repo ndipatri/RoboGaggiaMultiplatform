@@ -35,6 +35,7 @@ import screens.HeatingToDispenseScreen
 import screens.HeatingToSteamScreen
 import screens.IgnoringNetworkScreen
 import screens.JoiningNetworkScreen
+import screens.LastBrewScreen
 import screens.MeasureBeansScreen
 import screens.PreheatScreen
 import screens.PreinfusionAndBrewingScreen
@@ -42,7 +43,8 @@ import screens.SettingsScreen
 import screens.SleepScreen
 import screens.SteamingScreen
 import screens.TareCupAfterMeasureScreen
-import screens.TelemetryScreen
+import screens.LiveTelemetryScreen
+import screens.StoredTelemetryScreen
 import screens.WaitingForStateChangeScreen
 import screens.WelcomeScreen
 import theme.RoboGaggiaTheme
@@ -194,12 +196,13 @@ fun NavGraphBuilder.mainNavigationGraph(
     }
 
     composable(route = GaggiaState.PREHEAT.stateName) {
-        TelemetryScreen { telemetry ->
+        LiveTelemetryScreen { telemetry ->
             PreheatScreen(
                 telemetry = telemetry,
                 onFirstButtonClick = onFirstButtonClick,
                 onSecondButtonClick = onSecondButtonClick,
-                onSettingsSelected = { onLocalRouteSelected(LOCAL_ROUTES.SETTINGS) }
+                onSettingsSelected = { onLocalRouteSelected(LOCAL_ROUTES.SETTINGS) },
+                onLastBrewSelected = { onLocalRouteSelected(LOCAL_ROUTES.LAST_BREW) }
             )
         }
     }
@@ -210,8 +213,17 @@ fun NavGraphBuilder.mainNavigationGraph(
         )
     }
 
+    composable(route = LOCAL_ROUTES.LAST_BREW.route) {
+        StoredTelemetryScreen { telemetry ->
+            LastBrewScreen(
+                telemetry = telemetry,
+                onDoneClicked = onBackButtonClick
+            )
+        }
+    }
+
     composable(route = GaggiaState.MEASURE_BEANS.stateName) {
-        TelemetryScreen { telemetry ->
+        LiveTelemetryScreen { telemetry ->
             MeasureBeansScreen(
                 telemetry,
                 onFirstButtonClick = onFirstButtonClick,
@@ -221,7 +233,7 @@ fun NavGraphBuilder.mainNavigationGraph(
     }
 
     composable(route = GaggiaState.TARE_CUP_AFTER_MEASURE.stateName) {
-        TelemetryScreen { telemetry ->
+        LiveTelemetryScreen { telemetry ->
             TareCupAfterMeasureScreen(
                 telemetry = telemetry,
                 onFirstButtonClick = onFirstButtonClick,
@@ -231,7 +243,7 @@ fun NavGraphBuilder.mainNavigationGraph(
     }
 
     composable(route = GaggiaState.HEATING_TO_BREW.stateName) {
-        TelemetryScreen { telemetry ->
+        LiveTelemetryScreen { telemetry ->
             HeatingToBrewScreen(
                 telemetry,
                 onSecondButtonClick = onSecondButtonClick
@@ -240,7 +252,7 @@ fun NavGraphBuilder.mainNavigationGraph(
     }
 
     composable(route = GaggiaState.BREWING.stateName) {
-        TelemetryScreen { telemetry ->
+        LiveTelemetryScreen { telemetry ->
             PreinfusionAndBrewingScreen(
                 telemetry = telemetry,
                 onReadyClicked = onFirstButtonClick,
@@ -250,7 +262,7 @@ fun NavGraphBuilder.mainNavigationGraph(
     }
 
     composable(route = GaggiaState.HEATING_TO_STEAM.stateName) {
-        TelemetryScreen { telemetry ->
+        LiveTelemetryScreen { telemetry ->
             HeatingToSteamScreen(
                 telemetry = telemetry,
                 onSecondButtonClick = onSecondButtonClick
@@ -259,7 +271,7 @@ fun NavGraphBuilder.mainNavigationGraph(
     }
 
     composable(route = GaggiaState.STEAMING.stateName) {
-        TelemetryScreen { telemetry ->
+        LiveTelemetryScreen { telemetry ->
             SteamingScreen(
                 telemetry = telemetry,
                 onDoneSteamingClick = onFirstButtonClick
@@ -294,7 +306,7 @@ fun NavGraphBuilder.mainNavigationGraph(
     }
 
     composable(route = GaggiaState.BACKFLUSH_CYCLE_1.stateName) {
-        TelemetryScreen { telemetry ->
+        LiveTelemetryScreen { telemetry ->
             BackflushCycle1Screen(
                 telemetry = telemetry,
                 onExitClicked = onSecondButtonClick
@@ -310,7 +322,7 @@ fun NavGraphBuilder.mainNavigationGraph(
     }
 
     composable(route = GaggiaState.BACKFLUSH_CYCLE_2.stateName) {
-        TelemetryScreen { telemetry ->
+        LiveTelemetryScreen { telemetry ->
             BackflushCycle2Screen(
                 telemetry = telemetry,
                 onExitClicked = onSecondButtonClick
@@ -339,7 +351,7 @@ fun NavGraphBuilder.mainNavigationGraph(
     }
 
     composable(route = GaggiaState.HEATING_TO_DISPENSE.stateName) {
-        TelemetryScreen { telemetry ->
+        LiveTelemetryScreen { telemetry ->
             HeatingToDispenseScreen(
                 telemetry = telemetry,
                 onExitClick = onSecondButtonClick
@@ -348,7 +360,7 @@ fun NavGraphBuilder.mainNavigationGraph(
     }
 
     composable(route = GaggiaState.DISPENSE_HOT_WATER.stateName) {
-        TelemetryScreen { telemetry ->
+        LiveTelemetryScreen { telemetry ->
             DispensingHotWaterScreen(
                 telemetry = telemetry,
                 onDoneClick = onFirstButtonClick
@@ -362,5 +374,6 @@ fun NavGraphBuilder.mainNavigationGraph(
 }
 
 enum class LOCAL_ROUTES (val route: String) {
-    SETTINGS("settings")
+    SETTINGS("settings"),
+    LAST_BREW("last_brew")
 }

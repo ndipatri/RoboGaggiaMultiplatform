@@ -20,6 +20,7 @@ import mqtt.MQTTVersion
 import mqtt.Subscription
 import mqtt.packets.Qos
 import mqtt.packets.mqttv5.SubscriptionOptions
+import robo.ndipatri.robogaggia.proto_datastore_kmm.TelemetryProtoData
 import services.SettingsViewModel
 import kotlin.math.abs
 
@@ -389,25 +390,42 @@ enum class CommandType(val transmitName: String) {
 data class TelemetryMessage(
     val state: GaggiaState,
 
-    // of form: <currentWeight>:<targetWeight>
     val weight: Weight,
 
     val pressureBars: String,
     val dutyCyclePercent: String,
     val flowRateGPS: String,
 
-    // of form: <currentTemp>:<targetTemp>
     val brewTempC: Temp,
     val shotsUntilBackflush: String,
     val totalShots: String,
-    val boilerState: String
-)
+    val boilerState: String) {
+
+    fun toTelemetryMessageProto(): robo.ndipatri.robogaggia.proto_datastore_kmm.TelemetryMessage {
+        return robo.ndipatri.robogaggia.proto_datastore_kmm.TelemetryMessage(
+            state = state.toGaggiaStateProto(),
+            weight = weight.toWeightProto(),
+            pressureBars = pressureBars,
+            dutyCyclePercent = dutyCyclePercent,
+            flowRateGPS = flowRateGPS,
+            brewTempC = brewTempC.toTempProto(),
+            shotsUntilBackflush = shotsUntilBackflush,
+            totalShots = totalShots,
+            boilerState = boilerState
+        )
+    }
+}
+
 
 data class Weight(val currentWeight: Float, val targetWeight: Float?) {
     constructor(weight: String) : this(
         weight.trim().split(":")[0].toFloat(),
         if (weight.trim().split(":").size == 2) weight.trim().split(":")[1].toFloat() else null
     )
+
+    fun toWeightProto(): robo.ndipatri.robogaggia.proto_datastore_kmm.Weight {
+        return robo.ndipatri.robogaggia.proto_datastore_kmm.Weight(currentWeight = currentWeight, targetWeight = targetWeight ?: 0F)
+    }
 }
 
 data class Temp(val currentTemp: Float, val targetTemp: Float?) {
@@ -415,6 +433,10 @@ data class Temp(val currentTemp: Float, val targetTemp: Float?) {
         temp.trim().split(":")[0].toFloat(),
         if (temp.trim().split(":").size == 2) temp.trim().split(":")[1].toFloat() else null
     )
+
+    fun toTempProto(): robo.ndipatri.robogaggia.proto_datastore_kmm.Temp {
+        return robo.ndipatri.robogaggia.proto_datastore_kmm.Temp(currentTemp = currentTemp, targetTemp = targetTemp ?: 0F)
+    }
 }
 
 
@@ -452,6 +474,39 @@ enum class GaggiaState(val stateName: String) {
     DISPENSE_HOT_WATER("dispenseHotWater"),
     NA("na");
 
+    fun toGaggiaStateProto(): robo.ndipatri.robogaggia.proto_datastore_kmm.GaggiaState {
+        return when (this) {
+            IGNORING_NETWORK -> robo.ndipatri.robogaggia.proto_datastore_kmm.GaggiaState.IGNORING_NETWORK
+            JOINING_NETWORK -> robo.ndipatri.robogaggia.proto_datastore_kmm.GaggiaState.JOINING_NETWORK
+            SLEEP -> robo.ndipatri.robogaggia.proto_datastore_kmm.GaggiaState.SLEEP
+            PREHEAT -> robo.ndipatri.robogaggia.proto_datastore_kmm.GaggiaState.PREHEAT
+            MEASURE_BEANS -> robo.ndipatri.robogaggia.proto_datastore_kmm.GaggiaState.MEASURE_BEANS
+            TARE_CUP_AFTER_MEASURE -> robo.ndipatri.robogaggia.proto_datastore_kmm.GaggiaState.TARE_CUP_AFTER_MEASURE
+            HEATING_TO_BREW -> robo.ndipatri.robogaggia.proto_datastore_kmm.GaggiaState.HEATING_TO_BREW
+            PREINFUSION -> robo.ndipatri.robogaggia.proto_datastore_kmm.GaggiaState.PREINFUSION
+            BREWING -> robo.ndipatri.robogaggia.proto_datastore_kmm.GaggiaState.BREWING
+            DONE_BREWING -> robo.ndipatri.robogaggia.proto_datastore_kmm.GaggiaState.DONE_BREWING
+            HEATING_TO_STEAM -> robo.ndipatri.robogaggia.proto_datastore_kmm.GaggiaState.HEATING_TO_STEAM
+            STEAMING -> robo.ndipatri.robogaggia.proto_datastore_kmm.GaggiaState.STEAMING
+            CLEAN_GROUP_READY -> robo.ndipatri.robogaggia.proto_datastore_kmm.GaggiaState.CLEAN_GROUP_READY
+            CLEAN_GROUP_DONE -> robo.ndipatri.robogaggia.proto_datastore_kmm.GaggiaState.CLEAN_GROUP_DONE
+            CLEAN_OPTIONS -> robo.ndipatri.robogaggia.proto_datastore_kmm.GaggiaState.CLEAN_OPTIONS
+            DESCALE -> robo.ndipatri.robogaggia.proto_datastore_kmm.GaggiaState.DESCALE
+            COOL_START -> robo.ndipatri.robogaggia.proto_datastore_kmm.GaggiaState.COOL_START
+            COOLING -> robo.ndipatri.robogaggia.proto_datastore_kmm.GaggiaState.COOLING
+            COOL_DONE -> robo.ndipatri.robogaggia.proto_datastore_kmm.GaggiaState.COOL_DONE
+            BACKFLUSH_INSTRUCTION_1 -> robo.ndipatri.robogaggia.proto_datastore_kmm.GaggiaState.BACKFLUSH_INSTRUCTION_1
+            BACKFLUSH_INSTRUCTION_2 -> robo.ndipatri.robogaggia.proto_datastore_kmm.GaggiaState.BACKFLUSH_INSTRUCTION_2
+            BACKFLUSH_CYCLE_1 -> robo.ndipatri.robogaggia.proto_datastore_kmm.GaggiaState.BACKFLUSH_CYCLE_1
+            BACKFLUSH_INSTRUCTION_3 -> robo.ndipatri.robogaggia.proto_datastore_kmm.GaggiaState.BACKFLUSH_INSTRUCTION_3
+            BACKFLUSH_CYCLE_2 -> robo.ndipatri.robogaggia.proto_datastore_kmm.GaggiaState.BACKFLUSH_CYCLE_2
+            BACKFLUSH_CYCLE_DONE -> robo.ndipatri.robogaggia.proto_datastore_kmm.GaggiaState.BACKFLUSH_CYCLE_DONE
+            HEATING_TO_DISPENSE -> robo.ndipatri.robogaggia.proto_datastore_kmm.GaggiaState.HEATING_TO_DISPENSE
+            DISPENSE_HOT_WATER -> robo.ndipatri.robogaggia.proto_datastore_kmm.GaggiaState.DISPENSE_HOT_WATER
+            NA -> robo.ndipatri.robogaggia.proto_datastore_kmm.GaggiaState.NA
+        }
+    }
+
     companion object {
         fun byName(name: String): GaggiaState {
             for (candidate in GaggiaState.values()) {
@@ -461,6 +516,39 @@ enum class GaggiaState(val stateName: String) {
             }
 
             return NA
+        }
+
+        fun fromGaggiaProto(protoGaggiaState: robo.ndipatri.robogaggia.proto_datastore_kmm.GaggiaState): GaggiaState {
+            return when (protoGaggiaState) {
+                robo.ndipatri.robogaggia.proto_datastore_kmm.GaggiaState.IGNORING_NETWORK -> IGNORING_NETWORK
+                robo.ndipatri.robogaggia.proto_datastore_kmm.GaggiaState.JOINING_NETWORK -> JOINING_NETWORK
+                robo.ndipatri.robogaggia.proto_datastore_kmm.GaggiaState.SLEEP -> SLEEP
+                robo.ndipatri.robogaggia.proto_datastore_kmm.GaggiaState.PREHEAT -> PREHEAT
+                robo.ndipatri.robogaggia.proto_datastore_kmm.GaggiaState.MEASURE_BEANS -> MEASURE_BEANS
+                robo.ndipatri.robogaggia.proto_datastore_kmm.GaggiaState.TARE_CUP_AFTER_MEASURE -> TARE_CUP_AFTER_MEASURE
+                robo.ndipatri.robogaggia.proto_datastore_kmm.GaggiaState.HEATING_TO_BREW -> HEATING_TO_BREW
+                robo.ndipatri.robogaggia.proto_datastore_kmm.GaggiaState.PREINFUSION -> PREINFUSION
+                robo.ndipatri.robogaggia.proto_datastore_kmm.GaggiaState.BREWING -> BREWING
+                robo.ndipatri.robogaggia.proto_datastore_kmm.GaggiaState.DONE_BREWING -> DONE_BREWING
+                robo.ndipatri.robogaggia.proto_datastore_kmm.GaggiaState.HEATING_TO_STEAM -> HEATING_TO_STEAM
+                robo.ndipatri.robogaggia.proto_datastore_kmm.GaggiaState.STEAMING -> STEAMING
+                robo.ndipatri.robogaggia.proto_datastore_kmm.GaggiaState.CLEAN_GROUP_READY -> CLEAN_GROUP_READY
+                robo.ndipatri.robogaggia.proto_datastore_kmm.GaggiaState.CLEAN_GROUP_DONE -> CLEAN_GROUP_DONE
+                robo.ndipatri.robogaggia.proto_datastore_kmm.GaggiaState.CLEAN_OPTIONS -> CLEAN_OPTIONS
+                robo.ndipatri.robogaggia.proto_datastore_kmm.GaggiaState.DESCALE -> DESCALE
+                robo.ndipatri.robogaggia.proto_datastore_kmm.GaggiaState.COOL_START -> COOL_START
+                robo.ndipatri.robogaggia.proto_datastore_kmm.GaggiaState.COOLING -> COOLING
+                robo.ndipatri.robogaggia.proto_datastore_kmm.GaggiaState.COOL_DONE -> COOL_DONE
+                robo.ndipatri.robogaggia.proto_datastore_kmm.GaggiaState.BACKFLUSH_INSTRUCTION_1 -> BACKFLUSH_INSTRUCTION_1
+                robo.ndipatri.robogaggia.proto_datastore_kmm.GaggiaState.BACKFLUSH_INSTRUCTION_2 -> BACKFLUSH_INSTRUCTION_2
+                robo.ndipatri.robogaggia.proto_datastore_kmm.GaggiaState.BACKFLUSH_CYCLE_1 -> BACKFLUSH_CYCLE_1
+                robo.ndipatri.robogaggia.proto_datastore_kmm.GaggiaState.BACKFLUSH_INSTRUCTION_3 -> BACKFLUSH_INSTRUCTION_3
+                robo.ndipatri.robogaggia.proto_datastore_kmm.GaggiaState.BACKFLUSH_CYCLE_2 -> BACKFLUSH_CYCLE_2
+                robo.ndipatri.robogaggia.proto_datastore_kmm.GaggiaState.BACKFLUSH_CYCLE_DONE -> BACKFLUSH_CYCLE_DONE
+                robo.ndipatri.robogaggia.proto_datastore_kmm.GaggiaState.HEATING_TO_DISPENSE -> HEATING_TO_DISPENSE
+                robo.ndipatri.robogaggia.proto_datastore_kmm.GaggiaState.DISPENSE_HOT_WATER -> DISPENSE_HOT_WATER
+                robo.ndipatri.robogaggia.proto_datastore_kmm.GaggiaState.NA -> NA
+            }
         }
     }
 }
@@ -509,6 +597,22 @@ data class Telemetry(
     val telemetry: List<TelemetryMessage> = listOf(),
     val previousIsScaleWeighted: Boolean = false,
 ) {
+
+    constructor(telemetry: TelemetryProtoData) : this(
+        telemetry = telemetry.telemetry.map {
+            TelemetryMessage(
+                state = GaggiaState.fromGaggiaProto(it.state),
+                weight = Weight(currentWeight = it.weight?.currentWeight ?: 0F, targetWeight = it.weight?.targetWeight),
+                pressureBars = it.pressureBars,
+                dutyCyclePercent = it.dutyCyclePercent,
+                flowRateGPS = it.flowRateGPS,
+                brewTempC = Temp(currentTemp = it.brewTempC?.currentTemp ?: 0F, targetTemp = it.brewTempC?.targetTemp),
+                shotsUntilBackflush = it.shotsUntilBackflush,
+                totalShots = it.totalShots,
+                boilerState = it.boilerState
+            )
+        }
+    )
 
     // 'weighted' means that the scale has something on it that we care about
     // This shows raw weight without waiting for scale to settle.

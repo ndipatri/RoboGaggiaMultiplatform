@@ -11,7 +11,7 @@ import vms.TelemetryViewModel
 
 @OptIn(KoinExperimentalAPI::class)
 @Composable
-fun TelemetryScreen(content: @Composable (Telemetry) -> Unit) {
+fun LiveTelemetryScreen(content: @Composable (Telemetry) -> Unit) {
     KoinContext {
         val viewModel = koinInject<TelemetryViewModel>()
 

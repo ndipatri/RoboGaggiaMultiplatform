@@ -7,6 +7,8 @@ import org.koin.dsl.module
 import services.SettingsViewModel
 import vms.TelemetryViewModel
 
+expect val dataStoreModule: Module
+
 expect val platformModule: Module
 
 // Currently, you cannot inject an Object-C object using KOIN,
@@ -28,3 +30,5 @@ val sharedModule = module {
         )
     }
 }
+
+internal const val DATA_STORE_FILE_NAME = "proto_datastore.telemetry_pb"
