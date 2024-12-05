@@ -23,11 +23,14 @@ This mobile application provides additional user features beyond what the RoboGa
 
 For example, this mobile app provides the ability to tune certain RoboGaggia settings such as the 'reference weight' of the cup that is used for brewing your shot.  This value is built into RoboGaggia, but you can only change the value from this mobile app.
 
+![Settings](media/settings.png)
+
+
 ## Last Brew
 
 The Last Brew feature stores previous Telemetry from RoboGaggia so that AFTER you are finished brewing a shot and steaming your milk, you can review the shot later to see if your grinder needs any adjustments.
 
-
+![Settings](media/last-brew.png)
 
 
 ## Compose Multiplatform UI Framework
