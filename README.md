@@ -17,13 +17,15 @@ Please see the [Robo Gaggia](https://github.com/ndipatri/RoboGaggia) project for
 
 # Addition UI Functionality
 
+This mobile application provides additional user features beyond what the RoboGaggia platform provides. 
+
 ## Tune RoboGaggia Settings
 
-This mobile application provides additional user features beyond what the RoboGaggia platform provides. For example, the ability to tune certain RoboGaggia settings such as the 'reference weight' of the cup that is used for brewing your shot.  This value is built into RoboGaggia, but you can only change the value from this mobile app.
+For example, this mobile app provides the ability to tune certain RoboGaggia settings such as the 'reference weight' of the cup that is used for brewing your shot.  This value is built into RoboGaggia, but you can only change the value from this mobile app.
 
 ## Last Brew
 
-This feature stores previous Telemetry from RoboGaggia so that AFTER you are finished brewing a shot and steaming your milk, you can review the shot later to see if your grinder needs any adjustments.
+The Last Brew feature stores previous Telemetry from RoboGaggia so that AFTER you are finished brewing a shot and steaming your milk, you can review the shot later to see if your grinder needs any adjustments.
 
 
 
