@@ -6,8 +6,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.paint
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
+import com.ndipatri.roboaggia.MyApplication
+import di.dataStoreModule
+import di.initKoin
+import di.platformModule
+import di.sharedModule
 import org.jetbrains.compose.resources.painterResource
+import org.koin.android.ext.koin.androidContext
+import org.koin.core.context.GlobalContext
+import org.koin.core.context.startKoin
 import robogaggiamultiplatform.composeapp.generated.resources.Res
 import robogaggiamultiplatform.composeapp.generated.resources.dark_circuitboard
 import screens.BackflushCycle1Screen
@@ -20,6 +29,7 @@ import screens.HeatingToBrewScreen
 import screens.HeatingToSteamScreen
 import screens.IgnoringNetworkScreen
 import screens.JoiningNetworkScreen
+import screens.LastBrewScreen
 import screens.MeasureBeansScreen
 import screens.PreheatScreen
 import screens.PreinfusionAndBrewingScreen
@@ -41,6 +51,32 @@ const val GAGGIA_DEVICE = "spec:width=1434dp,height=662dp,orientation=landscape"
 val BASE_TELEMETRY_STRING =
 """
 preheat, 0.0:0.0, 3.0, 55.0, 0.000000, 40.400000, 2, 2000, 1
+"""
+
+val BREW_TELEMETRY_STRING =
+"""
+preInfusion, 0:34, 0.000000, 40.400000, 0.000000, 105.000000, 2, 2235, 0
+preInfusion, 0:34, 0.000000, 40.400000, 0.000000, 104.750000, 2, 2235, 0
+preInfusion, 0:34, 0.000000, 40.400000, 0.000000, 104.250000, 2, 2235, 0
+preInfusion, 0:34, 0.000000, 40.400000, 0.000000, 104.250000, 2, 2235, 0
+preInfusion, 0:34, 0.000000, 40.400000, 0.000000, 103.250000, 2, 2235, 0
+preInfusion, 0:34, 0.000000, 40.400000, 0.000000, 103.000000, 2, 2235, 0
+preInfusion, 0:34, 0.000000, 40.400000, 0.000000, 101.500000, 2, 2235, 0
+preInfusion, 0:34, 0.000000, 40.400000, 0.000000, 100.750000, 2, 2235, 0
+preInfusion, 0:34, 0.000000, 40.400000, 0.000000, 100.000000, 2, 2235, 0
+preInfusion, 0:34, 0.000000, 40.400000, 0.000000, 100.500000, 2, 2235, 0
+preInfusion, 0:34, 1.000000, 40.400000, 0.000000, 101.500000, 2, 2235, 0
+preInfusion, 0:34, 1.000000, 40.400000, 0.000000, 104.000000, 2, 2235, 0
+preInfusion, 0:34, 1.000000, 40.400000, 0.000000, 106.250000, 2, 2235, 0
+preInfusion, 1:34, 2.000000, 40.400000, 0.833333, 109.250000, 2, 2235, 0
+brewing, 2:34, 2.000000, 41.266667, 0.833333, 110.250000, 2, 2235, 0
+brewing, 4:34, 2.000000, 43.000000, 1.666667, 111.750000, 2, 2235, 0
+brewing, 5:34, 2.000000, 43.900000, 0.833333, 111.750000, 2, 2235, 0
+brewing, 7:34, 4.000000, 45.800000, 1.666667, 111.000000, 2, 2235, 0
+brewing, 9:34, 4.000000, 46.700000, 1.666667, 110.250000, 2, 2235, 0
+brewing, 11:34, 4.000000, 47.766667, 1.666667, 109.000000, 2, 2235, 0
+brewing, 14:34, 5.000000, 48.833333, 2.500000, 107.500000, 2, 2235, 0
+brewing, 16:34, 5.000000, 49.066667, 1.666667, 106.000000, 2, 2235, 0
 """
 
 fun String.toTelemetry() =
@@ -149,8 +185,16 @@ fun PreviewSteamingScreen() {
 @Preview(device = GAGGIA_DEVICE)
 @Composable
 fun PreviewDoneBrewingScreen() {
+    if (GlobalContext.getOrNull() == null) {
+        startKoin {
+            modules(sharedModule, platformModule, dataStoreModule)
+        }
+    }
+
     PreinfusionAndBrewingScreen (
-        telemetry = BASE_TELEMETRY_STRING.toTelemetry(),
+        telemetry = BREW_TELEMETRY_STRING
+            .plus("doneBrewing, 16:34, 5.000000, 49.066667, 1.666667, 106.000000, 2, 2235, 0")
+            .toTelemetry(),
         onReadyClicked = {},
         onExitClicked = {}
     )
@@ -158,34 +202,31 @@ fun PreviewDoneBrewingScreen() {
 
 @Preview(device = GAGGIA_DEVICE)
 @Composable
+fun PreviewLastBrewScreen() {
+    if (GlobalContext.getOrNull() == null) {
+        startKoin {
+            modules(sharedModule, platformModule, dataStoreModule)
+        }
+    }
+
+    LastBrewScreen(
+        telemetry = BREW_TELEMETRY_STRING.toTelemetry(),
+        onDoneClicked = {}
+    )
+}
+
+@Preview(device = GAGGIA_DEVICE)
+@Composable
 // NOTE: Run in Interactive mode to see 'Shot Clock'
 fun PreviewBrewingScreen() {
+    if (GlobalContext.getOrNull() == null) {
+        startKoin {
+            modules(sharedModule, platformModule, dataStoreModule)
+        }
+    }
+
     PreinfusionAndBrewingScreen(
-        telemetry =
-"""
-preInfusion, 0:34, 0.000000, 40.400000, 0.000000, 105.000000, 2, 2235, 0
-preInfusion, 0:34, 0.000000, 40.400000, 0.000000, 104.750000, 2, 2235, 0
-preInfusion, 0:34, 0.000000, 40.400000, 0.000000, 104.250000, 2, 2235, 0
-preInfusion, 0:34, 0.000000, 40.400000, 0.000000, 104.250000, 2, 2235, 0
-preInfusion, 0:34, 0.000000, 40.400000, 0.000000, 103.250000, 2, 2235, 0
-preInfusion, 0:34, 0.000000, 40.400000, 0.000000, 103.000000, 2, 2235, 0
-preInfusion, 0:34, 0.000000, 40.400000, 0.000000, 101.500000, 2, 2235, 0
-preInfusion, 0:34, 0.000000, 40.400000, 0.000000, 100.750000, 2, 2235, 0
-preInfusion, 0:34, 0.000000, 40.400000, 0.000000, 100.000000, 2, 2235, 0
-preInfusion, 0:34, 0.000000, 40.400000, 0.000000, 100.500000, 2, 2235, 0
-preInfusion, 0:34, 1.000000, 40.400000, 0.000000, 101.500000, 2, 2235, 0
-preInfusion, 0:34, 1.000000, 40.400000, 0.000000, 104.000000, 2, 2235, 0
-preInfusion, 0:34, 1.000000, 40.400000, 0.000000, 106.250000, 2, 2235, 0
-preInfusion, 1:34, 2.000000, 40.400000, 0.833333, 109.250000, 2, 2235, 0
-brewing, 2:34, 2.000000, 41.266667, 0.833333, 110.250000, 2, 2235, 0
-brewing, 4:34, 2.000000, 43.000000, 1.666667, 111.750000, 2, 2235, 0
-brewing, 5:34, 2.000000, 43.900000, 0.833333, 111.750000, 2, 2235, 0
-brewing, 7:34, 4.000000, 45.800000, 1.666667, 111.000000, 2, 2235, 0
-brewing, 9:34, 4.000000, 46.700000, 1.666667, 110.250000, 2, 2235, 0
-brewing, 11:34, 4.000000, 47.766667, 1.666667, 109.000000, 2, 2235, 0
-brewing, 14:34, 5.000000, 48.833333, 2.500000, 107.500000, 2, 2235, 0
-brewing, 16:34, 5.000000, 49.066667, 1.666667, 106.000000, 2, 2235, 0
-""".toTelemetry(),
+        telemetry = BREW_TELEMETRY_STRING.toTelemetry(),
         onReadyClicked = {},
         onExitClicked = {}
     )

@@ -108,7 +108,7 @@ fun BrewChartContent(telemetry: Telemetry, content: (@Composable () -> Unit)? = 
                                     telemetrySaved = true
                                     telemetryDataStore.updateData { storedTelemetry ->
                                         // Preserve our current brew telemetry to be used later for review!
-                                        storedTelemetry.copy(telemetry = telemetry.telemetry.map { it.toTelemetryMessageProto() })
+                                        storedTelemetry.copy(acknowledged = false, telemetry = telemetry.telemetry.map { it.toTelemetryMessageProto() })
                                     }
                                 }
                             }

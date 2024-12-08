@@ -5,7 +5,7 @@ syntax = "proto3";
 package robo.ndipatri.robogaggia.proto_datastore_kmm;
 
 message TelemetryProtoData {
-  int32 counter = 1;
+  bool acknowledged = 1;
   repeated TelemetryMessage telemetry = 2;
 }
 

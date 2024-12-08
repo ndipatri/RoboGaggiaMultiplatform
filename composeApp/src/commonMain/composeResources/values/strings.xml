@@ -85,7 +85,10 @@
     <string name="problems_loading_settings">Sorry. Unable to load Settings</string>
     <string name="save">Save</string>
     <string name="settings">Settings</string>
+
     <string name="last_brew">Last Brew</string>
     <string name="last_brew_no_data">Sorry, no brew data available yet!</string>
-
+    <string name="acknowledge_last_brew">Click to Acknowledged</string>
+    <string name="click_to_acknowledge">Click to Acknowledge</string>
+    <string name="acknowledged">Acknowledged</string>
 </resources>
