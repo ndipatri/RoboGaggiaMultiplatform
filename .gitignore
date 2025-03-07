@@ -16,3 +16,7 @@ captures
 !*.xcworkspace/contents.xcworkspacedata
 **/xcshareddata/WorkspaceSettings.xcsettings
 .kotlin
+iosApp/Pods
+Podfile.lock
+shared/roboGaggiaMultiplatformPod.podspec
+shared/shared.podspec
