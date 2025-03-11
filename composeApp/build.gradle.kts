@@ -2,12 +2,14 @@ import com.android.build.gradle.internal.cxx.configure.gradleLocalProperties
 import org.jetbrains.compose.ExperimentalComposeLibrary
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import com.codingfeline.buildkonfig.compiler.FieldSpec.Type
+import org.jetbrains.kotlin.gradle.plugin.mpp.NativeBuildType
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsCompose)
     alias(libs.plugins.compose.compiler)
+    alias(libs.plugins.kotlinCocoapods)
     id("com.squareup.wire") version "5.0.0-alpha03"
     id("com.codingfeline.buildkonfig")
 }
@@ -20,7 +22,7 @@ kotlin {
             }
         }
     }
-    
+
     listOf(
         iosX64(),
         iosArm64(),
@@ -30,6 +32,38 @@ kotlin {
             baseName = "ComposeApp"
             isStatic = true
         }
+    }
+
+    cocoapods {
+        version = "2.0"
+        ios.deploymentTarget = "14.1"
+
+        summary = "roboGaggiaMultiplatformPod"
+        homepage = "https://github.com/ndipatri/roboGaggia"
+
+        pod("RiveRuntime") {
+            version = "6.7.0"
+            extraOpts += listOf("-compiler-option", "-fmodules")
+        }
+
+        framework {
+            // Required properties
+            // Framework name configuration. Use this property instead of deprecated 'frameworkName'
+            baseName = "roboGaggiaMultiplatformPod"
+
+            // Optional properties
+            // Specify the framework linking type. It's dynamic by default.
+            isStatic = false
+
+            // Dependency export
+            // Uncomment and specify another project module if you have one:
+            // export(project(":<your other KMP module>"))
+            transitiveExport = false // This is default.
+        }
+
+        // Maps custom Xcode configuration to NativeBuildType
+        xcodeConfigurationToNativeBuildType["CUSTOM_DEBUG"] = NativeBuildType.DEBUG
+        xcodeConfigurationToNativeBuildType["CUSTOM_RELEASE"] = NativeBuildType.RELEASE
     }
 
     wire {
@@ -47,6 +81,7 @@ kotlin {
 
             implementation(libs.koin.android)
             implementation(libs.koin.androidx.compose)
+            implementation(libs.rive.android)
         }
         val commonMain by getting {
             dependencies {

@@ -14,6 +14,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import content.SleepAnimation
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
@@ -31,11 +32,12 @@ fun WelcomeScreen() {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Row (verticalAlignment = Alignment.CenterVertically) {
-            Image(
-                modifier = Modifier.weight(.2f),
-                painter = painterResource(Res.drawable.coffee_robot),
-                contentDescription = null
-            )
+//            Image(
+//                modifier = Modifier.weight(.2f),
+//                painter = painterResource(Res.drawable.coffee_robot),
+//                contentDescription = null
+//            )
+            SleepAnimation(Modifier.weight(.2f))
             Text(
                 modifier = Modifier.width(460.dp).padding(horizontal = 30.dp),
                 textAlign = TextAlign.Center,
