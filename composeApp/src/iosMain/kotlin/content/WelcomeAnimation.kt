@@ -14,7 +14,7 @@ actual fun WelcomeAnimation(modifier: Modifier) {
 
     UIKitViewController(
         modifier = modifier
-            .width(100.dp)
+            .width(50.dp)
             .height(50.dp),
         factory = {
             factory.renderWelcomeAnimation()

@@ -37,6 +37,7 @@ import screens.SettingsContent
 import screens.SleepScreen
 import screens.SteamingScreen
 import screens.TareCupAfterMeasureScreen
+import screens.WelcomeScreen
 import services.SettingsViewModel
 import theme.RoboGaggiaTheme
 import vms.GaggiaState
@@ -98,6 +99,13 @@ fun String.toTelemetry() =
         }
     )
 
+@Preview(device = GAGGIA_DEVICE)
+@Composable
+fun PreviewWelcomeScreen() {
+    // Can't render with Rive animation in there!
+    // need to solve this somehow
+    WelcomeScreen()
+}
 
 @Preview(device = GAGGIA_DEVICE)
 @Composable
