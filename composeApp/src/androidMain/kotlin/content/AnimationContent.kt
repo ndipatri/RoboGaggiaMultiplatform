@@ -9,7 +9,7 @@ import app.rive.runtime.kotlin.core.Alignment
 import com.ndipatri.roboaggia.R
 
 @Composable
-actual fun SleepAnimation(modifier: Modifier) = CustomRiveAnimationView(
+actual fun WelcomeAnimation(modifier: Modifier) = CustomRiveAnimationView(
     modifier = modifier,
     animation = R.raw.nick
 )

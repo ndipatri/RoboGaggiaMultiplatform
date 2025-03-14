@@ -53,5 +53,5 @@ package content
 import platform.UIKit.UIViewController
 
 interface NativeViewFactory {
-    fun renderIntroAnimation(): UIViewController
+    fun renderWelcomeAnimation(): UIViewController
 }

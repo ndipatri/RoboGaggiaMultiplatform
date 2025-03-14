@@ -9,7 +9,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.UIKitViewController
 
 @Composable
-actual fun SleepAnimation(modifier: Modifier) {
+actual fun WelcomeAnimation(modifier: Modifier) {
     val factory = LocalNativeViewFactory.current
 
     UIKitViewController(
@@ -17,7 +17,7 @@ actual fun SleepAnimation(modifier: Modifier) {
             .width(100.dp)
             .height(50.dp),
         factory = {
-            factory.renderIntroAnimation()
+            factory.renderWelcomeAnimation()
         }
     )
 }
