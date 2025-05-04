@@ -11,7 +11,7 @@ import com.ndipatri.roboaggia.R
 @Composable
 actual fun WelcomeAnimation(modifier: Modifier) = CustomRiveAnimationView(
     modifier = modifier,
-    animation = R.raw.nick
+    animation = R.raw.robogaggia
 )
 
 

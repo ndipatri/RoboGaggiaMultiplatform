@@ -9,7 +9,6 @@ plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsCompose)
     alias(libs.plugins.compose.compiler)
-    alias(libs.plugins.kotlinCocoapods)
     id("com.squareup.wire") version "5.0.0-alpha03"
     id("com.codingfeline.buildkonfig")
 }
@@ -32,38 +31,6 @@ kotlin {
             baseName = "ComposeApp"
             isStatic = true
         }
-    }
-
-    cocoapods {
-        version = "2.0"
-        ios.deploymentTarget = "14.1"
-
-        summary = "roboGaggiaMultiplatformPod"
-        homepage = "https://github.com/ndipatri/roboGaggia"
-
-        pod("RiveRuntime") {
-            version = "6.7.0"
-            extraOpts += listOf("-compiler-option", "-fmodules")
-        }
-
-        framework {
-            // Required properties
-            // Framework name configuration. Use this property instead of deprecated 'frameworkName'
-            baseName = "roboGaggiaMultiplatformPod"
-
-            // Optional properties
-            // Specify the framework linking type. It's dynamic by default.
-            isStatic = false
-
-            // Dependency export
-            // Uncomment and specify another project module if you have one:
-            // export(project(":<your other KMP module>"))
-            transitiveExport = false // This is default.
-        }
-
-        // Maps custom Xcode configuration to NativeBuildType
-        xcodeConfigurationToNativeBuildType["CUSTOM_DEBUG"] = NativeBuildType.DEBUG
-        xcodeConfigurationToNativeBuildType["CUSTOM_RELEASE"] = NativeBuildType.RELEASE
     }
 
     wire {

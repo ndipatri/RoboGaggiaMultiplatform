@@ -6,7 +6,7 @@ class IOSNativeViewFactory: NativeViewFactory {
     static var shared = IOSNativeViewFactory()
     
     func renderWelcomeAnimation() -> UIViewController {
-        let riveView = RiveViewModel(fileName: "nick").view()
+        let riveView = RiveViewModel(fileName: "robogaggia").view()
         
         // Ensure the SwiftUI view has a transparent background
         let fullScreenView = VStack {
