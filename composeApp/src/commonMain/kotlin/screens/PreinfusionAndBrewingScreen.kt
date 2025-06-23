@@ -24,23 +24,22 @@ fun PreinfusionAndBrewingScreen(
         )
     ) {
         BrewChartContent(telemetry = telemetry) {
-            if (telemetry.currentState == GaggiaState.DONE_BREWING) {
-                ScreenContent(
-                    body1Resource = Res.string.done_brewing,
-                    button1Resource = Res.string.ready,
-                    button2Resource = Res.string.exit,
-                    telemetry = telemetry,
-                    onFirstButtonClick = onReadyClicked,
-                    onSecondButtonClick = onExitClicked,
-                    backgroundImage = null,
-                    shouldUIDisappear = true,
-                    shouldAutoAdvance = true,
+            val doneBrewing = telemetry.currentState == GaggiaState.DONE_BREWING
+            ScreenContent(
+                body1Resource = if (doneBrewing) Res.string.done_brewing else null,
+                button1Resource = if (doneBrewing) Res.string.ready else null,
+                button2Resource = Res.string.exit,
+                telemetry = telemetry,
+                onFirstButtonClick = if (doneBrewing) onReadyClicked else null,
+                onSecondButtonClick = onExitClicked,
+                backgroundImage = null,
+                shouldUIDisappear = true,
+                shouldAutoAdvance = true,
 
-                    // We want the buttons from ScreenContent, but it's background needs to be
-                    // transparent so we can see the BrewChart behind it.
-                    backgroundColor = Color.Transparent
-                )
-            }
+                // We want the buttons from ScreenContent, but it's background needs to be
+                // transparent so we can see the BrewChart behind it.
+                backgroundColor = Color.Transparent
+            )
         }
     }
 }

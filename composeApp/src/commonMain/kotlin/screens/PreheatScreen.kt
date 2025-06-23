@@ -27,7 +27,7 @@ fun PreheatScreen(
     ScreenContent(
         body1Resource = Res.string.hello_welcome_to_robogaggia,
         body2Resource = Res.string.place_your_empty_cup,
-        button1Resource = Res.string.start,
+        button1Resource = if (telemetry.isScaleSettled) Res.string.start else null,
         userMessage = if (telemetry.currentShotsUntilBackflush == 0) {
             stringResource(Res.string.time_to_backflush)
         } else {
