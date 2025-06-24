@@ -175,7 +175,8 @@ fun PreviewHeatingToBrewScreen() {
 @Composable
 fun PreviewHeatingToSteamScreen() {
     HeatingToSteamScreen (
-        telemetry = BASE_TELEMETRY_STRING.toTelemetry(),
+        storedTelemetry = BASE_TELEMETRY_STRING.toTelemetry(),
+        liveTelemetry = BASE_TELEMETRY_STRING.toTelemetry(),
         onSecondButtonClick = {}
     )
 }

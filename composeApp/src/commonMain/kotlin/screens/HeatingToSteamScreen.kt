@@ -12,17 +12,19 @@ import vms.Telemetry
 
 @Composable
 fun HeatingToSteamScreen(
-    telemetry: Telemetry,
+    storedTelemetry: Telemetry,
+    liveTelemetry: Telemetry,
     onSecondButtonClick: () -> Unit
 ) {
-    BrewChartContent(telemetry = telemetry) {
+    BrewChartContent(telemetry = storedTelemetry) {
         ScreenContent(
             body1Resource = Res.string.heating_to_steam,
             body2Resource = Res.string.remove_and_clean_portafilter,
             button2Resource = Res.string.exit,
-            telemetry = telemetry,
+            telemetry = liveTelemetry,
             onSecondButtonClick = onSecondButtonClick,
             backgroundImage = null,
+            shouldUIDisappear = true,
 
             // We want the buttons from ScreenContent, but it's background needs to be
             // transparent so we can see the BrewChart behind it.

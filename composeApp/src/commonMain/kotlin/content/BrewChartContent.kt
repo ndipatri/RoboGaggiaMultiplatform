@@ -67,13 +67,23 @@ fun BrewChartContent(telemetry: Telemetry, content: (@Composable () -> Unit)? = 
             KoinContext {
                 val telemetryDataStore = koinInject<DataStore<TelemetryProtoData>>()
 
-                val (seriesList, maxValueList, unitList, colorList) = SeriesData(
+                val (seriesList, preinfusionTimeSeconds, brewTimeSeconds, maxValueList, unitList, colorList) = SeriesData(
                     telemetry.telemetry
                 )
 
-                var preinfusionTimeSeconds by rememberSaveable { mutableStateOf(0) }
-                var brewTimeSeconds by rememberSaveable { mutableStateOf(0) }
-                var timeString by rememberSaveable { mutableStateOf("") }
+                val timeString = buildString {
+                    when (telemetry.currentState) {
+                        GaggiaState.PREINFUSION -> {
+                            append("Preinfusion (${preinfusionTimeSeconds.toInt()}) sec")
+                        }
+
+                        GaggiaState.BREWING, GaggiaState.DONE_BREWING -> {
+                            append("Brew (${preinfusionTimeSeconds.toInt()}, ${brewTimeSeconds.toInt()}) sec")
+                        }
+
+                        else -> {}
+                    }
+                }
 
                 val visibleSeriesMap = remember {
                     mutableStateMapOf(
@@ -86,23 +96,15 @@ fun BrewChartContent(telemetry: Telemetry, content: (@Composable () -> Unit)? = 
                 }
 
                 val xStepsPerScreen = 40
-                val secondsPerStep = 1.2
 
                 var telemetrySaved by remember { mutableStateOf(false) }
 
                 // Track preinfusion and brew time for shot clock overlay
+
                 LaunchedEffect(telemetry.currentState) {
                     while (true) {
                         delay(1000)
                         when (telemetry.currentState) {
-                            GaggiaState.PREINFUSION -> {
-                                preinfusionTimeSeconds += 1
-                            }
-
-                            GaggiaState.BREWING -> {
-                                brewTimeSeconds += 1
-                            }
-
                             GaggiaState.DONE_BREWING -> {
                                 if (!telemetrySaved) {
                                     telemetrySaved = true
@@ -116,32 +118,6 @@ fun BrewChartContent(telemetry: Telemetry, content: (@Composable () -> Unit)? = 
                             else -> {}
                         }
 
-                        timeString = buildString {
-                            when (telemetry.currentState) {
-                                GaggiaState.PREINFUSION -> {
-                                    append("Preinfusion (${preinfusionTimeSeconds}) sec")
-                                }
-
-                                GaggiaState.BREWING, GaggiaState.DONE_BREWING -> {
-                                    append("Brew (${preinfusionTimeSeconds}, ${brewTimeSeconds}) sec")
-                                }
-
-                                else -> {}
-                            }
-                        }
-                    }
-                }
-
-                val lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current
-                DisposableEffect(lifecycleOwner) {
-                    onDispose {
-                        if (telemetry.currentState == GaggiaState.DONE_BREWING) {
-                            // Now that we've used this data, we have to clear it out as this
-                            // screen is stateful...
-                            preinfusionTimeSeconds = 0
-                            brewTimeSeconds = 0
-                            timeString = ""
-                        }
                     }
                 }
 
@@ -162,7 +138,7 @@ fun BrewChartContent(telemetry: Telemetry, content: (@Composable () -> Unit)? = 
 
                     // Shot clock overlay
                     Text(
-                        modifier = Modifier.align(Alignment.Center).graphicsLayer(alpha = .5F),
+                        modifier = Modifier.align(Alignment.BottomCenter).graphicsLayer(alpha = .5F),
                         text = timeString,
                         color = Color.White,
                         fontSize = 48.sp
@@ -491,10 +467,12 @@ fun LineGraph(
 
 data class SeriesData constructor(
     val seriesList: List<List<Any>>,
+    val preinfusionTimeSeconds: Float,
+    val brewTimeSeconds: Float,
     val maxValueList: List<Float>,
     val unitList: List<String>,
     val colorList: List<Color>,
-    val weightIndex: Int
+    val weightIndex: Int,
 ) {
     constructor(accumulatedTelemetry: List<TelemetryMessage>) :
             this(
@@ -529,6 +507,14 @@ data class SeriesData constructor(
                             GaggiaState.BREWING
                         )
                     }.map { it.dutyCyclePercent.toFloat() }),
+
+                accumulatedTelemetry.filter {
+                    it.state == GaggiaState.PREINFUSION
+                }.size * .250F,
+
+                accumulatedTelemetry.filter {
+                    it.state == GaggiaState.BREWING
+                }.size * .250F,
 
                 maxValueList = listOf(50f, 15f, 5f, 150f, 100f),
                 unitList = listOf("grams", "bars", "grams/sec", "tempC", "pumpPower"),

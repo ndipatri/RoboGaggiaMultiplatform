@@ -262,13 +262,16 @@ fun NavGraphBuilder.mainNavigationGraph(
     }
 
     composable(route = GaggiaState.HEATING_TO_STEAM.stateName) {
-        StoredTelemetryScreen { telemetry ->
-            telemetry?.let {
-                HeatingToSteamScreen(
-                    // we assume telemetry exists from previous state
-                    telemetry = telemetry,
-                    onSecondButtonClick = onSecondButtonClick
-                )
+        StoredTelemetryScreen { storedTelemetry ->
+            LiveTelemetryScreen { liveTelemetry ->
+                storedTelemetry?.let {
+                    HeatingToSteamScreen(
+                        // we assume telemetry exists from previous state
+                        storedTelemetry = storedTelemetry,
+                        liveTelemetry = liveTelemetry,
+                        onSecondButtonClick = onSecondButtonClick
+                    )
+                }
             }
         }
     }

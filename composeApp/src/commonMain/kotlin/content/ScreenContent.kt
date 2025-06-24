@@ -104,7 +104,7 @@ fun ScreenContent(
         var countdownValue by remember { mutableStateOf(5) }
         if (shouldAutoAdvance) {
             Text(
-                modifier = Modifier.align(Alignment.BottomCenter),
+                modifier = Modifier.align(Alignment.TopCenter),
                 text = countdownValue.toString(),
                 style = Typography.h1,
                 textAlign = TextAlign.Center
@@ -149,7 +149,7 @@ fun ScreenContent(
             modifier = Modifier
                 .fillMaxWidth()
                 .graphicsLayer(alpha = alpha)
-                .clickable { if (shouldUIDisappear) shouldBeVisible = !shouldBeVisible }) {
+                .clickable { shouldBeVisible = !shouldBeVisible }) {
             Column(
                 verticalArrangement = Arrangement.Center,
                 modifier = Modifier

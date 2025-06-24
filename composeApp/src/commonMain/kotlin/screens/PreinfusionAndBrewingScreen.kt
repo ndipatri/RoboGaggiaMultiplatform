@@ -33,8 +33,8 @@ fun PreinfusionAndBrewingScreen(
                 onFirstButtonClick = if (doneBrewing) onReadyClicked else null,
                 onSecondButtonClick = onExitClicked,
                 backgroundImage = null,
-                shouldUIDisappear = true,
-                shouldAutoAdvance = true,
+                shouldUIDisappear = !doneBrewing,
+                shouldAutoAdvance = doneBrewing,
 
                 // We want the buttons from ScreenContent, but it's background needs to be
                 // transparent so we can see the BrewChart behind it.

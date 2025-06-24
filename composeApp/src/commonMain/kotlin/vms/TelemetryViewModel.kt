@@ -632,7 +632,7 @@ data class Telemetry(
 
     // 'settled' means the scale has finally stopped changing in value enough to consider the value for calculations
     // For settling, only consider decimal value of weight
-    val SETTLED_WEIGHT_THRESHOLD = 4
+    val SETTLED_WEIGHT_THRESHOLD = 10
     val isScaleSettled =
         if (currentTelemetryMessage?.weight?.currentWeight != null && previousTelemetryMessage?.weight?.currentWeight != null) {
             abs(
