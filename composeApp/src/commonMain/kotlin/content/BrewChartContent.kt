@@ -74,11 +74,11 @@ fun BrewChartContent(telemetry: Telemetry, content: (@Composable () -> Unit)? = 
                 val timeString = buildString {
                     when (telemetry.currentState) {
                         GaggiaState.PREINFUSION -> {
-                            append("Preinfusion (${preinfusionTimeSeconds.toInt()}) sec")
+                            append("Preinfusion(${preinfusionTimeSeconds.toInt()}s)")
                         }
 
                         GaggiaState.BREWING, GaggiaState.DONE_BREWING -> {
-                            append("Brew (${preinfusionTimeSeconds.toInt()}, ${brewTimeSeconds.toInt()}) sec")
+                            append("Brew(${preinfusionTimeSeconds.toInt()}s, ${brewTimeSeconds.toInt()}s)")
                         }
 
                         else -> {}
