@@ -50,6 +50,7 @@ import androidx.compose.material.FloatingActionButton
 import androidx.compose.material.Icon
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Mic
+import androidx.compose.material.icons.filled.MicOff
 import robogaggiamultiplatform.composeapp.generated.resources.Res
 import robogaggiamultiplatform.composeapp.generated.resources.dark_circuitboard
 import robogaggiamultiplatform.composeapp.generated.resources.temp_is
@@ -275,17 +276,26 @@ fun ScreenContent(
 
         KoinContext {
             val speechToText = koinInject<SpeechToText>()
+            var isListening by remember { mutableStateOf(false) }
+
             FloatingActionButton(
                 onClick = {
-                    println("*** NJD: clicked on floating action button")
-                    speechToText.startListening { println("*** NJD: Speech: $it") }
-                    println("*** NJD: done listening")
+                    if (isListening) {
+                        speechToText.stopListening()
+                    } else {
+                        speechToText.startListening { println("*** NJD: Speech: $it") }
+                    }
+                    isListening = !isListening
                 },
                 modifier = Modifier
                     .align(Alignment.BottomStart)
                     .padding(20.dp)
             ) {
-                Icon(Icons.Default.Mic, contentDescription = "mic")
+                if (isListening) {
+                    Icon(Icons.Default.MicOff, contentDescription = "stop recording")
+                } else {
+                    Icon(Icons.Default.Mic, contentDescription = "mic")
+                }
             }
         }
     }
