@@ -11,6 +11,8 @@ expect val dataStoreModule: Module
 
 expect val platformModule: Module
 
+expect val speechToTextModule: Module
+
 // Currently, you cannot inject an Object-C object using KOIN,
 // so you have to wrap it in a Kotlin class...
 // see: https://github.com/InsertKoinIO/koin/issues/1492
