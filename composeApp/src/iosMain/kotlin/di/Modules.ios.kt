@@ -12,6 +12,7 @@ import platform.Foundation.NSURL
 import platform.Foundation.NSUserDomainMask
 import platform.UIKit.UIView
 import robo.ndipatri.robogaggia.proto_datastore_kmm.TelemetryProtoData
+import services.SpeechToText
 
 actual val platformModule = module {
     single {
@@ -35,4 +36,8 @@ actual val dataStoreModule = module {
 
         createDataStore(fileSystem = FileSystem.SYSTEM, producePath = { producePath().toPath() })
     }
+}
+
+actual val speechToTextModule = module {
+    single { SpeechToText(get<ApplicationContextWrapper>().applicationContext) }
 }
