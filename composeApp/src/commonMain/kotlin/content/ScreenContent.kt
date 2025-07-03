@@ -290,6 +290,7 @@ fun ScreenContent(
                     }
                     isListening = !isListening
                 },
+                backgroundColor = if (isListening) Color.Red else Color.Green,
                 modifier = Modifier
                     .align(Alignment.BottomStart)
                     .padding(5.dp)
