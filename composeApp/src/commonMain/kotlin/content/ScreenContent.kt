@@ -289,7 +289,7 @@ fun ScreenContent(
                 },
                 modifier = Modifier
                     .align(Alignment.BottomStart)
-                    .padding(20.dp)
+                    .padding(5.dp)
             ) {
                 if (isListening) {
                     Icon(Icons.Default.MicOff, contentDescription = "stop recording")
