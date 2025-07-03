@@ -78,6 +78,7 @@ kotlin {
                 // Storage
                 api(libs.datastore.core)
                 implementation(libs.anthropic.sdk)
+                implementation(libs.mcp.sdk)
             }
         }
 
