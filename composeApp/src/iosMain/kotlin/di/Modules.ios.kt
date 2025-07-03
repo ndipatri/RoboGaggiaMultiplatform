@@ -13,6 +13,7 @@ import platform.Foundation.NSUserDomainMask
 import platform.UIKit.UIView
 import robo.ndipatri.robogaggia.proto_datastore_kmm.TelemetryProtoData
 import services.SpeechToText
+import services.ClickSound
 
 actual val platformModule = module {
     single {
@@ -40,4 +41,8 @@ actual val dataStoreModule = module {
 
 actual val speechToTextModule = module {
     single { SpeechToText(get<ApplicationContextWrapper>().applicationContext) }
+}
+
+actual val soundModule = module {
+    single { ClickSound(get<ApplicationContextWrapper>().applicationContext) }
 }

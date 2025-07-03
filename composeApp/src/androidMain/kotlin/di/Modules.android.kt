@@ -9,6 +9,7 @@ import org.koin.dsl.bind
 import org.koin.dsl.module
 import persistence.createDataStore
 import services.SpeechToText
+import services.ClickSound
 import robo.ndipatri.robogaggia.proto_datastore_kmm.TelemetryProtoData
 
 actual val platformModule = module {
@@ -26,4 +27,8 @@ actual val dataStoreModule = module {
 
 actual val speechToTextModule = module {
     single { SpeechToText(get<ApplicationContextWrapper>().applicationContext) }
+}
+
+actual val soundModule = module {
+    single { ClickSound(get<ApplicationContextWrapper>().applicationContext) }
 }

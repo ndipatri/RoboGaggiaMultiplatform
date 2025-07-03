@@ -46,6 +46,7 @@ import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.KoinContext
 import org.koin.compose.koinInject
 import services.SpeechToText
+import services.ClickSound
 import androidx.compose.material.FloatingActionButton
 import androidx.compose.material.Icon
 import androidx.compose.material.icons.Icons
@@ -276,10 +277,12 @@ fun ScreenContent(
 
         KoinContext {
             val speechToText = koinInject<SpeechToText>()
+            val clickSound = koinInject<ClickSound>()
             var isListening by remember { mutableStateOf(false) }
 
             FloatingActionButton(
                 onClick = {
+                    clickSound.play()
                     if (isListening) {
                         speechToText.stopListening()
                     } else {
