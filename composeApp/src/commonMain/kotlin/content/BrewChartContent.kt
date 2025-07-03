@@ -67,21 +67,23 @@ fun BrewChartContent(telemetry: Telemetry, content: (@Composable () -> Unit)? = 
             KoinContext {
                 val telemetryDataStore = koinInject<DataStore<TelemetryProtoData>>()
 
-                val (seriesList, preinfusionTimeSeconds, brewTimeSeconds, maxValueList, unitList, colorList) = SeriesData(
-                    telemetry.telemetry
-                )
+                val (seriesList, preinfusionTimeSeconds, brewTimeSeconds, maxValueList, unitList, colorList) = remember(telemetry.telemetry.size, telemetry.currentState) {
+                    SeriesData(telemetry.telemetry)
+                }
 
-                val timeString = buildString {
-                    when (telemetry.currentState) {
-                        GaggiaState.PREINFUSION -> {
-                            append("Preinfusion(${preinfusionTimeSeconds.toInt()}s)")
+                val timeString = remember(telemetry.currentState, preinfusionTimeSeconds, brewTimeSeconds) {
+                    buildString {
+                        when (telemetry.currentState) {
+                            GaggiaState.PREINFUSION -> {
+                                append("Preinfusion(${preinfusionTimeSeconds.toInt()}s)")
+                            }
+
+                            GaggiaState.BREWING, GaggiaState.DONE_BREWING -> {
+                                append("Brew(${preinfusionTimeSeconds.toInt()}s, ${brewTimeSeconds.toInt()}s)")
+                            }
+
+                            else -> {}
                         }
-
-                        GaggiaState.BREWING, GaggiaState.DONE_BREWING -> {
-                            append("Brew(${preinfusionTimeSeconds.toInt()}s, ${brewTimeSeconds.toInt()}s)")
-                        }
-
-                        else -> {}
                     }
                 }
 
@@ -102,22 +104,15 @@ fun BrewChartContent(telemetry: Telemetry, content: (@Composable () -> Unit)? = 
                 // Track preinfusion and brew time for shot clock overlay
 
                 LaunchedEffect(telemetry.currentState) {
-                    while (true) {
-                        delay(1000)
-                        when (telemetry.currentState) {
-                            GaggiaState.DONE_BREWING -> {
-                                if (!telemetrySaved) {
-                                    telemetrySaved = true
-                                    telemetryDataStore.updateData { storedTelemetry ->
-                                        // Preserve our current brew telemetry to be used later for review!
-                                        storedTelemetry.copy(acknowledged = false, telemetry = telemetry.telemetry.map { it.toTelemetryMessageProto() })
-                                    }
-                                }
-                            }
-
-                            else -> {}
+                    // Only run the effect when we're in DONE_BREWING state and haven't saved yet
+                    if (telemetry.currentState == GaggiaState.DONE_BREWING && !telemetrySaved) {
+                        telemetryDataStore.updateData { storedTelemetry ->
+                            telemetrySaved = true
+                            storedTelemetry.copy(
+                                acknowledged = false,
+                                telemetry = telemetry.telemetry.map { it.toTelemetryMessageProto() }
+                            )
                         }
-
                     }
                 }
 
@@ -129,7 +124,8 @@ fun BrewChartContent(telemetry: Telemetry, content: (@Composable () -> Unit)? = 
                         bottom = 30.dp
                     )
                 ) {
-                    val numberOfVisibleRows = visibleSeriesMap.filterValues { value -> value }.size
+                    val numberOfVisibleRows =
+                        remember(visibleSeriesMap) { visibleSeriesMap.filterValues { value -> value }.size }
 
                     GridBackground(
                         numberOfColumns = numberOfVisibleRows + 2,

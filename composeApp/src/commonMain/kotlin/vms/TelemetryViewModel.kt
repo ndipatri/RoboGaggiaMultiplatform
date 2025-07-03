@@ -15,6 +15,7 @@ import dev.bluefalcon.BluetoothPeripheral
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import mqtt.MQTTVersion
 import mqtt.Subscription
@@ -89,7 +90,7 @@ class TelemetryViewModel(val context: ApplicationContext) : ViewModel() {
     // https://github.com/Reedyuk/blue-falcon/issues/26
     private fun scanForBluetooth() {
         viewModelScope.launch(Dispatchers.Default) {
-            while (!bluetoothIsScanning) {
+            while (isActive && !bluetoothIsScanning) {
                 try {
                     println("*** NJD: starting scan...")
                     blueFalcon.scan()
@@ -119,7 +120,7 @@ class TelemetryViewModel(val context: ApplicationContext) : ViewModel() {
     fun startMQTTClientAndSubscribeToTelemetryTopic(startDelayMillis: Long) {
 
         viewModelScope.launch(Dispatchers.Default) {
-            while (true) {
+            while (isActive) {
 
                 delay(startDelayMillis)
 
@@ -148,7 +149,7 @@ class TelemetryViewModel(val context: ApplicationContext) : ViewModel() {
                         )
                     )
                     println("*** VM connecting to MQTT broker.")
-                    while (client.running) {
+                    while (isActive && client.running) {
                         // this keep the client alive and listening
                         client.step()
                         delay(250)
@@ -164,7 +165,7 @@ class TelemetryViewModel(val context: ApplicationContext) : ViewModel() {
 
     private fun checkForStaleTelemetry() {
         viewModelScope.launch(Dispatchers.Default) {
-            while (true) {
+            while (isActive) {
 
                 delay(5000)
 
