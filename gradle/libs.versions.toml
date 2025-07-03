@@ -20,6 +20,7 @@ koinComposeMultiplatform = "1.2.0-Beta4"
 navigationCompose = "2.8.0-alpha02"
 lifecycleViewModel = "2.8.4"
 riveAndroid = "9.6.5"
+anthropic = "0.11"
 
 [libraries]
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
@@ -44,6 +45,7 @@ navigation-compose = { module = "org.jetbrains.androidx.navigation:navigation-co
 rive-android = { module = "app.rive:rive-android", version.ref = "riveAndroid" }
 
 datastore-core = { module = "androidx.datastore:datastore-core-okio", version.ref = "datastore" }
+anthropic-sdk = { module = "com.xemantic.anthropic:anthropic-sdk-kotlin", version.ref = "anthropic" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
