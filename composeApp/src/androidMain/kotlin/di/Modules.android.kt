@@ -8,6 +8,7 @@ import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.bind
 import org.koin.dsl.module
 import persistence.createDataStore
+import services.SpeechToText
 import robo.ndipatri.robogaggia.proto_datastore_kmm.TelemetryProtoData
 
 actual val platformModule = module {
@@ -21,4 +22,8 @@ actual val dataStoreModule = module {
         val producePath = { androidContext().filesDir.resolve(DATA_STORE_FILE_NAME).absolutePath.toPath() }
         createDataStore(fileSystem = FileSystem.SYSTEM, producePath = producePath)
     }
+}
+
+actual val speechToTextModule = module {
+    single { SpeechToText(get<ApplicationContextWrapper>().applicationContext) }
 }
