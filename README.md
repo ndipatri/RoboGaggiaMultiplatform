@@ -59,6 +59,7 @@ In order to use the GaggiaKMPSimulator, set the 'use.simulator' property in the 
 The application now also integrates the Anthropic SDK. Provide your `anthropic.api.key` in `local.properties` to enable AI features.
 The application integrates the MCP Kotlin Multiplatform SDK to support the Model Context Protocol across Android and iOS.
 
+
 Please see the [Gaggia KMP Simulator](https://github.com/ndipatri/GaggiaKMPSimulator) project for details on how to start the simulator and necessary local MQTT broker. 
 
 

@@ -79,6 +79,7 @@ kotlin {
                 api(libs.datastore.core)
                 implementation(libs.mcp.sdk)
                 implementation(libs.anthropic.sdk)
+                implementation(libs.mcp.sdk)
             }
         }
 
