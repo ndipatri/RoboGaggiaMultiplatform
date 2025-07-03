@@ -49,6 +49,7 @@ kotlin {
             implementation(libs.koin.android)
             implementation(libs.koin.androidx.compose)
             implementation(libs.rive.android)
+            implementation(libs.mcp.sdk)
         }
         val commonMain by getting {
             dependencies {
@@ -78,7 +79,6 @@ kotlin {
                 // Storage
                 api(libs.datastore.core)
                 implementation(libs.anthropic.sdk)
-                implementation(libs.mcp.sdk)
             }
         }
 
