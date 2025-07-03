@@ -10,6 +10,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import com.ndipatri.roboaggia.MyApplication
 import di.dataStoreModule
+import di.soundModule
 import di.initKoin
 import di.platformModule
 import di.sharedModule
@@ -196,7 +197,7 @@ fun PreviewSteamingScreen() {
 fun PreviewDoneBrewingScreen() {
     if (GlobalContext.getOrNull() == null) {
         startKoin {
-            modules(sharedModule, platformModule, dataStoreModule)
+            modules(sharedModule, platformModule, dataStoreModule, soundModule)
         }
     }
 
@@ -214,7 +215,7 @@ fun PreviewDoneBrewingScreen() {
 fun PreviewLastBrewScreen() {
     if (GlobalContext.getOrNull() == null) {
         startKoin {
-            modules(sharedModule, platformModule, dataStoreModule)
+            modules(sharedModule, platformModule, dataStoreModule, soundModule)
         }
     }
 
@@ -230,7 +231,7 @@ fun PreviewLastBrewScreen() {
 fun PreviewBrewingScreen() {
     if (GlobalContext.getOrNull() == null) {
         startKoin {
-            modules(sharedModule, platformModule, dataStoreModule)
+            modules(sharedModule, platformModule, dataStoreModule, soundModule)
         }
     }
 
