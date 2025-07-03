@@ -4,6 +4,7 @@ import App
 import android.Manifest.permission.ACCESS_FINE_LOCATION
 import android.Manifest.permission.BLUETOOTH_CONNECT
 import android.Manifest.permission.BLUETOOTH_SCAN
+import android.Manifest.permission.RECORD_AUDIO
 import android.app.Application
 import android.content.pm.PackageManager
 import android.os.Build
@@ -52,48 +53,41 @@ class MainActivity : ComponentActivity() {
 
     private fun askForRuntimePermissions(doWhenPermissionAcquired: (() -> Unit)? = null) {
 
-        // We only care about this permission if we're using BLE
-        if (!BuildKonfig.USE_SIMULATOR.toBooleanStrict() && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
+        val permissions = mutableListOf<String>()
 
-                if (permissions[BLUETOOTH_SCAN] == true &&
-                    permissions[BLUETOOTH_CONNECT] == true &&
-                    permissions[ACCESS_FINE_LOCATION] == true
-                ) {
+        if (!BuildKonfig.USE_SIMULATOR.toBooleanStrict() && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            permissions.addAll(listOf(BLUETOOTH_SCAN, BLUETOOTH_CONNECT, ACCESS_FINE_LOCATION))
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            permissions.add(RECORD_AUDIO)
+        }
+
+        if (permissions.isNotEmpty()) {
+            registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { granted ->
+                val allGranted = permissions.all { granted[it] == true }
+
+                if (allGranted) {
                     doWhenPermissionAcquired?.invoke()
                 } else {
-                    Toast.makeText(this, "Cannot scan without permission.", Toast.LENGTH_SHORT)
+                    Toast.makeText(this, "Cannot proceed without permission.", Toast.LENGTH_SHORT)
                         .show()
                 }
             }.apply {
-                launch(
-                    arrayOf(
-                        BLUETOOTH_SCAN,
-                        BLUETOOTH_CONNECT,
-                        ACCESS_FINE_LOCATION
-                    )
-                )
+                launch(permissions.toTypedArray())
             }
         }
     }
 
     private fun needToAskForRuntimePermissions() =
-        Build.VERSION.SDK_INT >= Build.VERSION_CODES.S &&
-
-                ((ActivityCompat.checkSelfPermission(
-                    this,
-                    BLUETOOTH_SCAN
-                ) != PackageManager.PERMISSION_GRANTED ||
-
-                        ActivityCompat.checkSelfPermission(
-                            this,
-                            BLUETOOTH_CONNECT
-                        ) != PackageManager.PERMISSION_GRANTED ||
-
-                        ActivityCompat.checkSelfPermission(
-                            this,
-                            ACCESS_FINE_LOCATION
-                        ) != PackageManager.PERMISSION_GRANTED))
+        ((Build.VERSION.SDK_INT >= Build.VERSION_CODES.S &&
+                (
+                    ActivityCompat.checkSelfPermission(this, BLUETOOTH_SCAN) != PackageManager.PERMISSION_GRANTED ||
+                    ActivityCompat.checkSelfPermission(this, BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED ||
+                    ActivityCompat.checkSelfPermission(this, ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+                )) ||
+                (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M &&
+                    ActivityCompat.checkSelfPermission(this, RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED))
 }
 
 @Preview
