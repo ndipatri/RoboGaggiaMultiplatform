@@ -77,6 +77,7 @@ kotlin {
 
                 // Storage
                 api(libs.datastore.core)
+                implementation(libs.anthropic.sdk)
             }
         }
 
@@ -129,6 +130,12 @@ buildkonfig {
             com.codingfeline.buildkonfig.compiler.FieldSpec.Type.STRING,
             "PARTICLE_ACCESS_TOKEN",
             gradleLocalProperties(rootDir, providers).getProperty("particle.access.token")
+        )
+
+        buildConfigField(
+            com.codingfeline.buildkonfig.compiler.FieldSpec.Type.STRING,
+            "ANTHROPIC_API_KEY",
+            gradleLocalProperties(rootDir, providers).getProperty("anthropic.api.key")
         )
     }
 }
