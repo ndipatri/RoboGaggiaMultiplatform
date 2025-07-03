@@ -271,17 +271,21 @@ fun ScreenContent(
                     }
                 }
             }
+        }
 
-            KoinContext {
-                val speechToText = koinInject<SpeechToText>()
-                FloatingActionButton(
-                    onClick = { speechToText.startListening { println("*** Speech: $it") } },
-                    modifier = Modifier
-                        .align(Alignment.BottomStart)
-                        .padding(20.dp)
-                ) {
-                    Icon(Icons.Default.Mic, contentDescription = "mic")
-                }
+        KoinContext {
+            val speechToText = koinInject<SpeechToText>()
+            FloatingActionButton(
+                onClick = {
+                    println("*** NJD: clicked on floating action button")
+                    speechToText.startListening { println("*** NJD: Speech: $it") }
+                    println("*** NJD: done listening")
+                },
+                modifier = Modifier
+                    .align(Alignment.BottomStart)
+                    .padding(20.dp)
+            ) {
+                Icon(Icons.Default.Mic, contentDescription = "mic")
             }
         }
     }
