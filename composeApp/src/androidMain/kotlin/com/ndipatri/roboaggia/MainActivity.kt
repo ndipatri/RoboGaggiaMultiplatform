@@ -59,9 +59,7 @@ class MainActivity : ComponentActivity() {
             permissions.addAll(listOf(BLUETOOTH_SCAN, BLUETOOTH_CONNECT, ACCESS_FINE_LOCATION))
         }
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            permissions.add(RECORD_AUDIO)
-        }
+        permissions.add(RECORD_AUDIO)
 
         if (permissions.isNotEmpty()) {
             registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { granted ->
@@ -80,14 +78,13 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun needToAskForRuntimePermissions() =
-        ((Build.VERSION.SDK_INT >= Build.VERSION_CODES.S &&
+        Build.VERSION.SDK_INT >= Build.VERSION_CODES.S &&
                 (
                     ActivityCompat.checkSelfPermission(this, BLUETOOTH_SCAN) != PackageManager.PERMISSION_GRANTED ||
                     ActivityCompat.checkSelfPermission(this, BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED ||
-                    ActivityCompat.checkSelfPermission(this, ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
-                )) ||
-                (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M &&
-                    ActivityCompat.checkSelfPermission(this, RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED))
+                    ActivityCompat.checkSelfPermission(this, ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED ||
+                    ActivityCompat.checkSelfPermission(this, RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED
+                )
 }
 
 @Preview
