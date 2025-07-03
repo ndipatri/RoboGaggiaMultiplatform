@@ -43,6 +43,13 @@ import org.jetbrains.compose.resources.ExperimentalResourceApi
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
+import org.koin.compose.KoinContext
+import org.koin.compose.koinInject
+import services.SpeechToText
+import androidx.compose.material.FloatingActionButton
+import androidx.compose.material.Icon
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Mic
 import robogaggiamultiplatform.composeapp.generated.resources.Res
 import robogaggiamultiplatform.composeapp.generated.resources.dark_circuitboard
 import robogaggiamultiplatform.composeapp.generated.resources.temp_is
@@ -262,6 +269,18 @@ fun ScreenContent(
                             textAlign = TextAlign.Center
                         )
                     }
+                }
+            }
+
+            KoinContext {
+                val speechToText = koinInject<SpeechToText>()
+                FloatingActionButton(
+                    onClick = { speechToText.startListening { println("*** Speech: $it") } },
+                    modifier = Modifier
+                        .align(Alignment.BottomStart)
+                        .padding(20.dp)
+                ) {
+                    Icon(Icons.Default.Mic, contentDescription = "mic")
                 }
             }
         }
