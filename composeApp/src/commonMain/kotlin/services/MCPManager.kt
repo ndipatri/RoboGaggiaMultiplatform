@@ -9,6 +9,7 @@ import io.modelcontextprotocol.kotlin.sdk.server.ServerOptions
 import io.modelcontextprotocol.kotlin.sdk.server.StdioServerTransport
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
+import okio.Pipe
 
 class MCPManager(val apiKey: String, val coroutineScope: CoroutineScope) {
     // Configures using the `ANTHROPIC_API_KEY` and `ANTHROPIC_AUTH_TOKEN` environment variables
