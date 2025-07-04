@@ -9,6 +9,8 @@ import io.modelcontextprotocol.kotlin.sdk.server.ServerOptions
 import io.modelcontextprotocol.kotlin.sdk.server.StdioServerTransport
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
+import okio.Pipe
+import okio.buffer
 
 
 class MCPManager(val apiKey: String, val coroutineScope: CoroutineScope) {
@@ -18,15 +20,13 @@ class MCPManager(val apiKey: String, val coroutineScope: CoroutineScope) {
     private val client: Client =
         Client(clientInfo = Implementation(name = "mcp-client-cli", version = "1.0.0"))
 
-    val serverInput = PipedInputStream()
-    val serverOutput = PipedOutputStream()
-    val clientInput = PipedInputStream()
-    val clientOutput = PipedOutputStream()
+    private val serverToClient = Pipe(8 * 1024)
+    private val clientToServer = Pipe(8 * 1024)
 
-    init {
-        serverOutput.connect(clientInput)
-        clientOutput.connect(serverInput)
-    }
+    val serverInput = clientToServer.source
+    val serverOutput = serverToClient.sink
+    val clientInput = serverToClient.source
+    val clientOutput = clientToServer.sink
 
     suspend fun startMCP(
         onSuccess: (String) -> Unit,
@@ -47,8 +47,8 @@ class MCPManager(val apiKey: String, val coroutineScope: CoroutineScope) {
             )
 
             val transport = StdioServerTransport(
-                inputStream = serverInput.asSource().buffered(),
-                outputStream = serverOutput.asSink().buffered()
+                inputStream = serverInput.buffered(),
+                outputStream = serverOutput.buffered()
             )
 
             println("*** NJD: connecting to server transport")
@@ -69,8 +69,8 @@ class MCPManager(val apiKey: String, val coroutineScope: CoroutineScope) {
         delay(1000)
         try {
             val transport = StdioClientTransport(
-                input = clientInput.asSource().buffered(),
-                output = clientOutput.asSink().buffered()
+                input = clientInput.buffered(),
+                output = clientOutput.buffered()
             )
 
             println("*** NJD: client connecting to server...")
