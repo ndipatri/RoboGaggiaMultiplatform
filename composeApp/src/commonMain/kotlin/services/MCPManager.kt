@@ -47,8 +47,8 @@ class MCPManager(val apiKey: String, val coroutineScope: CoroutineScope) {
             )
 
             val transport = StdioServerTransport(
-                inputStream = serverInput.buffered(),
-                outputStream = serverOutput.buffered()
+                inputStream = serverInput.buffer(),
+                outputStream = serverOutput.buffer()
             )
 
             println("*** NJD: connecting to server transport")
@@ -69,8 +69,8 @@ class MCPManager(val apiKey: String, val coroutineScope: CoroutineScope) {
         delay(1000)
         try {
             val transport = StdioClientTransport(
-                input = clientInput.buffered(),
-                output = clientOutput.buffered()
+                input = clientInput.buffer(),
+                output = clientOutput.buffer()
             )
 
             println("*** NJD: client connecting to server...")
