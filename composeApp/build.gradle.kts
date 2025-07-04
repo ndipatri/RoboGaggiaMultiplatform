@@ -23,7 +23,6 @@ kotlin {
     }
 
     listOf(
-        iosX64(),
         iosArm64(),
         iosSimulatorArm64()
     ).forEach { iosTarget ->
@@ -77,13 +76,11 @@ kotlin {
 
                 // Storage
                 api(libs.datastore.core)
-                implementation(libs.mcp.sdk)
                 implementation(libs.anthropic.sdk)
                 implementation(libs.mcp.sdk)
             }
         }
 
-        val iosX64Main by getting
         val iosArm64Main by getting {
             dependencies {
                 api(files("src/nativeInterop/openssl-ios-arm64.klib"))
@@ -91,7 +88,6 @@ kotlin {
         }
         val iosMain by creating {
             dependsOn(commonMain)
-            iosX64Main.dependsOn(this)
             iosArm64Main.dependsOn(this)
         }
         val iosSimulatorArm64Main by getting {
