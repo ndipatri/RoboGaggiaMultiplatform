@@ -76,7 +76,6 @@ kotlin {
 
                 // Storage
                 api(libs.datastore.core)
-                implementation(libs.anthropic.sdk)
                 implementation(libs.mcp.sdk)
             }
         }
@@ -135,6 +134,7 @@ buildkonfig {
             "ANTHROPIC_API_KEY",
             gradleLocalProperties(rootDir, providers).getProperty("anthropic.api.key")
         )
+
     }
 }
 

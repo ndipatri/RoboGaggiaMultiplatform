@@ -56,8 +56,7 @@ This simulator pretends that it is the Robo Gaggia device: it emits telemetry an
 
 In order to use the GaggiaKMPSimulator, set the 'use.simulator' property in the [local.properties](local.properties) file of this project to 'true'.  The RGUI will, instead, use MQTT to communicate with the simulator.
 
-The application now also integrates the Anthropic SDK. Provide your `anthropic.api.key` in `local.properties` to enable AI features.
-The MCP Kotlin SDK is included as well to support the Model Context Protocol.
+The MCP Kotlin SDK is included to support the Model Context Protocol.
 
 Please see the [Gaggia KMP Simulator](https://github.com/ndipatri/GaggiaKMPSimulator) project for details on how to start the simulator and necessary local MQTT broker. 
 
