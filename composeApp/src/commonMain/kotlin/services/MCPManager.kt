@@ -9,6 +9,10 @@ import io.modelcontextprotocol.kotlin.sdk.server.ServerOptions
 import io.modelcontextprotocol.kotlin.sdk.server.StdioServerTransport
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
+import kotlinx.io.Sink
+import kotlinx.io.Source
+import kotlinx.io.okio.asKotlinxIoRawSink
+import kotlinx.io.okio.asKotlinxIoRawSource
 import utils.Pipe
 
 class MCPManager(val apiKey: String, val coroutineScope: CoroutineScope) {
@@ -45,8 +49,8 @@ class MCPManager(val apiKey: String, val coroutineScope: CoroutineScope) {
             )
 
             val transport = StdioServerTransport(
-                inputStream = serverInput.buffered(),
-                outputStream = serverOutput.buffered()
+                inputStream = serverInput.asKotlinxIoRawSource() as Source,
+                outputStream = serverOutput.asKotlinxIoRawSink() as Sink
             )
 
             println("*** NJD: connecting to server transport")
@@ -67,8 +71,8 @@ class MCPManager(val apiKey: String, val coroutineScope: CoroutineScope) {
         delay(1000)
         try {
             val transport = StdioClientTransport(
-                input = clientInput.buffered(),
-                output = clientOutput.buffered()
+                input = clientInput.asKotlinxIoRawSource() as Source,
+                output = clientOutput.asKotlinxIoRawSink() as Sink
             )
 
             println("*** NJD: client connecting to server...")

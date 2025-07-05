@@ -79,6 +79,7 @@ kotlin {
                 implementation(libs.okio)
                 implementation(libs.anthropic.sdk)
                 implementation(libs.mcp.sdk)
+                implementation("org.jetbrains.kotlinx:kotlinx-io-okio:0.8.0")
             }
         }
 
