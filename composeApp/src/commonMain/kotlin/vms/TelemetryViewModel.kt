@@ -97,6 +97,8 @@ class TelemetryViewModel(val context: ApplicationContext, val mcpManager: MCPMan
                         // running its server...
                         mcpQueryFlow.collect { mcpQuery ->
                             println("*** NJD: collected new mcpQuery...")
+
+                            mcpManager.executeQuery("Please find me the first name for a user with last name 'Smith'")
                         }
                     }
 

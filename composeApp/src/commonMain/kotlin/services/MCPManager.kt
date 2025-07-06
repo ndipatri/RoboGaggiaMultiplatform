@@ -17,11 +17,12 @@ import kotlinx.io.Sink
 import kotlinx.io.Source
 import kotlinx.io.buffered
 import io.modelcontextprotocol.kotlin.sdk.CallToolResult
+import io.modelcontextprotocol.kotlin.sdk.ListToolsResult
 import io.modelcontextprotocol.kotlin.sdk.TextContent
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.runBlocking
-
+import com.xemantic.ai.anthropic.Anthropic
+import com.xemantic.ai.anthropic.message.Message
 
 class MCPManager(val apiKey: String, val coroutineScope: CoroutineScope) {
     // Configures using the `ANTHROPIC_API_KEY` and `ANTHROPIC_AUTH_TOKEN` environment variables
@@ -41,6 +42,37 @@ class MCPManager(val apiKey: String, val coroutineScope: CoroutineScope) {
     // Client reads from serverToClientBuffer, writes to clientToServerBuffer  
     val clientInput: Source = serverToClientPipe.source
     val clientOutput: Sink = clientToServerPipe.sink
+
+    private var availableTools: ListToolsResult? = null
+
+    suspend fun executeQuery(query: String): String {
+        return try {
+            // Create Anthropic client
+            val anthropic = Anthropic {
+                apiKey = this@MCPManager.apiKey
+            }
+
+            println("*** NJD: Executing query against Claude: $query using API Key: $apiKey")
+
+            // Try a direct API call approach
+            val response = anthropic.messages.create {
+                model = "claude-3-5-sonnet-20241022"
+                maxTokens = 1000
+                +Message {
+                    +query
+                }
+            }
+
+            println("*** NJD: Received response from Claude: $response")
+
+            response.toString()
+
+        } catch (e: Exception) {
+            println("*** NJD: Error executing query: ${e.message}")
+            e.printStackTrace()
+            "Error executing query: ${e.message}"
+        }
+    }
 
     suspend fun startMCP(
         onSuccess: (String) -> Unit,
@@ -121,17 +153,17 @@ class MCPManager(val apiKey: String, val coroutineScope: CoroutineScope) {
 
             // Get list of available tools from the server
             try {
-                val tools = client.listTools()
-                if (tools != null) {
+                availableTools = client.listTools()
+                if (availableTools != null) {
                     println("*** NJD: Available tools from server:")
-                    tools.tools.forEach { tool ->
+                    availableTools!!.tools.forEach { tool ->
                         println("  - Tool: ${tool.name}")
                         println("    Description: ${tool.description}")
                         tool.inputSchema?.let { schema ->
                             println("    Input Schema: $schema")
                         }
                     }
-                    onSuccess("*** NJD: Connected to MCP server with ${tools.tools.size} available tools")
+                    onSuccess("*** NJD: Connected to MCP server with ${availableTools!!.tools.size} available tools")
                 } else {
                     println("*** NJD: No tools response received")
                     onSuccess("*** NJD: Connected to MCP server but received no tools response")
