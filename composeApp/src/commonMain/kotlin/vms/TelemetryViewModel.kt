@@ -23,6 +23,7 @@ import mqtt.packets.Qos
 import mqtt.packets.mqttv5.SubscriptionOptions
 import robo.ndipatri.robogaggia.proto_datastore_kmm.TelemetryProtoData
 import services.MCPManager
+import services.MCPQuery
 import kotlin.io.println
 import kotlin.math.abs
 
@@ -70,6 +71,8 @@ class TelemetryViewModel(val context: ApplicationContext, val mcpManager: MCPMan
     // telemetry updates occurs very often.. every 250ms
     val telemetryFlow = MutableStateFlow(Telemetry())
 
+    val mcpQueryFlow = MutableStateFlow<MCPQuery?>(null)
+
     init {
         if (BuildKonfig.USE_SIMULATOR.toBooleanStrict()) {
             startMQTTClientAndSubscribeToTelemetryTopic(500)
@@ -89,6 +92,12 @@ class TelemetryViewModel(val context: ApplicationContext, val mcpManager: MCPMan
                                 println("*** NJD: MCP server disconnected")
                             }
                         )
+
+                        // We need to keep this coroutine active otherwise the mcpManager will stop
+                        // running its server...
+                        mcpQueryFlow.collect { mcpQuery ->
+                            println("*** NJD: collected new mcpQuery...")
+                        }
                     }
 
                     // this makes the outer coroutine wait for the inner coroutine to finish .. since

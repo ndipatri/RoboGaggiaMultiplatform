@@ -1,5 +1,6 @@
 package services
 
+import currentTimeMillis
 import io.modelcontextprotocol.kotlin.sdk.Implementation
 import io.modelcontextprotocol.kotlin.sdk.ServerCapabilities
 import io.modelcontextprotocol.kotlin.sdk.client.Client
@@ -10,10 +11,16 @@ import io.modelcontextprotocol.kotlin.sdk.server.StdioServerTransport
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.io.Buffer
+import kotlinx.io.RawSink
+import kotlinx.io.RawSource
 import kotlinx.io.Sink
 import kotlinx.io.Source
+import kotlinx.io.buffered
 import io.modelcontextprotocol.kotlin.sdk.CallToolResult
 import io.modelcontextprotocol.kotlin.sdk.TextContent
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.runBlocking
 
 
 class MCPManager(val apiKey: String, val coroutineScope: CoroutineScope) {
@@ -23,14 +30,17 @@ class MCPManager(val apiKey: String, val coroutineScope: CoroutineScope) {
     private val client: Client =
         Client(clientInfo = Implementation(name = "mcp-client-cli", version = "1.0.0"))
 
-    // Use Buffer directly for in-memory transport
-    private val serverToClientBuffer = Buffer()
-    private val clientToServerBuffer = Buffer()
+    // Use separate buffers for bidirectional communication
+    private val serverToClientPipe = BlockingPipe()
+    private val clientToServerPipe = BlockingPipe()
 
-    val serverInput: Source = clientToServerBuffer
-    val serverOutput: Sink = serverToClientBuffer
-    val clientInput: Source = serverToClientBuffer
-    val clientOutput: Sink = clientToServerBuffer
+    // Server reads from clientToServerBuffer, writes to serverToClientBuffer
+    val serverInput: Source = clientToServerPipe.source
+    val serverOutput: Sink = serverToClientPipe.sink
+
+    // Client reads from serverToClientBuffer, writes to clientToServerBuffer  
+    val clientInput: Source = serverToClientPipe.source
+    val clientOutput: Sink = clientToServerPipe.sink
 
     suspend fun startMCP(
         onSuccess: (String) -> Unit,
@@ -137,4 +147,54 @@ class MCPManager(val apiKey: String, val coroutineScope: CoroutineScope) {
             throw e
         }
     }
+}
+
+data class MCPQuery(
+    val queryString: String,
+    val terminalString: String,
+    val timestamp: Long = currentTimeMillis()
+)
+
+/**
+ * A simple pipe implementation that uses channels for proper blocking behavior
+ */
+class BlockingPipe {
+    private val channel = Channel<ByteArray>(Channel.UNLIMITED)
+
+    val source: Source = object : RawSource {
+        override fun readAtMostTo(sink: Buffer, byteCount: Long): Long {
+            return runBlocking {
+                try {
+                    val data = channel.receive()
+                    val bytesToWrite = minOf(data.size.toLong(), byteCount)
+                    sink.write(data, 0, bytesToWrite.toInt())
+                    bytesToWrite
+                } catch (e: Exception) {
+                    -1L // EOF
+                }
+            }
+        }
+
+        override fun close() {
+            channel.close()
+        }
+    }.buffered()
+
+    val sink: Sink = object : RawSink {
+        override fun write(source: Buffer, byteCount: Long) {
+            val bytes = ByteArray(byteCount.toInt())
+            source.readAtMostTo(bytes, 0, byteCount.toInt())
+            runBlocking {
+                channel.send(bytes)
+            }
+        }
+
+        override fun flush() {
+            // No-op for channel-based implementation
+        }
+
+        override fun close() {
+            channel.close()
+        }
+    }.buffered()
 }
