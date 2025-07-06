@@ -23,6 +23,9 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.runBlocking
 import com.xemantic.ai.anthropic.Anthropic
 import com.xemantic.ai.anthropic.message.Message
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.jsonPrimitive
 
 class MCPManager(val apiKey: String, val coroutineScope: CoroutineScope) {
     // Configures using the `ANTHROPIC_API_KEY` and `ANTHROPIC_AUTH_TOKEN` environment variables
@@ -95,11 +98,23 @@ class MCPManager(val apiKey: String, val coroutineScope: CoroutineScope) {
             // Add the first name tool
             server.addTool(
                 name = "get_first_name",
-                description = "provide the first name given the last name"
+                description = "provide the first name given the last name",
+                inputSchema = io.modelcontextprotocol.kotlin.sdk.Tool.Input(
+                    properties = JsonObject(
+                        mapOf(
+                            "last_name" to JsonObject(
+                                mapOf(
+                                    "type" to JsonPrimitive("string"),
+                                    "description" to JsonPrimitive("The last name to look up the corresponding first name")
+                                )
+                            )
+                        )
+                    ),
+                    required = listOf("last_name")
+                )
             ) { request ->
                 // Extract the lastName parameter from the request
-                val lastName =
-                    "Smith" // For now, use a hardcoded value since request structure needs investigation
+                val lastName = request.arguments["last_name"]?.jsonPrimitive?.content ?: "Unknown"
 
                 // Simple lookup logic
                 val firstName = when (lastName) {
@@ -117,7 +132,7 @@ class MCPManager(val apiKey: String, val coroutineScope: CoroutineScope) {
                         TextContent(
                             text = "First name for $lastName is $firstName"
                         )
-                    ) // Use TextContent instead of empty list
+                    )
                 )
             }
 
@@ -154,6 +169,7 @@ class MCPManager(val apiKey: String, val coroutineScope: CoroutineScope) {
             // Get list of available tools from the server
             try {
                 availableTools = client.listTools()
+
                 if (availableTools != null) {
                     println("*** NJD: Available tools from server:")
                     availableTools!!.tools.forEach { tool ->
