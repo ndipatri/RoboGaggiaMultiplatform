@@ -9,11 +9,12 @@ import io.modelcontextprotocol.kotlin.sdk.server.ServerOptions
 import io.modelcontextprotocol.kotlin.sdk.server.StdioServerTransport
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
+import kotlinx.io.Buffer
 import kotlinx.io.Sink
 import kotlinx.io.Source
-import kotlinx.io.okio.asKotlinxIoRawSink
-import kotlinx.io.okio.asKotlinxIoRawSource
-import utils.Pipe
+import io.modelcontextprotocol.kotlin.sdk.CallToolResult
+import io.modelcontextprotocol.kotlin.sdk.TextContent
+
 
 class MCPManager(val apiKey: String, val coroutineScope: CoroutineScope) {
     // Configures using the `ANTHROPIC_API_KEY` and `ANTHROPIC_AUTH_TOKEN` environment variables
@@ -22,13 +23,14 @@ class MCPManager(val apiKey: String, val coroutineScope: CoroutineScope) {
     private val client: Client =
         Client(clientInfo = Implementation(name = "mcp-client-cli", version = "1.0.0"))
 
-    private val serverToClient = Pipe(8 * 1024)
-    private val clientToServer = Pipe(8 * 1024)
+    // Use Buffer directly for in-memory transport
+    private val serverToClientBuffer = Buffer()
+    private val clientToServerBuffer = Buffer()
 
-    val serverInput = clientToServer.source
-    val serverOutput = serverToClient.sink
-    val clientInput = serverToClient.source
-    val clientOutput = clientToServer.sink
+    val serverInput: Source = clientToServerBuffer
+    val serverOutput: Sink = serverToClientBuffer
+    val clientInput: Source = serverToClientBuffer
+    val clientOutput: Sink = clientToServerBuffer
 
     suspend fun startMCP(
         onSuccess: (String) -> Unit,
@@ -38,7 +40,7 @@ class MCPManager(val apiKey: String, val coroutineScope: CoroutineScope) {
         try {
             server = Server(
                 Implementation(
-                    name = "Xfinity MCP Server",
+                    name = "RoboGaggia MCP Server",
                     version = "1.0.0"
                 ),
                 ServerOptions(
@@ -48,9 +50,38 @@ class MCPManager(val apiKey: String, val coroutineScope: CoroutineScope) {
                 )
             )
 
+            // Add the first name tool
+            server.addTool(
+                name = "get_first_name",
+                description = "provide the first name given the last name"
+            ) { request ->
+                // Extract the lastName parameter from the request
+                val lastName =
+                    "Smith" // For now, use a hardcoded value since request structure needs investigation
+
+                // Simple lookup logic
+                val firstName = when (lastName) {
+                    "Smith" -> "John"
+                    "Johnson" -> "Emily"
+                    "Williams" -> "Michael"
+                    "Brown" -> "Sarah"
+                    "Jones" -> "David"
+                    else -> "Unknown"
+                }
+
+                // Return CallToolResult with proper content
+                CallToolResult(
+                    content = listOf(
+                        TextContent(
+                            text = "First name for $lastName is $firstName"
+                        )
+                    ) // Use TextContent instead of empty list
+                )
+            }
+
             val transport = StdioServerTransport(
-                inputStream = serverInput.asKotlinxIoRawSource() as Source,
-                outputStream = serverOutput.asKotlinxIoRawSink() as Sink
+                inputStream = serverInput,
+                outputStream = serverOutput
             )
 
             println("*** NJD: connecting to server transport")
@@ -59,11 +90,11 @@ class MCPManager(val apiKey: String, val coroutineScope: CoroutineScope) {
             // to continue processing messages to and from MCPServer
             server.connect(transport)
             server.onClose {
-                println("Server closed")
+                println("*** NJD: Server closed")
                 onServerDisconnect()
             }
         } catch (e: Exception) {
-            println("Failed to connect to MCP server: $e")
+            println("*** NJD: Failed to connect to MCP server: $e")
             server.close()
             throw e
         }
@@ -71,15 +102,37 @@ class MCPManager(val apiKey: String, val coroutineScope: CoroutineScope) {
         delay(1000)
         try {
             val transport = StdioClientTransport(
-                input = clientInput.asKotlinxIoRawSource() as Source,
-                output = clientOutput.asKotlinxIoRawSink() as Sink
+                input = clientInput,
+                output = clientOutput
             )
 
             println("*** NJD: client connecting to server...")
             client.connect(transport)
 
+            // Get list of available tools from the server
+            try {
+                val tools = client.listTools()
+                if (tools != null) {
+                    println("*** NJD: Available tools from server:")
+                    tools.tools.forEach { tool ->
+                        println("  - Tool: ${tool.name}")
+                        println("    Description: ${tool.description}")
+                        tool.inputSchema?.let { schema ->
+                            println("    Input Schema: $schema")
+                        }
+                    }
+                    onSuccess("*** NJD: Connected to MCP server with ${tools.tools.size} available tools")
+                } else {
+                    println("*** NJD: No tools response received")
+                    onSuccess("*** NJD: Connected to MCP server but received no tools response")
+                }
+            } catch (e: Exception) {
+                println("*** NJD: Failed to list tools: $e")
+                onSuccess("*** NJD: Connected to MCP server but failed to list tools")
+            }
+
         } catch (e: Exception) {
-            println("Failed to start MCP: $e")
+            println("*** NJD: Failed to start MCP: $e")
             client.close()
             throw e
         }

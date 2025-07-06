@@ -22,13 +22,15 @@ import mqtt.Subscription
 import mqtt.packets.Qos
 import mqtt.packets.mqttv5.SubscriptionOptions
 import robo.ndipatri.robogaggia.proto_datastore_kmm.TelemetryProtoData
-import services.SettingsViewModel
+import services.MCPManager
+import kotlin.io.println
 import kotlin.math.abs
 
 /**
  * This is a ViewModel that is tied to the context of the entire application.
  */
-class TelemetryViewModel(val context: ApplicationContext) : ViewModel() {
+class TelemetryViewModel(val context: ApplicationContext, val mcpManager: MCPManager) :
+    ViewModel() {
 
     lateinit var client: MQTTClient
 
@@ -73,7 +75,33 @@ class TelemetryViewModel(val context: ApplicationContext) : ViewModel() {
             startMQTTClientAndSubscribeToTelemetryTopic(500)
         }
 
-        checkForStaleTelemetry()
+        // Start MCP server and client
+        viewModelScope.launch {
+            while (isActive) {
+                try {
+                    val job = viewModelScope.launch {
+                        println("*** NJD: Starting MCP.")
+                        mcpManager.startMCP(
+                            onSuccess = { message ->
+                                println("*** NJD: MCP started successfully: $message")
+                            },
+                            onServerDisconnect = {
+                                println("*** NJD: MCP server disconnected")
+                            }
+                        )
+                    }
+
+                    // this makes the outer coroutine wait for the inner coroutine to finish .. since
+                    // the inner coroutine is collecting indefinitely, this would mean an exception
+                    job.join()
+                    println("*** NJD: For some reason, the MCP server was stopped... Trying again..")
+                } catch (ex: Exception) {
+                    println("*** NJD: exception while setting up MCP manager: $ex")
+                } finally {
+                    delay(1000)
+                }
+            }
+        }
     }
 
     fun firstButtonClick() {
