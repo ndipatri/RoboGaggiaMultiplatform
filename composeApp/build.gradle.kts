@@ -9,6 +9,7 @@ plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsCompose)
     alias(libs.plugins.compose.compiler)
+    id("org.jetbrains.kotlin.plugin.serialization") version libs.versions.kotlin.get()
     id("com.squareup.wire") version "5.0.0-alpha03"
     id("com.codingfeline.buildkonfig")
 }
@@ -17,7 +18,7 @@ kotlin {
     androidTarget {
         compilations.all {
             kotlinOptions {
-                jvmTarget = "11"
+                jvmTarget = "17"
             }
         }
     }
@@ -80,6 +81,7 @@ kotlin {
                 implementation(libs.anthropic.sdk)
                 implementation(libs.mcp.sdk)
                 implementation("org.jetbrains.kotlinx:kotlinx-io-core:0.8.0")
+                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:${libs.versions.kotlinx.serialization.get()}")
             }
         }
 
@@ -166,8 +168,8 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
 
     buildFeatures {

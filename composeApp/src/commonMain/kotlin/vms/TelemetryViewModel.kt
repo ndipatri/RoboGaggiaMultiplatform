@@ -84,21 +84,13 @@ class TelemetryViewModel(val context: ApplicationContext, val mcpManager: MCPMan
                 try {
                     val job = viewModelScope.launch {
                         println("*** NJD: Starting MCP.")
-                        mcpManager.startMCP(
-                            onSuccess = { message ->
-                                println("*** NJD: MCP started successfully: $message")
-                            },
-                            onServerDisconnect = {
-                                println("*** NJD: MCP server disconnected")
-                            }
-                        )
 
                         // We need to keep this coroutine active otherwise the mcpManager will stop
                         // running its server...
                         mcpQueryFlow.collect { mcpQuery ->
                             println("*** NJD: collected new mcpQuery...")
 
-                            mcpManager.executeQuery("Please find me the first name for a user with last name 'Smith'")
+                            mcpManager.executeQuery("Please find me the first name for a user with last name 'Smith'.  Your final answer should not refer to any functions.")
                         }
                     }
 

@@ -13,6 +13,7 @@ androidx-test-junit = "1.2.1"
 compose-plugin = "1.7.3"
 junit = "4.13.2"
 kotlin = "2.1.10"
+kotlinx-serialization = "1.6.3"
 datastore = "1.1.1"
 
 koin = "3.6.0-Beta4"
@@ -50,6 +51,7 @@ datastore-core = { module = "androidx.datastore:datastore-core-okio", version.re
 anthropic-sdk = { module = "com.xemantic.ai:anthropic-sdk-kotlin", version.ref = "anthropic" }
 mcp-sdk = { module = "io.modelcontextprotocol:kotlin-sdk", version.ref = "mcp" }
 okio = { module = "com.squareup.okio:okio", version.ref = "okio" }
+kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx-serialization" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
@@ -58,4 +60,4 @@ jetbrainsCompose = { id = "org.jetbrains.compose", version.ref = "compose-plugin
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 kotlinCocoapods = { id = "org.jetbrains.kotlin.native.cocoapods", version.ref = "kotlin" }
-
+kotlinSerialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlinx-serialization" }
