@@ -88,9 +88,14 @@ class TelemetryViewModel(val context: ApplicationContext, val mcpManager: MCPMan
                         // We need to keep this coroutine active otherwise the mcpManager will stop
                         // running its server...
                         mcpQueryFlow.collect { mcpQuery ->
-                            println("*** NJD: collected new mcpQuery...")
+                            mcpQuery?.let {
+                                println("*** NJD: collected new mcpQuery...")
 
-                            mcpManager.executeQuery("Please find me the first name for a user with last name 'Smith'.  Your final answer should not refer to any functions.")
+                                // NJD TODO - for now ignore speech string from mcpQuery.
+                                // eventually, we would condition this text somehow ...
+
+                                mcpManager.executeQuery("Please find me the first name for a user with last name 'Smith'.  Your final answer should not refer to any functions.")
+                            }
                         }
                     }
 

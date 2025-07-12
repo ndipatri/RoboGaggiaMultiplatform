@@ -101,7 +101,6 @@ class MCPManager(val apiKey: String, val coroutineScope: CoroutineScope) {
 
 data class MCPQuery(
     val queryString: String,
-    val terminalString: String,
     val timestamp: Long = currentTimeMillis()
 )
 

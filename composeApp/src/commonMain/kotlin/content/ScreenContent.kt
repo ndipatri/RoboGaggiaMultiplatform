@@ -274,34 +274,6 @@ fun ScreenContent(
                 }
             }
         }
-
-        KoinContext {
-            val speechToText = koinInject<SpeechToText>()
-            val clickSound = koinInject<ClickSound>()
-            var isListening by remember { mutableStateOf(false) }
-
-            FloatingActionButton(
-                onClick = {
-                    clickSound.play()
-                    if (isListening) {
-                        speechToText.stopListening()
-                    } else {
-                        speechToText.startListening { println("*** NJD: Speech: $it") }
-                    }
-                    isListening = !isListening
-                },
-                backgroundColor = if (isListening) Color.Red else Color.Green,
-                modifier = Modifier
-                    .align(Alignment.BottomStart)
-                    .padding(5.dp)
-            ) {
-                if (isListening) {
-                    Icon(Icons.Default.MicOff, contentDescription = "stop recording")
-                } else {
-                    Icon(Icons.Default.Mic, contentDescription = "mic")
-                }
-            }
-        }
     }
 }
 
