@@ -43,6 +43,7 @@ kotlin {
     sourceSets {
         
         androidMain.dependencies {
+            api(libs.ktor.client.okhttp)
             implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
 
@@ -77,9 +78,10 @@ kotlin {
 
                 // Storage
                 api(libs.datastore.core)
+                api(libs.ktor.client.core)
+                api(libs.kotlinx.io.core)
                 implementation(libs.okio)
                 implementation(libs.anthropic.sdk)
-                implementation(libs.mcp.sdk)
                 implementation("org.jetbrains.kotlinx:kotlinx-io-core:0.8.0")
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:${libs.versions.kotlinx.serialization.get()}")
             }
@@ -87,6 +89,7 @@ kotlin {
 
         val iosArm64Main by getting {
             dependencies {
+                api(libs.ktor.client.darwin)
                 api(files("src/nativeInterop/openssl-ios-arm64.klib"))
             }
         }
@@ -181,3 +184,9 @@ android {
     }
 }
 
+
+configurations.all {
+    resolutionStrategy {
+        force("org.jetbrains.kotlinx:kotlinx-io-core:0.7.0")
+    }
+}
