@@ -11,6 +11,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material.icons.filled.MicOff
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -20,6 +21,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
 import org.koin.compose.KoinContext
 import org.koin.compose.koinInject
 import org.koin.core.annotation.KoinExperimentalAPI
@@ -29,7 +40,7 @@ import services.SpeechToText
 import vms.Telemetry
 import vms.TelemetryViewModel
 
-@OptIn(KoinExperimentalAPI::class)
+@OptIn(KoinExperimentalAPI::class, FlowPreview::class)
 @Composable
 fun WithRoute(content: @Composable BoxScope.(Telemetry) -> Unit) {
     KoinContext {
@@ -41,28 +52,57 @@ fun WithRoute(content: @Composable BoxScope.(Telemetry) -> Unit) {
 
         val telemetry by viewModel.telemetryFlow.collectAsState()
 
+        val speechToTextResults = remember { MutableStateFlow<String?>(null) }
+
+        // Continuously monitor incoming speech
+        LaunchedEffect(true) {
+            while (isActive) {
+                println("*** NJD: Listening to audio ...")
+
+                coroutineScope {
+                    launch {
+                        speechToText.startListening {
+                            println("*** NJD: Speech: $it")
+                            speechToTextResults.value = it
+                        }
+
+                        println("*** NJD: Waiting for wake word ...")
+                        speechToTextResults.filter { it?.contains("Gaggia") ?: false }
+                            .debounce(1000)
+                            .collect {
+                                println("*** NJD: Wake word detected.")
+                                speechToText.stopListening()
+                                clickSound.play()
+                                isListening = true
+                                print("*** NJD: Gaggia command: $it")
+
+                                // handle command...
+                                //viewModel.mcpQueryFlow.value = MCPQuery(it)
+
+                                delay(5000)
+                                print("*** NJD: Done processing request.")
+                                isListening = false
+                                clickSound.play()
+                                speechToTextResults.value = null
+                                cancel()
+                            }
+                    }
+                }
+            }
+        }
+
         Box(
             modifier = Modifier.fillMaxSize().background(color = Color.Transparent)
         ) {
+            print("*** NJD: recompose1")
             content(telemetry)
 
             FloatingActionButton(
-                onClick = {
-                    clickSound.play()
-                    if (isListening) {
-                        speechToText.stopListening()
-                    } else {
-                        speechToText.startListening {
-                            println("*** NJD: Speech: $it")
-                            viewModel.mcpQueryFlow.value = MCPQuery(it)
-                        }
-                    }
-                    isListening = !isListening
-                },
                 backgroundColor = if (isListening) Color.Red else Color.Green,
                 modifier = Modifier
                     .align(Alignment.BottomStart)
-                    .padding(5.dp)
+                    .padding(5.dp),
+                onClick = {},
             ) {
                 if (isListening) {
                     Icon(Icons.Default.MicOff, contentDescription = "stop recording")

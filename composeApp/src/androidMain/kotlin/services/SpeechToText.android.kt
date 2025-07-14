@@ -15,10 +15,7 @@ actual class SpeechToText actual constructor(private val context: ApplicationCon
                 results?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)?.firstOrNull()?.let { callback?.invoke(it) }
             }
 
-            override fun onPartialResults(partialResults: Bundle?) {
-                partialResults?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)?.firstOrNull()?.let { callback?.invoke(it) }
-            }
-
+            override fun onPartialResults(partialResults: Bundle?) {}
             override fun onError(error: Int) {}
             override fun onReadyForSpeech(params: Bundle?) {}
             override fun onBeginningOfSpeech() {}
@@ -33,7 +30,6 @@ actual class SpeechToText actual constructor(private val context: ApplicationCon
         callback = onResult
         val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
             putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
-            putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true)
         }
         recognizer.startListening(intent)
     }
