@@ -1,5 +1,5 @@
 [versions]
-agp = "8.5.2"
+agp = "8.11.1"
 android-compileSdk = "35"
 android-minSdk = "24"
 android-targetSdk = "35"
@@ -14,6 +14,7 @@ compose-plugin = "1.7.3"
 junit = "4.13.2"
 kotlin = "2.1.10"
 kotlinx-serialization = "1.6.3"
+kotlinx-io = "0.7.0"
 datastore = "1.1.1"
 
 koin = "3.6.0-Beta4"
@@ -22,8 +23,8 @@ navigationCompose = "2.8.0-alpha02"
 lifecycleViewModel = "2.8.4"
 riveAndroid = "9.6.5"
 anthropic = "0.20.2"
-mcp = "0.5.0"
 okio = "3.9.0"
+ktor = "3.1.3"
 
 [libraries]
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
@@ -49,9 +50,15 @@ rive-android = { module = "app.rive:rive-android", version.ref = "riveAndroid" }
 
 datastore-core = { module = "androidx.datastore:datastore-core-okio", version.ref = "datastore" }
 anthropic-sdk = { module = "com.xemantic.ai:anthropic-sdk-kotlin", version.ref = "anthropic" }
-mcp-sdk = { module = "io.modelcontextprotocol:kotlin-sdk", version.ref = "mcp" }
 okio = { module = "com.squareup.okio:okio", version.ref = "okio" }
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx-serialization" }
+
+ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
+ktor-client-cio = { module = "io.ktor:ktor-client-cio", version.ref = "ktor" }
+ktor-client-okhttp = { module = "io.ktor:ktor-client-okhttp", version.ref = "ktor" }
+ktor-client-darwin = { module = "io.ktor:ktor-client-darwin", version.ref = "ktor" }
+kotlinx-io-core = { module = "org.jetbrains.kotlinx:kotlinx-io-core", version.ref = "kotlinx-io" }
+
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
