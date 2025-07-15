@@ -43,7 +43,8 @@ kotlin {
     sourceSets {
         
         androidMain.dependencies {
-            api(libs.ktor.client.okhttp)
+            //api(libs.ktor.client.okhttp)
+            implementation(libs.anthropic.sdk.jvm)
             implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
 
@@ -78,7 +79,11 @@ kotlin {
 
                 // Storage
                 api(libs.datastore.core)
-                api(libs.ktor.client.core)
+                //api(libs.ktor.client.core)
+
+                // i dont thikn this is multiplatform
+                //api(libs.ktor.client.cio)
+
                 api(libs.kotlinx.io.core)
                 implementation(libs.okio)
                 implementation(libs.anthropic.sdk)
@@ -89,7 +94,7 @@ kotlin {
 
         val iosArm64Main by getting {
             dependencies {
-                api(libs.ktor.client.darwin)
+                //api(libs.ktor.client.darwin)
                 api(files("src/nativeInterop/openssl-ios-arm64.klib"))
             }
         }

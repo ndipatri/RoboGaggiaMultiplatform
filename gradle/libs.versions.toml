@@ -22,7 +22,7 @@ koinComposeMultiplatform = "1.2.0-Beta4"
 navigationCompose = "2.8.0-alpha02"
 lifecycleViewModel = "2.8.4"
 riveAndroid = "9.6.5"
-anthropic = "0.20.2"
+anthropic = "0.22.2-SNAPSHOT"
 okio = "3.9.0"
 ktor = "3.1.3"
 
@@ -50,6 +50,7 @@ rive-android = { module = "app.rive:rive-android", version.ref = "riveAndroid" }
 
 datastore-core = { module = "androidx.datastore:datastore-core-okio", version.ref = "datastore" }
 anthropic-sdk = { module = "com.xemantic.ai:anthropic-sdk-kotlin", version.ref = "anthropic" }
+anthropic-sdk-jvm = { module = "com.xemantic.ai:anthropic-sdk-kotlin-jvm", version.ref = "anthropic" }
 okio = { module = "com.squareup.okio:okio", version.ref = "okio" }
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx-serialization" }
 

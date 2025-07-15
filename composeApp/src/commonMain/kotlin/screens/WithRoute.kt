@@ -59,12 +59,15 @@ fun WithRoute(content: @Composable BoxScope.(Telemetry) -> Unit) {
             while (isActive) {
                 println("*** NJD: Listening to audio ...")
 
+                // NJD TODO - remove this.. wrong place
+                viewModel.mcpQueryFlow.value = MCPQuery("")
+
                 coroutineScope {
                     launch {
-                        speechToText.startListening {
-                            println("*** NJD: Speech: $it")
-                            speechToTextResults.value = it
-                        }
+//                        speechToText.startListening {
+//                            println("*** NJD: Speech: $it")
+//                            speechToTextResults.value = it
+//                        }
 
                         println("*** NJD: Waiting for wake word ...")
                         speechToTextResults.filter { it?.contains("Gaggia") ?: false }
